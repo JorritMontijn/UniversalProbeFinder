@@ -52,10 +52,10 @@ function varOut = PF_getIniVar(strVarName)
 		end
 		
 		%add var to structure
-		sFP.(strVarName) = varOut;
+		sPF.(strVarName) = varOut;
 		
 		%save settings to ini
-		strData = struct2ini(sFP,'sFP');
+		strData = struct2ini(sPF,'sPF');
 		fFile = fopen(strIni,'wt');
 		fprintf(fFile,strData);
 		fclose(fFile);

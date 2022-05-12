@@ -1,17 +1,16 @@
 function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%[hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
+	%Rev:20220512 - v1.0
+	
+	%Parts of this GUI are copied from, modified after, and/or inspired by work by Andy Peters
+	% (https://github.com/petersaj/AP_histology and https://github.com/cortex-lab/allenCCF)
 	%
-	% Many parts of this GUI are copied from, modified after, and/or
-	% inspired by work by Andy Peters
-	% (https://github.com/petersaj/AP_histology and
-	% https://github.com/cortex-lab/allenCCF)
-	%
-	%Probe Histology Coordinate Adjuster GUI
-	%Version 1.0 [2021-07-26]
+	%Universal Probe Finder Coordinate Adjuster GUI
+	%Version 1.0 [2022-05-12]
 	%	Created by Jorrit Montijn
 	
 	%% get atlas variables
-	global boolIgnoreNeuroFinderRenderer;
+	global boolIgnoreProbeFinderRenderer;
 	vecBregma = sAtlas.Bregma;% bregma in paxinos coordinates (x=ML,y=AP,z=DV)
 	vecVoxelSize= sAtlas.VoxelSize;% voxel size
 	matBrainMesh = sAtlas.BrainMesh;
@@ -29,17 +28,14 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	dblProbeLength = sProbeCoords.ProbeLength;
 	sClusters.dblProbeLength = sProbeCoords.ProbeLengthMicrons;
 	
-	%probe tracker
-	%neuro finder
-	%probe locator
-	%% Set up the gui
+	%% set up the gui
 	%main figure
 	hMain = figure('Menubar','none','color','w', ...
-		'Name','NeuroFinder: Coordinate adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
+		'Name','Universal Probe Finder: Coordinate Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@PH_DeleteFcn);
 	
 	%test renderer
-	if isempty(boolIgnoreNeuroFinderRenderer) || boolIgnoreNeuroFinderRenderer(1) == 0
+	if isempty(boolIgnoreProbeFinderRenderer) || boolIgnoreProbeFinderRenderer(1) == 0
 		sRenderer = opengl('data');
 		if ~strcmpi(hMain.Renderer,'OpenGL')
 			%display message
@@ -67,14 +63,12 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	
 	% Set up the atlas axes
 	hAxAtlas = subplot(2,3,1);
-	%vecGridColor = [0 0 0 0.3];
 	vecGridColor = [0.7 0.7 0.7];
 	hMesh = plot3(hAxAtlas, matBrainMesh(:,1), matBrainMesh(:,2), matBrainMesh(:,3), 'Color', vecGridColor);
 	hold(hAxAtlas,'on');
 	axis(hAxAtlas,'vis3d','equal','manual','off','ij');
 	
 	view([35,25]);
-	%caxis([0 300]);
 	[ml_max,ap_max,dv_max] = size(tv);
 	xlim([-1,ml_max+1])
 	ylim([-1,ap_max+1])
@@ -124,8 +118,6 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	set(hAxMua,'YTickLabel','','XLim',[0,dblProbeLengthMicrons],'YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
 	
 	%% Position the axes
-	%set(axes_atlas,'Position',[-0.15,-0.1,1,1.2]);
-	%set(axes_probe_areas,'Position',[0.7,0.45,0.03,0.5]);
 	if strcmp(sAtlas.Type,'Allen-CCF-Mouse')
 		set(hAxAtlas,'Position',[-0.15,-0.1,0.8,1.2]);
 	elseif strcmp(sAtlas.Type,'Sprague-Dawley-Rat')
@@ -239,9 +231,11 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.handles.probe_xcorr_im = hAxMuaIm;
 	sGUI.handles.probe_xcorr_bounds = gobjects;
 	sGUI.handles.probe_clust = hAxClusters;
+	sGUI.handles.probe_clust_points = gobjects;
 	sGUI.handles.probe_clust_bounds = gobjects;
 	sGUI.handles.probe_zeta = hAxZeta;
 	sGUI.handles.probe_zeta_bounds = gobjects;
+	sGUI.handles.probe_zeta_points = gobjects;
 	
 	%other
 	sGUI.probe_coordinates_text = probe_coordinates_text; % Probe coordinates text
@@ -250,7 +244,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.output = [];
 	
 	%set slice alpha (makes it slow)
-	%alpha(sGUI.handles.slice_plot,0.65)
+	alpha(sGUI.handles.slice_plot,0.65)
 	
 	% Set functions for key presses
 	hManager = uigetmodemanager(hMain);
@@ -262,7 +256,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	
 	%% run initial functions
 	%plot ephys
-	PH_PlotProbeEphys(hAxZeta,hAxMua,hAxMuaIm,hAxClusters,sClusters);
+	PH_PlotProbeEphys(hMain,sClusters);
 	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);

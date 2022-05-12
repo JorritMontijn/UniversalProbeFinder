@@ -5,6 +5,8 @@ function sClusters = PH_OpenEphys(strPath)
 		strPath = cd();
 	end
 	strEphysPath=uigetdir(strPath,'Select kilosort data folder');
+	sClusters = [];
+	if isempty(strEphysPath) || strEphysPath(1) == 0,return;end
 	
 	%generate dummy sFile with minimal information
 	sFile = struct;

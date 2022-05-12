@@ -12,14 +12,28 @@
 %% ask what to load
 %clear all;
 %Universal Probe Finder Using Neurophysiology
-%UPFUN
 
-%Multi Species Probe Aligner
 function ProbeFinder
+	%% add subfolders
+	strFullpath = mfilename('fullpath');
+	strPath = fileparts(strFullpath);
+	sDir=dir([strPath filesep '**' filesep]);
+	%remove git folders
+	sDir(contains({sDir.folder},[filesep '.git'])) = [];
+	cellFolders = unique({sDir.folder});
+	for intFolder=1:numel(cellFolders)
+		addpath(cellFolders{intFolder});
+	end
+	
 	%% load atlas
-	global boolIgnoreNeuroFinderRenderer;
-	boolIgnoreNeuroFinderRenderer = false;
-	intUseMouseOrRat = 2;
+	global boolIgnoreProbeFinderRenderer;
+	boolIgnoreProbeFinderRenderer = false;
+	
+	%select which atlas to use
+	cellAtlases = {'Mouse (AllenCCF)','Rat (Sprague-Dawley)'};
+	[intSelectAtlas,boolContinue] = listdlg('ListSize',[200 100],'Name','Atlas Selection','PromptString','Select Atlas:',...
+		'SelectionMode','single','ListString',cellAtlases);
+	if ~boolContinue,return;end
 	
 	%try using Acquipix variables
 	try
@@ -29,9 +43,9 @@ function ProbeFinder
 	end
 	
 	%load atlas
-	if intUseMouseOrRat == 1
+	if intSelectAtlas == 1
 		%get path
-		if isfield(sRP,'strAllenCCFPath')
+		if isfield(sRP,'strAllenCCFPath') && isfolder(sRP.strAllenCCFPath)
 			strAllenCCFPath = sRP.strAllenCCFPath;
 		else
 			strAllenCCFPath = PF_getIniVar('strAllenCCFPath');
@@ -48,7 +62,7 @@ function ProbeFinder
 		sAtlas = RP_PrepABA(tv,av,st);
 	else
 		%get path
-		if isfield(sRP,'strSpragueDawleyPath')
+		if isfield(sRP,'strSpragueDawleyPath') && isfolder(sRP.strSpragueDawleyPath)
 			strSpragueDawleyPath = sRP.strSpragueDawleyPath;
 		else
 			strSpragueDawleyPath = PF_getIniVar('strSpragueDawleyPath');

@@ -17,6 +17,8 @@ function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
 	vecUseClusters = vecTemplateIdx+1;
 	vecNormSpikeCounts = mat2gray(log10(accumarray(spike_templates_reidx,1)+1));
 	vecTemplateDepths = dblProbeLength-sEphysData.templateDepths(vecUseClusters);
+	vecClusterQuality = sEphysData.ClustQual(vecUseClusters);
+	vecContamination = sEphysData.ContamP(vecUseClusters);
 	
 	%retrieve zeta
 	try
@@ -25,12 +27,12 @@ function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
 		vecDepth = cell2vec({sSynthData.sCluster.Depth});
 		vecZetaP = cellfun(@min,{sSynthData.sCluster.ZetaP});
 		vecZeta = norminv(1-(vecZetaP/2));
-		strZetaTit = 'ZETA (z-score)';
+		strZetaTit = 'Responsiveness ZETA (z-score)';
 		cellSpikes = {sSynthData.sCluster.SpikeTimes};
 	catch
 		vecDepth = vecTemplateDepths;
 		vecZeta = sEphysData.ContamP(vecUseClusters);
-		strZetaTit = 'Contamination';
+		strZetaTit = 'Contamination (%)';
 		
 		%build spikes per cluster
 		vecAllSpikeTimes = sEphysData.st;
@@ -61,4 +63,11 @@ function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
 	sClusters.vecZeta = vecZeta;
 	sClusters.strZetaTit = strZetaTit;
 	sClusters.cellSpikes = cellSpikes;
+	sClusters.ClustQual = vecClusterQuality;
+	sClusters.ContampP = vecContamination;
+	%get channel mapping
+	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
+		sClusters.ChanIdx = sEphysData.ChanIdx;
+		sClusters.ChanPos = sEphysData.ChanPos;
+	end
 end

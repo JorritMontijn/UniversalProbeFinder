@@ -58,6 +58,7 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	set(sGUI.probe_coordinates_text,'String',probe_text);
 	
 	% Update the probe areas
+	dblProbeLength = probe_vector_bregma(6);
 	dblVoxelSize = mean(sGUI.sAtlas.VoxelSize);
 	yyaxis(sGUI.handles.axes_probe_areas,'right');
 	set(sGUI.handles.probe_areas_plot,'YData',[1:length(probe_area_ids)]*dblVoxelSize,'CData',probe_area_ids(:));
@@ -75,6 +76,31 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	sGUI.output.probe_areas = probe_area_ids;
 	sGUI.output.probe_intersect = vecLocationBrainIntersection;
 	
+	%if probe length has changed
+	vecOldLim = get(sGUI.handles.axes_probe_areas,'YLim');
+	if abs(vecOldLim(2) - dblProbeLength) > 0.1
+		%update ylims
+		boolUpdateYLim = true;
+		set(sGUI.handles.axes_probe_areas,'YLim',[0 dblProbeLength]);
+		set(sGUI.handles.axes_probe_areas2,'YLim',[0 dblProbeLength]);
+		
+		%rescale correlation image, zeta points and rate
+		n_corr_groups = numel(sGUI.handles.probe_xcorr_im.YData);
+		depth_group_edges = linspace(0,dblProbeLength,n_corr_groups+1);
+		depth_group_centers = depth_group_edges(1:end-1)+(diff(depth_group_edges)/2);
+		set(sGUI.handles.probe_xcorr_im,'XData',depth_group_centers,'YData',depth_group_centers);
+		
+		dblDepthUpdate = dblProbeLength/vecOldLim(2);
+		if isfield(sGUI.handles.probe_clust_points,'YData')
+			set(sGUI.handles.probe_clust_points,'YData',sGUI.handles.probe_clust_points.YData*dblDepthUpdate);
+		end
+		if isfield(sGUI.handles.probe_zeta_points,'YData')
+			set(sGUI.handles.probe_zeta_points,'YData',sGUI.handles.probe_zeta_points.YData*dblDepthUpdate);
+		end
+	else
+		boolUpdateYLim = true;
+	end
+	
 	%% plot boundaries
 	%extract boundaries
 	matAreaColors = sGUI.cmap(probe_area_ids,:);
@@ -87,13 +113,17 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	for intPlot=1:numel(cellHandleName)
 		delete(sGUI.handles.(cellHandleName{intPlot}));
 		hAx = cellAxesHandles{intPlot};
+		if boolUpdateYLim,set(hAx,'YLim',[0 dblProbeLength]);end
+		if intPlot==3
+			if boolUpdateYLim,set(hAx,'XLim',[0 dblProbeLength]);end
+			vecLimX = get(hAx,'xlim');
+			boundary_lines2 = line(hAx,repmat(vecBoundY,1,2)',repmat(vecLimX,numel(vecBoundY),1)','Color',vecColor,'LineWidth',1);
+		else
+			boundary_lines2 = [];
+		end
 		vecLimX = get(hAx,'xlim');
 		boundary_lines = line(hAx,repmat(vecLimX,numel(vecBoundY),1)',repmat(vecBoundY,1,2)','Color',vecColor,'LineWidth',1);
-		if intPlot==3
-			boundary_lines2 = line(hAx,repmat(vecBoundY,1,2)',repmat(vecLimX,numel(vecBoundY),1)','Color',vecColor,'LineWidth',1);
-			boundary_lines = cat(1,boundary_lines,boundary_lines2);
-		end
-		sGUI.handles.(cellHandleName{intPlot}) = boundary_lines;
+		sGUI.handles.(cellHandleName{intPlot}) = cat(1,boundary_lines,boundary_lines2);
 	end
 	
 	% Upload gui_data

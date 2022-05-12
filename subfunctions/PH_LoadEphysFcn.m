@@ -12,6 +12,6 @@ function PH_LoadEphysFcn(hObject,varargin)
 		guidata(hObject,sGUI);
 		
 		%plot new data
-		PH_PlotProbeEphys(sGUI.handles.probe_zeta,sGUI.handles.probe_xcorr,sGUI.handles.probe_xcorr_im,sGUI.handles.probe_clust,sClusters);
+		PH_PlotProbeEphys(hObject,sClusters);
 	end
 end
