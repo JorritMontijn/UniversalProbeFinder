@@ -229,12 +229,12 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.handles.probe_areas_plot2 = hAxAreasPlot2; % Color-coded probe regions
 	sGUI.handles.probe_xcorr = hAxMua;
 	sGUI.handles.probe_xcorr_im = hAxMuaIm;
-	sGUI.handles.probe_xcorr_bounds = gobjects;
+	sGUI.handles.probe_xcorr_bounds = line([-100 -200],[-100 -200],'Color','b','linewidth',1.5); % will contain atlas voxel-based location
 	sGUI.handles.probe_clust = hAxClusters;
 	sGUI.handles.probe_clust_points = gobjects;
-	sGUI.handles.probe_clust_bounds = gobjects;
+	sGUI.handles.probe_clust_bounds = line([-100 -200],[-100 -200],'Color','b','linewidth',1.5); % will contain atlas voxel-based location
 	sGUI.handles.probe_zeta = hAxZeta;
-	sGUI.handles.probe_zeta_bounds = gobjects;
+	sGUI.handles.probe_zeta_bounds = line([-100 -200],[-100 -200],'Color','b','linewidth',1.5); % will contain atlas voxel-based location
 	sGUI.handles.probe_zeta_points = gobjects;
 	
 	%other

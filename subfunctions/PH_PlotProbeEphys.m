@@ -1,20 +1,36 @@
 function PH_PlotProbeEphys(hMain,sClusters)
 	%% get data
 	sGUI = guidata(hMain);
-	if isempty(sClusters) || ~isfield(sClusters,'vecDepth') || isempty(sClusters.vecDepth)
-		title(sGUI.handles.probe_zeta ,'No Ephys data loaded');
-		return
-	end
 	%get handles
 	hAxMua = sGUI.handles.probe_xcorr;
 	hAxMuaIm = sGUI.handles.probe_xcorr_im;
 	hAxZeta = sGUI.handles.probe_zeta;
 	hAxClust = sGUI.handles.probe_clust;
+	if isempty(sClusters) || ~isfield(sClusters,'vecDepth') || isempty(sClusters.vecDepth)
+		title(sGUI.handles.probe_zeta ,'No Ephys data loaded');
+		%hide
+		set(hAxZeta,'Visible','off');
+		set(sGUI.handles.probe_zeta_bounds,'Visible','off');
+		set(hAxClust,'Visible','off');
+		set(hAxMua,'Visible','off');
+		set(hAxMuaIm,'Visible','off');
+		set(sGUI.handles.probe_xcorr_bounds,'Visible','off');
+		set(sGUI.handles.probe_clust_bounds,'Visible','off');
+		return
+	else
+		%show
+		set(hAxZeta,'Visible','on');
+		try
+			set(sGUI.handles.probe_zeta_bounds,'Visible','on');
+		catch
+		end
+	end
 	
 	%get data
 	vecDepth = sClusters.vecDepth;
 	vecZeta = sClusters.vecZeta;
 	strZetaTit = sClusters.strZetaTit;
+	dblProbeLength = sClusters.dblProbeLength;
 	if isfield(sClusters,'ClustQual')
 		vecKilosortGood = sClusters.ClustQual;
 	else
@@ -28,17 +44,34 @@ function PH_PlotProbeEphys(hMain,sClusters)
 	set(hAxZeta,'FontSize',12);
 	ylabel(hAxZeta,'Depth (\mum)');
 	set(hAxZeta,'XAxisLocation','top','YColor','k','YDir','reverse');
+	set(hAxZeta,'YLim',[0,dblProbeLength]);
+	
 	%update
 	guidata(hMain,sGUI);
 	
 	%% calc mua & spike rates
 	%get mua data
-	if ~isfield(sClusters,'vecNormSpikeCounts'),return;end
+	if ~isfield(sClusters,'vecNormSpikeCounts')
+		set(hAxClust,'Visible','off');
+		set(hAxMua,'Visible','off');
+		set(hAxMuaIm,'Visible','off');
+		set(sGUI.handles.probe_xcorr_bounds,'Visible','off');
+		set(sGUI.handles.probe_clust_bounds,'Visible','off');
+		return;
+	else
+		set(hAxClust,'Visible','on');
+		set(hAxMua,'Visible','on');
+		set(hAxMuaIm,'Visible','on');
+		try
+			set(sGUI.handles.probe_xcorr_bounds,'Visible','on');
+			set(sGUI.handles.probe_clust_bounds,'Visible','on');
+		catch
+		end
+	end
+	
 	vecNormSpikeCounts = sClusters.vecNormSpikeCounts;
 	cellSpikes = sClusters.cellSpikes;
-	dblProbeLength = sClusters.dblProbeLength;
 	vecAllSpikeT = cell2vec(sClusters.cellSpikes);
-	set(hAxZeta,'YLim',[0,dblProbeLength]);
 	
 	%get channel mapping
 	if isfield(sClusters,'ChanIdx') && isfield(sClusters,'ChanPos')

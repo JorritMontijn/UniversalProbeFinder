@@ -1,5 +1,5 @@
 %align probe to atlas
-%change name to NeuroFinder in separate repo
+%change name
 
 %this program uses several functions from other repositories, including functions from:
 %https://github.com/petersaj/AP_histology

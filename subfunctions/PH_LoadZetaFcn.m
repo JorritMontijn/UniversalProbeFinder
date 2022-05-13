@@ -6,7 +6,7 @@ function PH_LoadZetaFcn(hObject,varargin)
 	%select
 	sZetaResp = PH_OpenZeta(sGUI.sClusters,cd());
 	
-	if ~isempty(sZetaResp)
+	if ~isempty(sZetaResp) && isfield(sZetaResp,'vecDepth')
 		%save
 		sClusters = sGUI.sClusters;
 		sClusters.vecDepth = sZetaResp.vecDepth;

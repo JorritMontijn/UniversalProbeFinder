@@ -13,5 +13,8 @@ function PH_LoadEphysFcn(hObject,varargin)
 		
 		%plot new data
 		PH_PlotProbeEphys(hObject,sClusters);
+		
+		%update plots
+		PH_UpdateProbeCoordinates(hObject,PH_CartVec2SphVec(PH_GetProbeVector(hObject)));
 	end
 end

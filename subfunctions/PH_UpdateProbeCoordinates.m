@@ -60,15 +60,17 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	% Update the probe areas
 	dblProbeLength = probe_vector_bregma(6);
 	dblVoxelSize = mean(sGUI.sAtlas.VoxelSize);
+	dblRescaling = dblProbeLength / (sGUI.sProbeCoords.ProbeLengthOriginal*dblVoxelSize);
 	yyaxis(sGUI.handles.axes_probe_areas,'right');
-	set(sGUI.handles.probe_areas_plot,'YData',[1:length(probe_area_ids)]*dblVoxelSize,'CData',probe_area_ids(:));
+	vecLocY = ([1:length(probe_area_ids)]*dblVoxelSize)/dblRescaling;
+	set(sGUI.handles.probe_areas_plot,'YData',vecLocY,'CData',probe_area_ids(:));
 	%set(sGUI.handles.axes_probe_areas,'YTick',probe_area_centers*dblVoxelSize,'YTickLabels',probe_area_labels);
 	
 	set(sGUI.handles.axes_probe_areas,'YTick',probe_area_boundaries(2:end)*dblVoxelSize,'YTickLabels',probe_area_full);
 	set(sGUI.handles.axes_probe_areas,'YTickLabelRotation',70);
 	
 	yyaxis(sGUI.handles.axes_probe_areas2,'right');
-	set(sGUI.handles.probe_areas_plot2,'YData',[1:length(probe_area_ids)]*dblVoxelSize,'CData',probe_area_ids(:));
+	set(sGUI.handles.probe_areas_plot2,'YData',vecLocY,'CData',probe_area_ids(:));
 	set(sGUI.handles.axes_probe_areas2,'YTick',probe_area_centers*dblVoxelSize,'YTickLabels',probe_area_labels);
 	
 	%save current data
@@ -77,7 +79,7 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	sGUI.output.probe_intersect = vecLocationBrainIntersection;
 	
 	%if probe length has changed
-	vecOldLim = get(sGUI.handles.axes_probe_areas,'YLim');
+	vecOldLim = get(sGUI.handles.probe_zeta,'YLim');
 	if abs(vecOldLim(2) - dblProbeLength) > 0.1
 		%update ylims
 		boolUpdateYLim = true;
@@ -91,14 +93,14 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 		set(sGUI.handles.probe_xcorr_im,'XData',depth_group_centers,'YData',depth_group_centers);
 		
 		dblDepthUpdate = dblProbeLength/vecOldLim(2);
-		if isfield(sGUI.handles.probe_clust_points,'YData')
+		if isfield(sGUI.handles.probe_clust_points,'YData') || isprop(sGUI.handles.probe_clust_points,'YData')
 			set(sGUI.handles.probe_clust_points,'YData',sGUI.handles.probe_clust_points.YData*dblDepthUpdate);
 		end
-		if isfield(sGUI.handles.probe_zeta_points,'YData')
+		if isfield(sGUI.handles.probe_zeta_points,'YData') || isprop(sGUI.handles.probe_zeta_points,'YData')
 			set(sGUI.handles.probe_zeta_points,'YData',sGUI.handles.probe_zeta_points.YData*dblDepthUpdate);
 		end
 	else
-		boolUpdateYLim = true;
+		boolUpdateYLim = false;
 	end
 	
 	%% plot boundaries
@@ -113,6 +115,7 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	for intPlot=1:numel(cellHandleName)
 		delete(sGUI.handles.(cellHandleName{intPlot}));
 		hAx = cellAxesHandles{intPlot};
+		if strcmpi(hAx.Visible,'off'),continue;end
 		if boolUpdateYLim,set(hAx,'YLim',[0 dblProbeLength]);end
 		if intPlot==3
 			if boolUpdateYLim,set(hAx,'XLim',[0 dblProbeLength]);end
