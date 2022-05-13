@@ -244,7 +244,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.output = [];
 	
 	%set slice alpha (makes it slow)
-	alpha(sGUI.handles.slice_plot,0.65)
+	%alpha(sGUI.handles.slice_plot,0.65)
 	
 	% Set functions for key presses
 	hManager = uigetmodemanager(hMain);
