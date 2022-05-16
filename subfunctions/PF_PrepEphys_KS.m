@@ -1,4 +1,17 @@
-function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
+function sClusters = PF_PrepEphys_KS(sFile,sEphysData,dblProbeLength)
+	%PF_PrepEphys_KS Transform kilosort ephys data to ProbeFinder format
+	%
+	%ProbeFinder output format for structure sClusters is:
+	%sClusters.dblProbeLength: length of probe in microns;
+	%sClusters.vecNormSpikeCounts: log10(spikeCount)
+	%sClusters.vecDepth: depth of cluster in microns from top recording channel
+	%sClusters.vecZeta: responsiveness z-score
+	%sClusters.strZetaTit: title for responsiveness plot
+	%sClusters.cellSpikes: cell array with spike times per cluster
+	%sClusters.ClustQual: vector of cluster quality values
+	%sClusters.ClustQualLabel: cell array of cluster quality names
+	%sClusters.ContamP: estimated cluster contamination
+	
 	%check inputs
 	sClusters = [];
 	if isempty(sEphysData),return;end
@@ -19,6 +32,7 @@ function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
 	vecTemplateDepths = dblProbeLength-sEphysData.templateDepths(vecUseClusters);
 	vecClusterQuality = sEphysData.ClustQual(vecUseClusters);
 	vecContamination = sEphysData.ContamP(vecUseClusters);
+	cellClustQualLabel = sEphysData.ClustQualLabel(vecUseClusters);
 	
 	%retrieve zeta
 	try
@@ -64,7 +78,8 @@ function sClusters = PH_PrepEphys(sFile,sEphysData,dblProbeLength)
 	sClusters.strZetaTit = strZetaTit;
 	sClusters.cellSpikes = cellSpikes;
 	sClusters.ClustQual = vecClusterQuality;
-	sClusters.ContampP = vecContamination;
+	sClusters.ClustQualLabel = cellClustQualLabel;
+	sClusters.ContamP = vecContamination;
 	%get channel mapping
 	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
 		sClusters.ChanIdx = sEphysData.ChanIdx;

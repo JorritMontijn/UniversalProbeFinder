@@ -31,9 +31,37 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	probe_area_full = sGUI.sAtlas.st.name(probe_area_idx);
 	
 	%add locations to GUI data
-	sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids = probe_vector_cart;
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_depth = probe_area_ids;
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_depth = sGUI.sAtlas.st.acronym(probe_area_ids);
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_depth = sGUI.sAtlas.st.name(probe_area_ids);
+	
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_boundaries = probe_area_boundaries;
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_centers = probe_area_centers;
+	sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids = probe_area_idx;
 	sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels = probe_area_labels;
 	sGUI.sProbeCoords.sProbeAdjusted.probe_area_full = probe_area_full;
+	
+	%table; [ML AP ML-deg AP-deg depth length]
+	ML = probe_vector_bregma(1);
+	AP = probe_vector_bregma(2);
+	Angle_ML = probe_vector_bregma(3);
+	Angle_AP = probe_vector_bregma(4);
+	Depth = probe_vector_bregma(5);
+	Probe_Length = probe_vector_bregma(6);
+	sGUI.sProbeCoords.sProbeAdjusted.paxinos_coordinates = table(ML,AP,Angle_ML,Angle_AP,Depth,Probe_Length);
+	
+	%area per cluster
+	if isfield(sGUI.sClusters,'vecDepth') && ~isempty(sGUI.sClusters.vecDepth)
+		[vecClustAreaId,cellClustAreaLabel,cellClustAreaFull] = PF_GetAreaPerCluster(sGUI.sProbeCoords,sGUI.sClusters.vecDepth);
+		
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = vecClustAreaId;
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = cellClustAreaLabel;
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = cellClustAreaFull;
+	else
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = [];
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = {};
+		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = {};
+	end
 	
 	% update gui
 	set(sGUI.handles.probe_vector_cart,'XData',probe_vector_cart(:,1), ...

@@ -1,16 +1,8 @@
 function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%[hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
-	%Rev:20220512 - v1.0
-	
-	%Parts of this GUI are copied from, modified after, and/or inspired by work by Andy Peters
-	% (https://github.com/petersaj/AP_histology and https://github.com/cortex-lab/allenCCF)
-	%
-	%Universal Probe Finder Coordinate Adjuster GUI
-	%Version 1.0 [2022-05-12]
-	%	Created by Jorrit Montijn
 	
 	%% get atlas variables
-	global boolIgnoreProbeFinderRenderer;
+	boolIgnoreProbeFinderRenderer = PF_getIniVar('IgnoreRender');
 	vecBregma = sAtlas.Bregma;% bregma in paxinos coordinates (x=ML,y=AP,z=DV)
 	vecVoxelSize= sAtlas.VoxelSize;% voxel size
 	matBrainMesh = sAtlas.BrainMesh;
@@ -41,7 +33,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 			%display message
 			if ~strcmpi(sRenderer.HardwareSupportLevel,'full')
 				warndlg(sprintf(...
-					'The graphics renderer was not set to full hardware-accelerated OpenGL. \n\nI will change this now, but you might need to restart MATLAB. If you get any graphics errors, set the variable boolIgnoreNeuroFinderRenderer in the main function to true.'),...
+					'The graphics renderer was not set to full hardware-accelerated OpenGL. \n\nI will change this now, but you might need to restart MATLAB. If you get any graphics errors, set the variable IgnoreRender to 1 in the configPF.ini file.'),...
 					'Graphics renderer');
 			end
 			
@@ -68,7 +60,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	hold(hAxAtlas,'on');
 	axis(hAxAtlas,'vis3d','equal','manual','off','ij');
 	
-	view([35,25]);
+	view([150,25]);
 	[ml_max,ap_max,dv_max] = size(tv);
 	xlim([-1,ml_max+1])
 	ylim([-1,ap_max+1])
@@ -167,15 +159,22 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	ptrButtonLoadEphys = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
 		'String',sprintf('Load ephys'),...
 		'Units','normalized',...
-		'Position',[hAxZeta.Position(1)-0.03 0.94 0.06 0.03],...
+		'Position',[hAxZeta.Position(1)-0.03 0.97 0.06 0.03],...
 		'Callback',@PH_LoadEphysFcn);
 	
 	%load ephys
 	ptrButtonLoadZeta = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
 		'String',sprintf('Load tuning'),...
 		'Units','normalized',...
-		'Position',[ptrButtonLoadEphys.Position(1)+ptrButtonLoadEphys.Position(3)+0.01 0.94 0.06 0.03],...
+		'Position',[ptrButtonLoadEphys.Position(1)+ptrButtonLoadEphys.Position(3)+0.01 0.97 0.06 0.03],...
 		'Callback',@PH_LoadZetaFcn);
+	
+	%show cluster type; good, bad, all
+	ptrButtonShowClusters = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',{'all'},...
+		'Units','normalized',...
+		'Position',[ptrButtonLoadZeta.Position(1)+ptrButtonLoadZeta.Position(3)+0.01 0.97 0.06 0.03],...
+		'Callback',@PH_PlotProbeEphys);
 	
 	%help
 	ptrButtonHelp = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
@@ -208,6 +207,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.handles.ptrButtonSave = ptrButtonSave;
 	sGUI.handles.ptrButtonLoadEphys = ptrButtonLoadEphys;
 	sGUI.handles.ptrButtonLoadZeta = ptrButtonLoadZeta;
+	sGUI.handles.ptrButtonShowClusters = ptrButtonShowClusters;
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
 	
 	% plotting handles

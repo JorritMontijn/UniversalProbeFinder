@@ -11,7 +11,7 @@ function PH_LoadZetaFcn(hObject,varargin)
 		sClusters = sGUI.sClusters;
 		sClusters.vecDepth = sZetaResp.vecDepth;
 		sClusters.vecZeta = norminv(1-(sZetaResp.vecZetaP/2));
-		sClusters.strZetaTit = 'ZETA (z-score)';
+		sClusters.strZetaTit = 'Responsiveness ZETA (z-score)';
 		
 		%update gui data
 		sGUI.sClusters = sClusters;

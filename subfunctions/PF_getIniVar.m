@@ -16,7 +16,9 @@ function varOut = PF_getIniVar(strVarName)
 		%convert
 		strData = cast(vecData','char');
 		[cellStructs,cellStructNames] = ini2struct(strData);
-		eval([cellStructNames{1} '= cellStructs{1};']);
+		for intIdx=1:numel(cellStructs)
+			eval([cellStructNames{intIdx} '= cellStructs{' num2str(intIdx) '};']);
+		end
 	else
 		%empty placeholder
 		sPF=struct;
@@ -27,8 +29,15 @@ function varOut = PF_getIniVar(strVarName)
 		varOut = sPF.(strVarName);
 	else
 		%fill if empty
-		cellPathVars = {'strAllenCCFPath','strSpragueDawleyPath'};
-		if ismember(strVarName,cellPathVars)
+		
+		%default vars
+		sDefaultIni = struct;
+		sDefaultIni.IgnoreRender = 0;
+		
+		%path vars
+		if isfield(sDefaultIni,strVarName)
+			varOut = sDefaultIni.(strVarName);
+		elseif numel(strVarName) > 7 && strcmpi(strVarName(1:3),'str') && strcmpi(strVarName((end-3):end),'Path')
 			%alter name
 			strAtlasName = strVarName;
 			if strcmp(strAtlasName(1:3),'str')
@@ -39,7 +48,7 @@ function varOut = PF_getIniVar(strVarName)
 			end
 			
 			%open path finding dialog
-			varOut = uigetdir('',sprintf('Select path for %s Atlas',strAtlasName)); 
+			varOut = uigetdir('',sprintf('Select path for %s',strAtlasName));
 		else
 			%open text entry dialog
 			cellPrompt = {'Value:'};

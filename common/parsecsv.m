@@ -42,9 +42,13 @@ function cellVars = parsecsv(strLineCSV,strDelim)
 			intLinePos = vecDelimPos(find(vecDelimPos > intOldLinePos,1))+1;
 			if isempty(intLinePos)
 				intLinePos=numel(strLineCSV);
+				intEndOfVar = intLinePos;
 				boolEnd=true;
+			else
+				intEndOfVar = (intLinePos-2);
 			end
-			cellVars{intVar} = strLineCSV(intOldLinePos:(intLinePos-2));
+			
+			cellVars{intVar} = strLineCSV(intOldLinePos:intEndOfVar);
 		end
 		intVar = intVar+1;
 	end

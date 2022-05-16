@@ -6,7 +6,7 @@ function PH_UpdateSlice(hMain,varargin)
 	if strcmp(sGUI.handles.slice_plot(1).Visible,'on')
 		
 		% Get current position of camera
-		curr_campos = campos;
+		curr_campos = campos(sGUI.handles.axes_atlas);
 		
 		% Get probe vector
 		probe_vector_cart = PH_GetProbeVector(hMain);
@@ -77,11 +77,11 @@ function PH_UpdateSlice(hMain,varargin)
 		if strcmp(sGUI.handles.slice_volume,'tv')
 			curr_slice(curr_slice_isbrain) = sGUI.sAtlas.tv(grab_pix_idx);
 			colormap(sGUI.handles.axes_atlas,'gray');
-			caxis([0,255]);
+			caxis(sGUI.handles.axes_atlas,[0,255]);
 		elseif strcmp(sGUI.handles.slice_volume, 'av')
 			curr_slice(curr_slice_isbrain) = sGUI.sAtlas.av(grab_pix_idx);
 			colormap(sGUI.handles.axes_atlas,sGUI.cmap);
-			caxis([1,size(sGUI.cmap,1)]);
+			caxis(sGUI.handles.axes_atlas,[1,size(sGUI.cmap,1)]);
 		end
 		
 		% Update the slice display

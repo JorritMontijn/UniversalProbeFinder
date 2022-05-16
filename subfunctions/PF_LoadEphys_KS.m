@@ -1,4 +1,6 @@
-function sEphysData = PH_LoadEphys(sFile)
+function sEphysData = PF_LoadEphys_KS(sFile)
+	%PF_LoadEphys_KS Load Kilosort ephys data
+	
 	%get location
 	strPathKS = sFile.sClustered.folder;
 	if isempty(strPathKS) || strPathKS(1) == 0
@@ -23,12 +25,13 @@ function sEphysData = PH_LoadEphys(sFile)
 	strContamFile = fullpath(strPathKS, 'cluster_ContamPct.tsv');
 	sCsv = loadcsv(strContamFile,char(9));
 	sEphysData.cluster_id = sCsv.cluster_id;
-	sEphysData.ContamP = sCsv.ContamP;
+	sEphysData.ContamP = sCsv.ContamPct;
 	
 	%labels
 	strLabelFile = fullpath(strPathKS, 'cluster_KSlabel.tsv');
 	sCsv2 = loadcsv(strLabelFile,char(9));
-	sEphysData.ClustQual = cellfun(@(x) strcmp(x(1),'m') + strcmp(x(1),'g')*2,sCsv2.KSLab) - 1;
+	sEphysData.ClustQual = cellfun(@(x) strcmp(x,'mua') + strcmp(x,'good')*2,sCsv2.KSLabel) - 1;
+	sEphysData.ClustQualLabel = sCsv2.KSLabel;
 	
 	%get channel mapping
 	try

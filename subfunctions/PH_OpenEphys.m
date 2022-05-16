@@ -4,7 +4,7 @@ function sClusters = PH_OpenEphys(strPath)
 	if ~exist('strPath','var') || isempty(strPath) || strPath(1) == 0
 		strPath = cd();
 	end
-	strEphysPath=uigetdir(strPath,'Select kilosort data folder');
+	strEphysPath=uigetdir(strPath,'Select ephys data folder');
 	sClusters = [];
 	if isempty(strEphysPath) || strEphysPath(1) == 0,return;end
 	
@@ -12,12 +12,17 @@ function sClusters = PH_OpenEphys(strPath)
 	sFile = struct;
 	sFile.sClustered.folder = strEphysPath;
 	
-	%load data
-	hMsg = msgbox('Loading electrophysiological data, please wait...','Loading ephys');
-	sEphysData = PH_LoadEphys(sFile);
-	
-	%prep data
-	sClusters = PH_PrepEphys(sFile,sEphysData);
-	close(hMsg);
-	
+	%detect ephys type (currently only kilosort)
+	intEphysType = 1;
+	if intEphysType == 1
+		%load data
+		hMsg = msgbox('Loading electrophysiological data, please wait...','Loading ephys');
+		sEphysData = PF_LoadEphys_KS(sFile);
+		
+		%prep data
+		sClusters = PF_PrepEphys_KS(sFile,sEphysData);
+		close(hMsg);
+	else
+		errordlg('Ephys format not recognized','Unknown format');
+	end
 end

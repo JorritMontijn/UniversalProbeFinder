@@ -8,11 +8,11 @@ function ProbeFinder
 	%The Universal Probe Finder can use multiple atlases and calculates the stimulus responsiveness
 	%of your clusters with the zetatest using only an array of event-onset times. Using these
 	%neurophysiological markers will allow a more reliable alignment of your probe's contact points
-	%to specific brain areas. 
+	%to specific brain areas.
 	%
-	%At this time, can use the following atlases: 
+	%At this time, can use the following atlases:
 	%a.	Sprague Dawley rat brain atlas, downloadable at: https://www.nitrc.org/projects/whs-sd-atlas
-	%b.	Allen CCF mouse brain atlas, downloadable at: http://data.cortexlab.net/allenCCF/ 
+	%b.	Allen CCF mouse brain atlas, downloadable at: http://data.cortexlab.net/allenCCF/
 	%
 	%Please reach out to us for example here (https://github.com/JorritMontijn/UniversalProbeFinder)
 	%if you wish to use a different atlas. Adding an atlas is very easy, and we're happy to extend
@@ -32,7 +32,7 @@ function ProbeFinder
 	%
 	%Created by Jorrit Montijn at the Cortical Structure and Function laboratory (KNAW-NIN)
 	%
-	%Rev:20220513 - v1.0A
+	%Rev:20220516 - v1.0b
 	
 	%% add subfolders
 	strFullpath = mfilename('fullpath');
@@ -46,11 +46,10 @@ function ProbeFinder
 	end
 	
 	%% load atlas
-	global boolIgnoreProbeFinderRenderer;
-	boolIgnoreProbeFinderRenderer = false;
+	sAtlasParams = PF_getAtlasIni();
 	
 	%select which atlas to use
-	cellAtlases = {'Mouse (AllenCCF)','Rat (Sprague-Dawley)'};
+	cellAtlases = {sAtlasParams.name};
 	[intSelectAtlas,boolContinue] = listdlg('ListSize',[200 100],'Name','Atlas Selection','PromptString','Select Atlas:',...
 		'SelectionMode','single','ListString',cellAtlases);
 	if ~boolContinue,return;end
@@ -63,46 +62,24 @@ function ProbeFinder
 	end
 	
 	%load atlas
-	if intSelectAtlas == 1
-		%get path
-		if isfield(sRP,'strAllenCCFPath') && isfolder(sRP.strAllenCCFPath)
-			strAllenCCFPath = sRP.strAllenCCFPath;
-		else
-			strAllenCCFPath = PF_getIniVar('strAllenCCFPath');
-		end
-		
-		%load ABA
-		if (~exist('tv','var') || isempty(tv)) || (~exist('av','var') || isempty(av)) || (~exist('st','var') || isempty(st))...
-				|| ~all(size(av) == [1320 800 1140]) || (~exist('strAtlasType','var') || ~strcmpi(strAtlasType,'Allen-CCF-Mouse'))
-			[tv,av,st] = RP_LoadABA(strAllenCCFPath);
-			if isempty(tv),return;end
-		end
-		
-		%prep ABA
-		sAtlas = RP_PrepABA(tv,av,st);
+	strAtlasName = sAtlasParams(intSelectAtlas).name;
+	strPathVar = sAtlasParams(intSelectAtlas).pathvar;
+	fLoader = sAtlasParams(intSelectAtlas).loader;
+	fPrepper = sAtlasParams(intSelectAtlas).prepper;
+	
+	%get path
+	if isfield(sRP,strPathVar) && isfolder(sRP.(strPathVar))
+		strAtlasPath = sRP.(strPathVar);
 	else
-		%get path
-		if isfield(sRP,'strSpragueDawleyPath') && isfolder(sRP.strSpragueDawleyPath)
-			strSpragueDawleyPath = sRP.strSpragueDawleyPath;
-		else
-			strSpragueDawleyPath = PF_getIniVar('strSpragueDawleyPath');
-		end
-		
-		%load RATlas
-		if (~exist('tv','var') || isempty(tv)) || (~exist('av','var') || isempty(av)) || (~exist('st','var') || isempty(st))...
-				|| ~all(size(av) == [512 1024 512]) || (~exist('strAtlasType','var') || ~strcmpi(strAtlasType,'Sprague-Dawley-Rat'))
-			[tv,av,st] = RP_LoadSDA(strSpragueDawleyPath);
-			if isempty(tv),return;end
-		end
-		
-		%prep SDA
-		sAtlas = RP_PrepSDA(tv,av,st);
+		strAtlasPath = PF_getIniVar(strPathVar);
 	end
-	%save raw atlas to base workspace so it doesn't need to keep loading it
-	assignin('base','tv',tv);
-	assignin('base','av',av);
-	assignin('base','st',st);
-	assignin('base','strAtlasType',sAtlas.Type);
+	
+	%load atlas
+	[tv,av,st] = feval(fLoader,strAtlasPath);
+	if isempty(tv),return;end
+	
+	%prep atlas
+	sAtlas = feval(fPrepper,tv,av,st);
 	
 	%% load coords file
 	strDefaultPath = sRP.strProbeLocPath;
