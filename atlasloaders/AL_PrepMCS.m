@@ -41,6 +41,10 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		vecSizeAvCharm = size(avCharm);
 		vecUniqueCharm = unique(avCharm(:));
 		
+		%read origin
+		sInfo = niftiinfo(strTarget);
+		vecOrigin =  -((sInfo.Transform.T(end,1:3)./0.25)-1);
+		
 		%load sarm
 		strFile = ['NMT_v2.0_sym' filesep 'SARM_in_NMT_v2.0_sym.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
@@ -145,7 +149,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 	vecVoxelSize = [250 250 250]; %microns
 	
 	%bregma
-	vecBregma = [128.5 168 190]; %ML, AP, DV
+	vecBregma = vecOrigin;%[128.5 168 190]; %ML, AP, DV
 	
 	%% compile outputs
 	sAtlas = struct;
