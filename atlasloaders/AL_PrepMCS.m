@@ -78,7 +78,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		strFile = ['NMT_v2.0_sym' filesep 'NMT_v2.0_sym.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
 		if ~exist(strTarget,'file') && exist([strTarget '.gz'],'file'),gunzip([strTarget '.gz']);end %extract if gzipped
-		tv = niftiread(strTarget); %template volume
+		tv = double(niftiread(strTarget)); %template volume
 		
 	catch ME
 		close(hMsg);
@@ -150,7 +150,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 	%% compile outputs
 	sAtlas = struct;
 	sAtlas.av = av;
-	sAtlas.tv = tv;
+	sAtlas.tv = (tv./max(tv(:)))*255;
 	sAtlas.st = st;
 	sAtlas.Bregma = vecBregma;
 	sAtlas.VoxelSize = vecVoxelSize;
