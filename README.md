@@ -4,8 +4,8 @@ Multi-species probe alignment program using neurophysiological markers
 
 ProbeFinder Multi-species probe alignment program using neurophysiological markers
 
-To use this program, simply run:
-ProbeFinder
+To use this program, simply run:\
+ProbeFinder\
 in the matlab prompt. Please read the manual for more detailed instructions.
 
 The Universal Probe Finder can use multiple atlases and calculates the stimulus responsiveness of your clusters with the zetatest using only an array of event-onset times. Using these neurophysiological markers will allow a more reliable alignment of your probe's contact points to specific brain areas.
