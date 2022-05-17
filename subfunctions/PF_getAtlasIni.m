@@ -26,13 +26,18 @@ function sAtlasParams = PF_getAtlasIni()
 		%'Mouse (AllenCCF)'
 		sAtlasParams(1).name = 'Mouse (AllenCCF)';
 		sAtlasParams(1).pathvar = 'strAllenCCFPath';
-		sAtlasParams(1).loader = 'RP_LoadABA';
-		sAtlasParams(1).prepper = 'RP_PrepABA';
+		sAtlasParams(1).loader = 'AL_PrepABA';
+		sAtlasParams(1).downsample = 2;
 		%'Rat (Sprague-Dawley)'
 		sAtlasParams(2).name = 'Rat (Sprague-Dawley)';
 		sAtlasParams(2).pathvar = 'strSpragueDawleyPath';
-		sAtlasParams(2).loader = 'RP_LoadSDA';
-		sAtlasParams(2).prepper = 'RP_PrepSDA';
+		sAtlasParams(2).loader = 'AL_PrepSDA';
+		sAtlasParams(2).downsample = 1;
+		%'Macaque (CHARM/SARM)'
+		sAtlasParams(3).name = 'Macaque (CHARM/SARM)';
+		sAtlasParams(3).pathvar = 'strCharmSarmPath';
+		sAtlasParams(3).loader = 'AL_PrepMCS';
+		sAtlasParams(3).downsample = 1;
 		
 		%write ini
 		strData=struct2ini(sAtlasParams,'sAtlasParams');

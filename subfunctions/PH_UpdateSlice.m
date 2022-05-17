@@ -29,7 +29,7 @@ function PH_UpdateSlice(hMain,varargin)
 		% Define a plane of points to index
 		% (the plane grid is defined based on the which cardinal plan is most
 		% orthogonal to the plotted plane. this is janky but it works)
-		intSliceDownsample = 3;%3
+		intSliceDownsample = sGUI.sAtlas.Downsample;%3
 		[~,intOrthPlane] = max(abs(normal_vector./norm(normal_vector)));
 		
 		if intOrthPlane == 1

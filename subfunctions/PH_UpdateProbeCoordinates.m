@@ -95,11 +95,11 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	%set(sGUI.handles.axes_probe_areas,'YTick',probe_area_centers*dblVoxelSize,'YTickLabels',probe_area_labels);
 	
 	set(sGUI.handles.axes_probe_areas,'YTick',probe_area_boundaries(2:end)*dblVoxelSize,'YTickLabels',probe_area_full);
-	set(sGUI.handles.axes_probe_areas,'YTickLabelRotation',70);
+	set(sGUI.handles.axes_probe_areas,'YTickLabelRotation',70,'TickLabelInterpreter','none');
 	
 	yyaxis(sGUI.handles.axes_probe_areas2,'right');
 	set(sGUI.handles.probe_areas_plot2,'YData',vecLocY,'CData',probe_area_ids(:));
-	set(sGUI.handles.axes_probe_areas2,'YTick',probe_area_centers*dblVoxelSize,'YTickLabels',probe_area_labels);
+	set(sGUI.handles.axes_probe_areas2,'YTick',probe_area_centers*dblVoxelSize,'YTickLabels',probe_area_labels,'TickLabelInterpreter','none');
 	
 	%save current data
 	sGUI.output.probe_vector = probe_vector_cart;

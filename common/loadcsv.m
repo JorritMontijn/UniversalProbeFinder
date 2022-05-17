@@ -37,6 +37,9 @@ function sData = loadcsv(strFile,strDelim,boolTransform)
 	intCounter = 0;
 	sData = struct;
 	cellVars = parsecsv(strLineCSV,strDelim);
+	%remove invalid characters
+	cellVars = matlab.lang.makeUniqueStrings(matlab.lang.makeValidName(cellVars));
+	%assign default
 	if ~ischar(cellVars{1})
 		strLine = '"Time","VidFrame","SyncLum","SyncPulse","CenterX","CenterY","MajorAx","MinorAx","Orient","Eccentric","Roundness"';
 		cellVars = parsecsv(strLine);

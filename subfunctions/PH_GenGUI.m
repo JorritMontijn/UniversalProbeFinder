@@ -61,7 +61,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	axis(hAxAtlas,'vis3d','equal','manual','off','ij');
 	
 	view([150,25]);
-	[ml_max,ap_max,dv_max] = size(tv);
+	[ml_max,ap_max,dv_max] = size(av);
 	xlim([-1,ml_max+1])
 	ylim([-1,ap_max+1])
 	zlim([-1,dv_max+1])
@@ -114,6 +114,10 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 		set(hAxAtlas,'Position',[-0.15,-0.1,0.8,1.2]);
 	elseif strcmp(sAtlas.Type,'Sprague-Dawley-Rat')
 		set(hAxAtlas,'Position',[-0.1,0,0.7,1.2]);
+	elseif strcmp(sAtlas.Type,'CHARM-SARM-Macaque_NMT_v2_sym')
+		set(hAxAtlas,'Position',[-0.15,-0.1,0.8,1.2]);
+	else
+		set(hAxAtlas,'Position',[-0.15,-0.1,0.8,1.2]);
 	end
 	set(hAxZeta,'Position',[0.6,0.5,0.3,0.4]);
 	set(hAxAreas,'Position',[0.93,0.5,0.02,0.4]);

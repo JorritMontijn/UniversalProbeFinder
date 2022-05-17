@@ -1,8 +1,8 @@
-function sAtlas = RP_PrepABA(tv_accf,av_accf,st)
+function sAtlas = AL_PrepABA(strAllenCCFPath)
 	%RP_PrepABA Prepares Allen Brain mouse Atlas
-	%syntax: sAtlas = RP_PrepABA(tv_accf,av_accf,st)
+	%syntax: sAtlas = RP_PrepABA(strAllenCCFPath)
 	%	Input:
-	%	- (tv_accf,av_accf,st): outputs of RP_LoadABA()
+	%	- strAllenCCFPath: path to AllenCCF files
 	%
 	%	Output: sAtlas, containing fields:
 	%	- av: axes-modified annotated volume
@@ -42,6 +42,21 @@ function sAtlas = RP_PrepABA(tv_accf,av_accf,st)
 	%To transform ABA CCF to Paxinos, we therefore do the following:
 	%av = permute(av_accf(end:-1:1,end:-1:1,:), [3 1 2]);
 	
+	%% load data
+	try
+		hMsg = msgbox('Loading Allen Brain Atlas, please wait...','Loading ABA');
+		tv_accf = readNPY(fullpath(strAllenCCFPath,'template_volume_10um.npy')); % grey-scale "background signal intensity"
+		av_accf = readNPY(fullpath(strAllenCCFPath,'annotation_volume_10um_by_index.npy')); % the number at each pixel labels the area, see note below
+		st = PH_loadStructureTree(fullpath(strAllenCCFPath,'structure_tree_safe_2017.csv')); % a table of what all the labels mean
+		close(hMsg);
+	catch ME
+		close(hMsg);
+		sAtlas = [];
+		strStack = sprintf('Error in %s (Line %d)',ME.stack(1).name,ME.stack(1).line);
+		errordlg(sprintf('%s\n%s',ME.message,strStack),'AllenCCF load error')
+		return;
+	end
+	
 	%% get variables
 	%define misc variables
 	vecBregma_accf = [540,0,570];% bregma in accf; [AP,DV,ML]
@@ -78,5 +93,5 @@ function sAtlas = RP_PrepABA(tv_accf,av_accf,st)
 	sAtlas.VoxelSize = vecVoxelSize;
 	sAtlas.BrainMesh = matBrainMesh; %transform to coordinates in microns?
 	sAtlas.ColorMap = cmap;
-	sAtlas.Type = 'Allen-CCF-Mouse';
+	sAtlas.Type = 'CHARM-SARM-Macaque';
 end

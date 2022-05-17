@@ -22,8 +22,9 @@ function [vecSphereVector,vecLocBrainIntersect,matRefVector] = PH_Points2vec(sPr
 	
 	%get intersection
 	vecLocBrainIntersect = PH_GetBrainIntersection(matRefVector,sAtlas.av);
-	if isempty(vecLocBrainIntersect)
-		vecProbeLoc = matRefVector(1,:);
+	if isempty(vecLocBrainIntersect) || strcmp(sAtlas.Type,'CHARM-SARM-Macaque_NMT_v2_sym')
+		%macaque atlas has no cortex at midline, so do not use brain intersection
+		vecProbeLoc = matHistoPoints(1,:);
 	else
 		vecProbeLoc = vecLocBrainIntersect(1:3);
 	end

@@ -1,7 +1,27 @@
-function sAtlas = RP_PrepSDA(tv,av,st)
-	
+function sAtlas = AL_PrepSDA(strSpragueDawleyAtlasPath)
+	%AL_PrepSDA Prepares Sprague Dawley rat brain Atlas
+	%syntax: sAtlas = AL_PrepSDA(strSpragueDawleyAtlasPath)
+	%	Input:
+	%	- strSpragueDawleyAtlasPath: path to atlas files
+	%
+	%	Output: sAtlas, containing fields:
+	%	- av: axes-modified annotated volume
+	%	- tv: axes-modified template volume
+	%	- st: structure tree
+	%	- Bregma: location of bregma in modified coordinates
+	%	- VoxelSize: size of a single entry in microns
+	%	- BrainMesh: mesh of brain outline
+	%	- ColorMap: color map for brain areas
+	%
+
 	%% get variables
-	%st table variables:
+	%Sprague Dawley rat brain, downloadable at https://www.nitrc.org/projects/whs-sd-atlas
+	%F:\Data\Ratlas
+	%imagesc(squeeze(av(250,:,:))) = sagital slice (dorsal is right (x-high); posterior is down (y-low))
+	%imagesc(squeeze(av(:,500,:))) = coronal slice (dorsal is right (x-high); y=M/L, midline is 244)
+	%imagesc(squeeze(av(:,:,250))) = axial slice (anterior is right (x-high); y=M/L, midline is 244)
+	%av = [ML AP DV]; 512 x 1024 x 512
+	%table variables:
 	% #    IDX:   Zero-based index
 	% #    -R-:   Red color component (0..255)
 	% #    -G-:   Green color component (0..255)
@@ -11,7 +31,23 @@ function sAtlas = RP_PrepSDA(tv,av,st)
 	% #    IDX:   Label mesh visibility (0 or 1)
 	% #  LABEL:   Label description
 	
-	%% new
+	%% load atlas
+	try
+		hMsg = msgbox('Loading Sprague Dawley rat brain Atlas, please wait...','Loading SDA');
+		tv = niftiread(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_T2star_v1.01.nii')); %has lots of signal outside brain
+		av = niftiread(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_atlas_v4.nii')); %annotated volume
+		st = readtable(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_atlas_v4.label'),'filetype','text',...
+			'Delimiter', '\t ', 'MultipleDelimsAsOne', true, 'HeaderLines', 14);
+		close(hMsg);
+	catch ME
+		close(hMsg);
+		sAtlas = [];
+		strStack = sprintf('Error in %s (Line %d)',ME.stack(1).name,ME.stack(1).line);
+		errordlg(sprintf('%s\n%s',ME.message,strStack),'SD Atlas load error')
+		return;
+	end
+	
+	%% transform
 	%transform names to acronyms
 	cellRemove = {', unspecified',' of ',' the ',' and ','(pre)'};
 	acronym = st.Var8;
