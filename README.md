@@ -1,12 +1,12 @@
-# UniversalProbeFinder \
+# UniversalProbeFinder 
  \
 Multi-species probe alignment program using neurophysiological markers \
 \
-# To use this program \
-Simply run:\
+To use this program, simply run:\
 ProbeFinder\
 in the matlab prompt. Please read the manual for more detailed instructions. \
 \
+# Atlases
 The Universal Probe Finder can use multiple atlases and calculates the stimulus responsiveness of your clusters with the zetatest using only an array of event-onset times. Using these neurophysiological markers will allow a more reliable alignment of your probe's contact points to specific brain areas. \
 \
 At this time, the Universal Probe Finder supports the following atlases out-of-the-box:\
@@ -18,7 +18,7 @@ It is also possible to add your own Atlas by editing the configAtlas.ini file th
 \
 Please reach out to us if you wish to have a different atlas added with out-of-the-box support. Adding an atlas is very easy, and we're happy to extend the usefulness of our program for all its users.\
 \
-# Acknowledgements\
+# Acknowledgements
 This work is based on earlier work by people from the cortex lab, most notably Philip Shamash and Andy Peters. See for example this paper: https://www.biorxiv.org/content/10.1101/447995v1\
 \
 This repository includes various functions that come from other repositories, credit for these functions go to their creators:\
