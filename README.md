@@ -19,7 +19,7 @@ It is also possible to add your own Atlas by editing the configAtlas.ini file th
 Please reach out to us if you wish to have a different atlas added with out-of-the-box support. Adding an atlas is very easy, and we're happy to extend the usefulness of our program for all its users.
 
 # Acknowledgements
-This work is based on earlier work by people from the cortex lab, most notably Philip Shamash and Andy Peters. See for example this paper: https://www.biorxiv.org/content/10.1101/447995v1\
+This work is based on earlier work by people from the cortex lab, most notably Philip Shamash and Andy Peters. See for example this paper: https://www.biorxiv.org/content/10.1101/447995v1
 \
 This repository includes various functions that come from other repositories, credit for these functions go to their creators:\
 https://github.com/petersaj/AP_histology \
