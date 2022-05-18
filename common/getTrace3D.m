@@ -1,5 +1,5 @@
 function matLines = getTrace3D(matEdge,intCurvesPerDim,dblMinSize)
-	%getTrace3D Create mesh rom 3D volume
+	%getTrace3D Create mesh from 3D volume
 	%   matLines = getTrace3D(matEdge,intCurvesPerDim,dblMinSize)
 	
 	if ~exist('dblMinSize','var') || isempty(dblMinSize)

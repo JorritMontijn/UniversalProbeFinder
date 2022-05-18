@@ -247,9 +247,6 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.boolReadyForExit = false;
 	sGUI.output = [];
 	
-	%set slice alpha (makes it slow)
-	%alpha(sGUI.handles.slice_plot,0.65)
-	
 	% Set functions for key presses
 	hManager = uigetmodemanager(hMain);
 	[hManager.WindowListenerHandles.Enabled] = deal(false);
@@ -259,11 +256,16 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	guidata(hMain, sGUI);
 	
 	%% run initial functions
+	%make full screen
+	maxfig(hMain);
+	
 	%plot ephys
 	PH_PlotProbeEphys(hMain,sClusters);
 	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
+	
+
 	
 	% Display controls
 	PH_DisplayControls;

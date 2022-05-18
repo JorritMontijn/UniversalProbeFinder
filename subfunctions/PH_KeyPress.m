@@ -75,6 +75,15 @@ function PH_KeyPress(hMain,eventdata)
 		set(sGUI.handles.cortex_outline,'Visible',new_visibility);
 		guidata(hMain, sGUI);
 		
+	elseif strcmp(eventdata.Key,'t')
+		dblAlphaValue = 0.65;
+		
+		if sGUI.handles.slice_plot.FaceAlpha == 1
+			sGUI.handles.slice_plot.FaceAlpha = dblAlphaValue;
+		else
+			sGUI.handles.slice_plot.FaceAlpha = 1;
+		end
+		
 	elseif strcmp(eventdata.Key,'a')
 		% Toggle plotted structure visibility
 		if ~isempty(sGUI.structure_plot_idx)
@@ -206,7 +215,7 @@ function PH_KeyPress(hMain,eventdata)
 			guidata(hMain, sGUI);
 			vecSphereVector = PH_CartVec2SphVec(PH_GetProbeVector(hMain));
 			PH_UpdateProbeCoordinates(hMain,vecSphereVector);
-		
+			
 		else
 			% Remove structure(s) already plotted
 			if ~isempty(sGUI.structure_plot_idx)

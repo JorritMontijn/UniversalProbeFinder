@@ -48,7 +48,7 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	Angle_AP = probe_vector_bregma(4);
 	Depth = probe_vector_bregma(5);
 	Probe_Length = probe_vector_bregma(6);
-	sGUI.sProbeCoords.sProbeAdjusted.paxinos_coordinates = table(ML,AP,Angle_ML,Angle_AP,Depth,Probe_Length);
+	sGUI.sProbeCoords.sProbeAdjusted.stereo_coordinates = table(ML,AP,Angle_ML,Angle_AP,Depth,Probe_Length);
 	
 	%area per cluster
 	if isfield(sGUI.sClusters,'vecDepth') && ~isempty(sGUI.sClusters.vecDepth)

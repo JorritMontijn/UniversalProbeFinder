@@ -86,7 +86,7 @@ function ProbeFinder
 	sAtlas = feval(fLoader,strAtlasPath);
 	if isempty(sAtlas),return;end
 	if isfield(sAtlasParams(intSelectAtlas),'downsample') && ~isempty(sAtlasParams(intSelectAtlas).downsample)
-		sAtlas.Downsample = sAtlasParams(intSelectAtlas).downsample;
+		sAtlas.Downsample = round(sAtlasParams(intSelectAtlas).downsample);
 	else
 		sAtlas.Downsample = 1;
 	end
@@ -108,7 +108,7 @@ function ProbeFinder
 	sClusters = PH_OpenEphys(strNewPath);
 	
 	% load or compute zeta if ephys file is not an Acquipix format
-	if isempty(sClusters) || strcmp(sClusters.strZetaTit,'Contamination')
+	if isempty(sClusters) || contains(sClusters.strZetaTit,'Contamination')
 		%select
 		sZetaResp = PH_OpenZeta(sClusters,strNewPath);
 		

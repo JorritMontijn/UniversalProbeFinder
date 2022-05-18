@@ -15,7 +15,7 @@ function vecSphereVector = PH_CartVec2SphVec(matCartVector)
 	dblAngleML = rad2deg(elevation);
 	if dblAngleAP < -90 && dblAngleML > 0
 		dblAngleAP = dblAngleAP + 180;
-		dblAngleML = 180 -dblAngleML;
+		dblAngleML = -dblAngleML + 180;
 	elseif dblAngleAP < -90 && dblAngleML < 0
 		dblAngleAP = dblAngleAP + 180;
 		dblAngleML = -dblAngleML - 180;

@@ -93,5 +93,5 @@ function sAtlas = AL_PrepABA(strAllenCCFPath)
 	sAtlas.VoxelSize = vecVoxelSize;
 	sAtlas.BrainMesh = matBrainMesh; %transform to coordinates in microns?
 	sAtlas.ColorMap = cmap;
-	sAtlas.Type = 'CHARM-SARM-Macaque';
+	sAtlas.Type = 'Allen-CCF-Mouse';
 end
