@@ -66,8 +66,10 @@ function ProbeFinder
 	%try using Acquipix variables
 	try
 		sRP = RP_populateStructure();
+		strDefaultPath = sRP.strProbeLocPath;
 	catch
 		sRP = struct;
+		strDefaultPath=fileparts(mfilename('fullpath'));
 	end
 	
 	%load atlas
@@ -92,7 +94,6 @@ function ProbeFinder
 	end
 	
 	%% load coords file
-	strDefaultPath = sRP.strProbeLocPath;
 	sProbeCoords = PH_LoadProbeFile(sAtlas,strDefaultPath);
 	
 	%% load ephys
