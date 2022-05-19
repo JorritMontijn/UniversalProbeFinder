@@ -1,5 +1,6 @@
-function sClusters = PF_PrepEphys_KS(sFile,sEphysData,dblProbeLength)
-	%PF_PrepEphys_KS Transform kilosort ephys data to ProbeFinder format
+function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
+	%EL_PrepEphys_KS Transform kilosort ephys data to ProbeFinder format
+	%   sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	%
 	%ProbeFinder output format for structure sClusters is:
 	%sClusters.dblProbeLength: length of probe in microns;
@@ -12,6 +13,46 @@ function sClusters = PF_PrepEphys_KS(sFile,sEphysData,dblProbeLength)
 	%sClusters.ClustQualLabel: cell array of cluster quality names
 	%sClusters.ContamP: estimated cluster contamination
 	
+	%% load ephys
+	%get location
+	if isempty(strPathEphys) || strPathEphys(1) == 0
+		sClusters = [];
+		return;
+	end
+	
+	%load data
+	sEphysData = loadKSdir(strPathEphys);
+
+	%get cluster data
+	[spikeAmps, spikeDepths, templateDepths, tempAmps, tempsUnW, templateDuration, waveforms] = templatePositionsAmplitudes(sEphysData.temps, sEphysData.winv, sEphysData.ycoords, sEphysData.spikeTemplates, sEphysData.tempScalingAmps);
+	sEphysData.spikeAmps = spikeAmps;
+	sEphysData.spikeDepths = spikeDepths;
+	sEphysData.templateDepths = templateDepths;
+	sEphysData.tempAmps = tempAmps;
+	sEphysData.tempsUnW = tempsUnW;
+	sEphysData.templateDuration = templateDuration;
+	sEphysData.waveforms = waveforms;
+	
+	%get contamination
+	strContamFile = fullpath(strPathEphys, 'cluster_ContamPct.tsv');
+	sCsv = loadcsv(strContamFile,char(9));
+	sEphysData.cluster_id = sCsv.cluster_id;
+	sEphysData.ContamP = sCsv.ContamPct;
+	
+	%labels
+	strLabelFile = fullpath(strPathEphys, 'cluster_KSlabel.tsv');
+	sCsv2 = loadcsv(strLabelFile,char(9));
+	sEphysData.ClustQual = cellfun(@(x) strcmp(x,'mua') + strcmp(x,'good')*2,sCsv2.KSLabel) - 1;
+	sEphysData.ClustQualLabel = sCsv2.KSLabel;
+	
+	%get channel mapping
+	try
+		sEphysData.ChanIdx = readNPY(fullpath(strPathEphys,'channel_map.npy'));
+		sEphysData.ChanPos = readNPY(fullpath(strPathEphys,'channel_positions.npy'));
+	catch
+	end
+	
+	%% prep ephys
 	%check inputs
 	sClusters = [];
 	if isempty(sEphysData),return;end
@@ -36,6 +77,8 @@ function sClusters = PF_PrepEphys_KS(sFile,sEphysData,dblProbeLength)
 	
 	%retrieve zeta
 	try
+		%find synthesis file
+		error to do
 		sLoad = load(fullpath(sFile.sSynthesis.folder,sFile.sSynthesis.name));
 		sSynthData = sLoad.sSynthData;
 		vecDepth = cell2vec({sSynthData.sCluster.Depth});
@@ -57,7 +100,6 @@ function sClusters = PF_PrepEphys_KS(sFile,sEphysData,dblProbeLength)
 			intClustIdx = vecUseClusters(intCluster);
 			cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 		end
-		
 	end
 	
 	%check if depth is the same
