@@ -1,3 +1,4 @@
 [submodule "zetatest"]
 	path = zetatest
 	url = https://github.com/JorritMontijn/zetatest
+	update = merge
