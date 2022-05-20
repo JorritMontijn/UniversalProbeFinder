@@ -20,7 +20,27 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 		return;
 	end
 	
-	%load data
+	%load imec data
+	sDir = dir(fullpath(strPathEphys,'*.imec*.ap.meta'));
+	if numel(sDir) > 1
+		%ask which one
+		[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SpikeGLX','PromptString','Select file to load:',...
+			'SelectionMode','single','ListString',{sDir.name});
+		if ~boolContinue,return;end
+	else
+		intFile=1;
+	end
+	strImecMeta = sDir(intFile).name;
+	strImecBin = [strImecMeta(1:(end-4)) 'bin'];
+	sImecMeta = DP_ReadMeta(fullpath(strPathEphys,strImecMeta));
+	
+	%detect spikes
+	strFilename = fullpath(strPathEphys,strImecBin);
+	[vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilename);
+	vecSpikeSecs = vecSpikeT/str2double(sImecMeta.imSampRate) + ...
+		str2double(sImecMeta.firstSample)/str2double(sImecMeta.imSampRate); %conversion to seconds
+	
+	%put in sClusters
 	
 	
 	%% prep ephys
