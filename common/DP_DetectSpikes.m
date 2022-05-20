@@ -1,6 +1,6 @@
-function [vecSpikeCh,vecSpikeT,dblTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
+function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
 	%DP_DetectSpikes Performs fast GPU-accelerated thresholded-spike detection
-	%	[vecSpikeCh,vecSpikeT,dblTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
+	%	[vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
 	%
 	%input:
 	% - matData [Ch x T]: gpuArray [Channel by Timepoint] data matrix
@@ -58,10 +58,8 @@ function [vecSpikeCh,vecSpikeT,dblTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	end
 	
 	%define variables
-	intNewFreq = 1000;
-	dblFreqConverter = dblSampFreq/intNewFreq;
-	vecSpikeCh = gpuArray.zeros(5e4,1, 'uint16');
-	vecSpikeT = gpuArray.zeros(5e4,1, 'uint32'); %subsample to 1 kHz
+	vecSpikeCh = zeros(5e4,1, 'uint16');
+	vecSpikeT = zeros(5e4,1, 'int64'); %subsample to 1 kHz
 	intSpikeCounter = 0;
 	
 	%check if gpuarray
@@ -83,22 +81,23 @@ function [vecSpikeCh,vecSpikeT,dblTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 		matMins = DP_FindMins(matFiltered, 30, 1, intType); % get local minima as min value in +/- 30-sample range
 		vecSpkInd = find(matFiltered<(matMins+1e-3) & matFiltered<dblSpkTh); % take local minima that cross the negative threshold
 		[vecT, vecCh] = ind2sub(size(matFiltered), vecSpkInd); % back to two-dimensional indexing
-		vecCh(vecT<intWinEdge | vecT>intBuffT-intWinEdge) = []; % filtering may create transients at beginning or end. Remove those.
+		vecCh(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
+		vecT(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
 		
 		%save time of spike (xi) and channel (xj)
 		if intSpikeCounter+numel(vecCh)>numel(vecSpikeCh)
 			vecSpikeCh(2*numel(vecSpikeCh)) = 0; % if necessary, extend the variable which holds the spikes
-			vecSpikeT(2*numel(vecSpikeCh)) = 0; % if necessary, extend the variable which holds the spikes
+			vecSpikeT(2*numel(vecSpikeT)) = 0; % if necessary, extend the variable which holds the spikes
 		end
-		vecSpikeCh(intSpikeCounter + [1:numel(vecCh)]) = vecCh; % collect the channel identities for the detected spikes
-		vecSpikeT(intSpikeCounter + [1:numel(vecT)]) = (vecT+intStart)/dblFreqConverter; % collect the channel identities for the detected spikes
+		vecSpikeCh(intSpikeCounter + [1:numel(vecCh)]) = gather(vecCh); % collect the channel identities for the detected spikes
+		vecSpikeT(intSpikeCounter + [1:numel(vecT)]) = (int64(gather(vecT))+intStart); % collect the channel identities for the detected spikes
 		
 		intSpikeCounter = intSpikeCounter + numel(vecCh);
 	end
 	
 	%calculate outputs
-	dblTotT = (intBuffT*intBatch)/dblSampFreq;
-	if isempty(dblTotT),dblTotT=0;end
+	intTotT = (intBuffT*intBatch + intLastBatch);
+	if isempty(intTotT),intTotT=0;end
 	vecSpikeCh = vecSpikeCh(1:intSpikeCounter);
 	vecSpikeT = vecSpikeT(1:intSpikeCounter);
 	%vecSpikeRatePerChannel = accumarray(vecSpikeCh,1) ./ dblTotT;

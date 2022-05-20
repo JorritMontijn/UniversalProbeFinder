@@ -58,7 +58,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	mapCol = mapCol(end:-1:1,:);
 	mapCol(end,:) = [0 0 0]; %make good quality clusters black
 	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecZeta,vecDepth,15,vecClustQual,'filled');
-	hAxZeta.CLim = [min(vecUniqueQ) max(vecUniqueQ)];
+	hAxZeta.CLim = [min(vecUniqueQ)-eps max(vecUniqueQ)+eps];
 	colormap(hAxZeta,mapCol);
 	title(hAxZeta,strZetaTit);
 	set(hAxZeta,'FontSize',12);
@@ -126,7 +126,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	
 	%% Plot spike depth vs rate
 	sGUI.handles.probe_clust_points = scatter3(hAxClust,vecNormSpikeCounts,vecDepth,vecContampP,15,vecClustQual,'filled');
-	hAxClust.CLim = [min(vecUniqueQ) max(vecUniqueQ)];
+	hAxClust.CLim = [min(vecUniqueQ)-eps max(vecUniqueQ)+eps];
 	colormap(hAxClust,mapCol);
 	view(hAxClust,0,90);
 	set(hAxClust,'YDir','reverse');

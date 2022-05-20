@@ -19,7 +19,7 @@ function matData = DP_FindMins(matData, vecBinN, vecFiltDims, intType)
 	%	Created by Jorrit Montijn
 	
 	%check inputs
-	if ~exist('idims','var') || isempty(vecFiltDims)
+	if ~exist('vecFiltDims','var') || isempty(vecFiltDims)
 		vecFiltDims = 2;
 	end
 	if numel(vecFiltDims) ~= numel(vecBinN)
@@ -37,7 +37,7 @@ function matData = DP_FindMins(matData, vecBinN, vecFiltDims, intType)
 		intDimsData = ndims(matData);
 		
 		%rearrange dimensions such that the current dimension to run is #1
-		matData = permute(matData, [intFiltDim 1:intFiltDim-1 intFiltDim+1:intDimsData]);
+		matData = permute(matData, [intFiltDim 1:(intFiltDim-1) (intFiltDim+1):intDimsData]);
 			
 		if intType == 1
 			%fast, rather accurate (close to type 2)

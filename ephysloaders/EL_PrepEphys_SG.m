@@ -37,19 +37,31 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 	%detect spikes
 	strFilename = fullpath(strPathEphys,strImecBin);
 	[vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilename);
-	vecSpikeSecs = vecSpikeT/str2double(sImecMeta.imSampRate) + ...
+	vecSpikeSecs = double(gather(vecSpikeT))/str2double(sImecMeta.imSampRate) + ...
 		str2double(sImecMeta.firstSample)/str2double(sImecMeta.imSampRate); %conversion to seconds
+	%remove non-AP channels
+	vecChansApLfSy = str2double(strsplit(sImecMeta.acqApLfSy,','));
+	intChansAp = vecChansApLfSy(1);
+	indRemEntries = vecSpikeCh>intChansAp;
+	vecSpikeCh(indRemEntries) = [];
+	vecSpikeSecs(indRemEntries) = [];
 	
-	%put in sClusters
-	
-	
-	%% prep ephys
-	%check inputs
-	sClusters = [];
-	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
-		dblProbeLength = max(sEphysData.ycoords); %should work, but kilosort might drop channels
+	%calculate sCluster variables
+	cellSpikes = cell(1,intChansAp);
+	for intCh=1:intChansAp
+		cellSpikes{intCh} = vecSpikeSecs(vecSpikeCh==intCh);
 	end
-	
+	dblProbeLength = 3840; %default, for now there is no channel map
+	vecDepth = dblProbeLength-linspace(0,dblProbeLength,intChansAp);
+	vecUseClusters = 1:intChansAp;
+	vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));
+	vecContamination = 100*ones(size(vecNormSpikeCounts));
+	vecZeta = vecContamination;
+	strZetaTit = 'Contamination (%)';
+	vecClusterQuality = zeros(size(vecNormSpikeCounts));
+	cellClustQualLabel = {'mua'};
+
+	%% prep ephys
 	%work-around using global in case the probe length is wrong
 	global gForceProbeLength_PH_PrepEphys;
 	if ~isempty(gForceProbeLength_PH_PrepEphys)
@@ -68,9 +80,10 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 	sClusters.ClustQual = vecClusterQuality;
 	sClusters.ClustQualLabel = cellClustQualLabel;
 	sClusters.ContamP = vecContamination;
-	%get channel mapping
-	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
-		sClusters.ChanIdx = sEphysData.ChanIdx;
-		sClusters.ChanPos = sEphysData.ChanPos;
-	end
+
+	%save file
+	[startIndex,endIndex] = regexp(strImecBin,'[.]imec.*[.]ap[.]bi+n');
+	strName = strImecBin(1:(startIndex-1));
+	strClusterOut =  fullpath(strPathEphys,strcat(strName,'_UPF_Cluster.mat'));
+	save(strClusterOut,'sClusters');
 end

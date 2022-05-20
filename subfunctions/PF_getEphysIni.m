@@ -31,13 +31,18 @@ function sEphysParams = PF_getEphysIni()
 		%spikeglx
 		sEphysParams(2).name = 'SpikeGLX';
 		sEphysParams(2).loader = 'EL_PrepEphys_SG';
-		sEphysParams(2).reqfiles = '.*[.]imec.*[.]ap[.]bin,.*[.]imec.*[.]ap[.]meta,.*[.]nidq[.]bin,.*[.]nidq[.]meta';
+		sEphysParams(2).reqfiles = '.*[.]imec.*[.]ap[.]bi+n,.*[.]imec.*[.]ap[.]met+a,.*[.]nidq[.]bi+n,.*[.]nidq[.]met+a';
 		sEphysParams(2).reqisregexp = 1;
 		%Acquipix synthesis
 		sEphysParams(3).name = 'Acquipix Synthesis';
 		sEphysParams(3).loader = 'EL_PrepEphys_AS';
-		sEphysParams(3).reqfiles = '.*Synthesis[.]mat';
+		sEphysParams(3).reqfiles = '.*Synthesis[.]ma+t';
 		sEphysParams(3).reqisregexp = 1;
+		%native cluster data
+		sEphysParams(4).name = 'Native cluster data';
+		sEphysParams(4).loader = 'EL_PrepEphys_NC';
+		sEphysParams(4).reqfiles = '.*UPF_Cluster[.]ma+t';
+		sEphysParams(4).reqisregexp = 1;
 		
 		%write ini
 		strData=struct2ini(sEphysParams,'sEphysParams');
