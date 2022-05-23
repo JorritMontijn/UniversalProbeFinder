@@ -20,14 +20,24 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 		return;
 	end
 	
-	%load data
-	error to do
+	%load synthesis data
+	sDir = dir(fullpath(strPathEphys,'*Synthesis.mat'));
+	if numel(sDir) > 1
+		%ask which one
+		[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SpikeGLX','PromptString','Select file to load:',...
+			'SelectionMode','single','ListString',{sDir.name});
+		if ~boolContinue,return;end
+	else
+		intFile=1;
+	end
+	sLoad = load(fullpath(strPathEphys,sDir(intFile).name));
+	sSynthData = sLoad.sSynthData;
 	
 	%% prep ephys
 	%check inputs
 	sClusters = [];
 	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
-		dblProbeLength = max(sEphysData.ycoords); %should work, but kilosort might drop channels
+		dblProbeLength = 3840;
 	end
 	
 	%work-around using global in case the probe length is wrong
@@ -36,21 +46,32 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 		dblProbeLength = gForceProbeLength_PH_PrepEphys;
 	end
 	
+	%set variables
+	cellLabels = {'mua','good'};
+	cellSpikes = {sSynthData.sCluster.SpikeTimes};
+	vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));
+	vecDepth = cell2vec({sSynthData.sCluster.Depth});
+	vecZeta = norminv(1-(cellfun(@min,{sSynthData.sCluster.ZetaP})/2));
+	strZetaTit = 'Responsiveness ZETA (z-score)';
+	vecClustQual = val2idx(cell2vec({sSynthData.sCluster.KilosortGood}));
+	cellClustQualLabel = cellLabels(vecClustQual);
+	vecContamination = cell2vec({sSynthData.sCluster.Contamination});
+	
 	%add extra data
 	sClusters = struct;
 	sClusters.dblProbeLength = dblProbeLength;
-	sClusters.vecUseClusters = vecUseClusters;
+	sClusters.vecUseClusters = 1:numel(sSynthData.sCluster);
 	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
 	sClusters.vecDepth = vecDepth;
 	sClusters.vecZeta = vecZeta;
 	sClusters.strZetaTit = strZetaTit;
 	sClusters.cellSpikes = cellSpikes;
-	sClusters.ClustQual = vecClusterQuality;
+	sClusters.ClustQual =  vecClustQual;
 	sClusters.ClustQualLabel = cellClustQualLabel;
 	sClusters.ContamP = vecContamination;
 	%get channel mapping
-	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
-		sClusters.ChanIdx = sEphysData.ChanIdx;
-		sClusters.ChanPos = sEphysData.ChanPos;
+	if isfield(sSynthData,'ChanIdx') && isfield(sSynthData,'ChanPos')
+		sClusters.ChanIdx = sSynthData.ChanIdx;
+		sClusters.ChanPos = sSynthData.ChanPos;
 	end
 end

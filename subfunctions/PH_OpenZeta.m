@@ -37,7 +37,7 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 			vecDepth = sClusters.vecDepth;
 			intNumN = numel(vecDepth);
 			vecZetaP = nan(1,intNumN);
-			hWaitbar = waitbar(0,'Preparing to calculate zeta...','Name','ZETA progress');
+			hWaitbar = waitbar(0,'Preparing to calculate zeta responsiveness...','Name','ZETA progress');
 			try
 				for intN = 1:intNumN
 					vecZetaP(intN) = zetatest(sClusters.cellSpikes{intN},vecEventOn);
@@ -53,7 +53,7 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 			[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strZetaPath);
 			
 		else
-			errordlg('Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
+			errordlg('Your repository is corrupt: cannot find zetatest.Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
 		end
 	else
 		%file not recognized

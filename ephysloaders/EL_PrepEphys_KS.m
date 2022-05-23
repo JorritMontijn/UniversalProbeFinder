@@ -75,31 +75,19 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	vecContamination = sEphysData.ContamP(vecUseClusters);
 	cellClustQualLabel = sEphysData.ClustQualLabel(vecUseClusters);
 	
-	%retrieve zeta
-	try
-		%find synthesis file
-		error to do
-		sLoad = load(fullpath(sFile.sSynthesis.folder,sFile.sSynthesis.name));
-		sSynthData = sLoad.sSynthData;
-		vecDepth = cell2vec({sSynthData.sCluster.Depth});
-		vecZetaP = cellfun(@min,{sSynthData.sCluster.ZetaP});
-		vecZeta = norminv(1-(vecZetaP/2));
-		strZetaTit = 'Responsiveness ZETA (z-score)';
-		cellSpikes = {sSynthData.sCluster.SpikeTimes};
-	catch
-		vecDepth = vecTemplateDepths;
-		vecZeta = sEphysData.ContamP(vecUseClusters);
-		strZetaTit = 'Contamination (%)';
-		
-		%build spikes per cluster
-		vecAllSpikeTimes = sEphysData.st;
-		vecAllSpikeClust = sEphysData.clu;
-		intClustNum = numel(vecUseClusters);
-		cellSpikes = cell(1,intClustNum);
-		for intCluster=1:intClustNum
-			intClustIdx = vecUseClusters(intCluster);
-			cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
-		end
+	%add depth/contam
+	vecDepth = vecTemplateDepths;
+	vecZeta = sEphysData.ContamP(vecUseClusters);
+	strZetaTit = 'Contamination (%)';
+	
+	%build spikes per cluster
+	vecAllSpikeTimes = sEphysData.st;
+	vecAllSpikeClust = sEphysData.clu;
+	intClustNum = numel(vecUseClusters);
+	cellSpikes = cell(1,intClustNum);
+	for intCluster=1:intClustNum
+		intClustIdx = vecUseClusters(intCluster);
+		cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 	end
 	
 	%check if depth is the same

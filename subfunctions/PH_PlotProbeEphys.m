@@ -39,7 +39,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	if isfield(sClusters,'ClustQual')
 		cellUniqueClustQ = unique(sClusters.ClustQualLabel);
 		%update list
-		hShowClust.String = cat(1,'all',cellUniqueClustQ);
+		hShowClust.String = cat(1,'all',cellUniqueClustQ(:));
 		
 		%determine which cells to show
 		if ~strcmpi(strShowClust,'all')
@@ -147,4 +147,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	
 	%update
 	guidata(hMain,sGUI);
+	
+	%redraw lines
+	PH_UpdateProbeCoordinates(hMain, PH_CartVec2SphVec(PH_GetProbeVector(hMain)));
 end
