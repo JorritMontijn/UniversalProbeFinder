@@ -28,6 +28,9 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	%1.0 - 5 Dec 2019
 	%	Created by Jorrit Montijn
 	
+	%wait bar
+	hWaitbar = waitbar(0,'Preparing spike detection','Name',sprintf('Spike detection of %s',strBin));
+		
 	%get parameters
 	intStartT = getOr(sP,'tstart',0);
 	intStopT = getOr(sP,'tend',inf);
@@ -59,19 +62,28 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	
 	%define variables
 	vecSpikeCh = zeros(5e4,1, 'uint16');
-	vecSpikeT = zeros(5e4,1, 'int64'); %subsample to 1 kHz
+	vecSpikeT = zeros(5e4,1, 'int64');
 	intSpikeCounter = 0;
 	
-	%check if gpuarray
-	matData = gpuArray(matData);
-	
 	%get starting times
-	vecStartBatches = (1 + intStartT):(intBuffT-2*intWinEdge):min((size(matData,2)-intBuffT),intStopT);
+	vecStartBatches = (1 + intStartT):intBuffT:min(intTotSamples,intStopT);
+	intLastBatch = intTotSamples-vecStartBatches(end)-1;
 	
 	% detect rough spike timings
+	matCarryOver = zeros(0,strClass);
 	for intBatch=1:numel(vecStartBatches)
+		%define start
 		intStart = vecStartBatches(intBatch);
-		matBuffer = matData(vecChanMap,(intStart:(intStart+intBuffT-1)));
+		waitbar(intBatch/numel(vecStartBatches),hWaitbar,sprintf('Detecting spikes in batch %d/%d',intBatch,numel(vecStartBatches)));
+		
+		%reorder to chan map & transfer to gpu
+		matDataArray = gpuArray(matData(vecChanMap,(intStart:(intStart+intBuffT-1))));
+		
+		%add carry-over to beginning of array
+		matBuffer = cat(2,matCarryOver,matDataArray);
+		
+		%add last two 2*edge to carry-over
+		matCarryOver = matDataArray(:,(1+end-intWinEdge*2):end);
 		
 		% apply filters and median subtraction
 		matFiltered = DP_gpufilter(matBuffer, b, a, intCAR);
@@ -81,8 +93,15 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 		matMins = DP_FindMins(matFiltered, 30, 1, intType); % get local minima as min value in +/- 30-sample range
 		vecSpkInd = find(matFiltered<(matMins+1e-3) & matFiltered<dblSpkTh); % take local minima that cross the negative threshold
 		[vecT, vecCh] = ind2sub(size(matFiltered), vecSpkInd); % back to two-dimensional indexing
+		
+		%remove beginning/end transients
 		vecCh(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
 		vecT(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
+		
+		%remove offset from carry-over
+		if intBatch>1
+			intStart = intStart - 2*intWinEdge;
+		end
 		
 		%save time of spike (xi) and channel (xj)
 		if intSpikeCounter+numel(vecCh)>numel(vecSpikeCh)
@@ -94,11 +113,12 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 		
 		intSpikeCounter = intSpikeCounter + numel(vecCh);
 	end
+	delete(hWaitbar);
 	
 	%calculate outputs
 	intTotT = (intBuffT*intBatch + intLastBatch);
 	if isempty(intTotT),intTotT=0;end
 	vecSpikeCh = vecSpikeCh(1:intSpikeCounter);
 	vecSpikeT = vecSpikeT(1:intSpikeCounter);
-	%vecSpikeRatePerChannel = accumarray(vecSpikeCh,1) ./ dblTotT;
-	
+end
+

@@ -19,6 +19,9 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 		sClusters = [];
 		return;
 	end
+	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
+		dblProbeLength = 3840; %default, for now there is no channel map
+	end
 	
 	%load imec data
 	sDir = dir(fullpath(strPathEphys,'*.imec*.ap.meta'));
@@ -51,7 +54,6 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 	for intCh=1:intChansAp
 		cellSpikes{intCh} = vecSpikeSecs(vecSpikeCh==intCh);
 	end
-	dblProbeLength = 3840; %default, for now there is no channel map
 	vecDepth = dblProbeLength-linspace(0,dblProbeLength,intChansAp);
 	vecUseClusters = 1:intChansAp;
 	vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));

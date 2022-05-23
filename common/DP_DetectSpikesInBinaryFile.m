@@ -6,6 +6,9 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 	%sMeta = DP_ReadMeta(fullpath(strPath,strMetaFile)); %meta file for your binary
 	%vecSpikeSecs = vecSpikeT/str2double(sMeta.imSampRate) + ...
 	%	str2double(sMeta.firstSample)/str2double(sMeta.imSampRate); %conversion to seconds
+	%
+	%Note2: as window edges can induce false positives, this function will not return spikes close
+	%to the beginning or end of the recording (default cut-off: ~1/500 * sampling rate)
 	
 	%load meta data
 	[strPath,strFile,strExt] = fileparts(strFilename);
@@ -118,10 +121,11 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 	%get starting times
 	intReadSamps = min(intBuffT, intTotSamples - intSamp0);
 	vecSizeA = [intSavedChans, intReadSamps];
-	vecStartBatches = (1 + intStartT):(intBuffT-2*intWinEdge):min(intTotSamples,intStopT);
+	vecStartBatches = (1 + intStartT):intBuffT:min(intTotSamples,intStopT);
 	intLastBatch = intTotSamples-vecStartBatches(end)-1;
 	
 	% detect rough spike timings
+	matCarryOver = zeros(0,strClass);
 	for intBatch=1:numel(vecStartBatches)
 		%define start
 		intStart = vecStartBatches(intBatch);
@@ -136,8 +140,13 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 		matDataArray = fread(ptrFile, vecSizeA, sprintf('int16=>%s',strClass));
 		
 		%reorder to chan map & transfer to gpu
-		fix that buffer actually carries over the edge of the previous batch
-		matBuffer = gpuArray(matDataArray(vecChanMap,:));
+		matDataArray = gpuArray(matDataArray(vecChanMap,:));
+		
+		%add carry-over to beginning of array
+		matBuffer = cat(2,matCarryOver,matDataArray);
+		
+		%add last two 2*edge to carry-over
+		matCarryOver = matDataArray(:,(1+end-intWinEdge*2):end);
 		
 		% apply filters and median subtraction
 		matFiltered = DP_gpufilter(matBuffer, b, a, intCAR);
@@ -147,8 +156,15 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 		matMins = DP_FindMins(matFiltered, 30, 1, intType); % get local minima as min value in +/- 30-sample range
 		vecSpkInd = find(matFiltered<(matMins+1e-3) & matFiltered<dblSpkTh); % take local minima that cross the negative threshold
 		[vecT, vecCh] = ind2sub(size(matFiltered), vecSpkInd); % back to two-dimensional indexing
+		
+		%remove beginning/end transients
 		vecCh(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
 		vecT(vecT<intWinEdge | vecT>(intBuffT-intWinEdge)) = []; % filtering may create transients at beginning or end. Remove those.
+		
+		%remove offset from carry-over
+		if intBatch>1
+			intStart = intStart - 2*intWinEdge;
+		end
 		
 		%save time of spike (xi) and channel (xj)
 		if intSpikeCounter+numel(vecCh)>numel(vecSpikeCh)

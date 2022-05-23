@@ -1,6 +1,6 @@
 function sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
-	%EL_PrepEphys_SG Transform SpikeGLX ephys data to ProbeFinder format
-	%   sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
+	%EL_PrepEphys_NC Read Native Cluster format for ProbeFinder
+	%   sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 	%
 	%ProbeFinder output format for structure sClusters is:
 	%sClusters.dblProbeLength: length of probe in microns;

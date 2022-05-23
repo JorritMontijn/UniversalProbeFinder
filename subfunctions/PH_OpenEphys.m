@@ -67,7 +67,9 @@ function sClusters = PH_OpenEphys(strPath)
 	
 	%run
 	sClusters = feval(fLoader,strEphysPath);
-	
-	%close msg
-	close(hMsg);
+	try	
+		%close msg
+		close(hMsg);
+	catch
+	end
 end

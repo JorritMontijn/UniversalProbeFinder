@@ -21,7 +21,7 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	end
 	
 	%load data
-	
+	error to do
 	
 	%% prep ephys
 	%check inputs
