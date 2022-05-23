@@ -27,9 +27,6 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	%Version history:
 	%1.0 - 5 Dec 2019
 	%	Created by Jorrit Montijn
-	
-	%wait bar
-	hWaitbar = waitbar(0,'Preparing spike detection','Name',sprintf('Spike detection of %s',strBin));
 		
 	%get parameters
 	intStartT = getOr(sP,'tstart',0);
@@ -74,7 +71,6 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	for intBatch=1:numel(vecStartBatches)
 		%define start
 		intStart = vecStartBatches(intBatch);
-		waitbar(intBatch/numel(vecStartBatches),hWaitbar,sprintf('Detecting spikes in batch %d/%d',intBatch,numel(vecStartBatches)));
 		
 		%reorder to chan map & transfer to gpu
 		matDataArray = gpuArray(matData(vecChanMap,(intStart:(intStart+intBuffT-1))));
@@ -113,7 +109,6 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 		
 		intSpikeCounter = intSpikeCounter + numel(vecCh);
 	end
-	delete(hWaitbar);
 	
 	%calculate outputs
 	intTotT = (intBuffT*intBatch + intLastBatch);
