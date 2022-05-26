@@ -1,6 +1,6 @@
-function ProbeFinder
+function ProbeFinder(varargin)
 	%ProbeFinder Multi-species probe alignment program using neurophysiological markers
-	%
+	
 	%To use this program, simply run:
 	%ProbeFinder
 	%in the matlab prompt. Please read the manual for more detailed instructions.

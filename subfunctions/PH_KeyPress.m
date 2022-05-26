@@ -228,9 +228,9 @@ function PH_KeyPress(hMain,eventdata)
 			end
 		end
 		
-	elseif strcmp(eventdata.Key,'x')
+	elseif strcmp(eventdata.Key,'x') || strcmp(eventdata.Key,'f5')
 		PH_SaveProbeFile(hMain);
-	elseif strcmp(eventdata.Key,'h')
+	elseif strcmp(eventdata.Key,'h') || strcmp(eventdata.Key,'f9')
 		% Load probe histology points, plot line of best fit
 		PH_LoadProbeLocation(hMain);
 	end

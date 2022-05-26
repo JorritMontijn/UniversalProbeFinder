@@ -5,7 +5,7 @@ function PH_SaveProbeFile(hMain,varargin)
 	%get data
 	sGUI = guidata(hMain);
 	
-	% Export the probe coordinates in Allen CCF to the workspace
+	% Export the probe coordinates to the workspace & save to file
 	sProbeCoords = sGUI.sProbeCoords;
 	probe_vector_bregma = sGUI.sProbeCoords.sProbeAdjusted.probe_vector_bregma;
 	pvb = probe_vector_bregma;

@@ -121,7 +121,7 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 	%get starting times
 	intReadSamps = min(intBuffT, intTotSamples - intSamp0);
 	vecSizeA = [intSavedChans, intReadSamps];
-	vecStartBatches = (1 + intStartT):intBuffT:min(intTotSamples,intStopT);
+	vecStartBatches = int64((1 + intStartT):intBuffT:min(intTotSamples,intStopT));
 	intLastBatch = intTotSamples-vecStartBatches(end)-1;
 	
 	% detect rough spike timings
