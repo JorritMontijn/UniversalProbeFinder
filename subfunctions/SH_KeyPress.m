@@ -56,6 +56,7 @@ function SH_KeyPress(hMain,eventdata)
 	elseif strcmpi(eventdata.Key,'f1')
 		%help
 		SH_DisplaySlicePrepperControls();
+		return;
 	elseif strcmp(eventdata.Key,'x') || strcmp(eventdata.Key,'f5')
 		%save
 		SH_SaveSlicePrepperFile(hMain);
@@ -101,8 +102,6 @@ function SH_KeyPress(hMain,eventdata)
 			%plot images
 			SH_PlotPrepIms(hMain);
 		end
-	else
-		eventdata.Key
 	end
 	figure(sGUI.handles.hMain);
 	

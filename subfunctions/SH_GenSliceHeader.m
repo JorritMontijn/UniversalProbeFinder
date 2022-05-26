@@ -15,7 +15,7 @@ function [hHeader,sHeaderHandles] = SH_GenSliceHeader(hMain,sSliceData)
 		%create axes
 		boolIsBig = intMakePlot==intBigPos;
 		vecPlotAx(intMakePlot) = axes(hHeader,'Position',[vecPlotX(intMakePlot) 0.5*double(~boolIsBig) vecWidth(intMakePlot) 0.5+0.5*double(boolIsBig)]);
-		axis(vecPlotAx(intMakePlot),'off')
+		axis(vecPlotAx(intMakePlot),'off');
 		
 		%plot initial images
 		intPlotSlice = vecShowSlices(intMakePlot);

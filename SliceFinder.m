@@ -1,5 +1,5 @@
 function SliceFinder(varargin)
-	%SliceFinder Multi-species histology alignment program
+	%SliceFinder Multi-species histology slice alignment program
 
 	%% add subfolders
 	strFullpath = mfilename('fullpath');

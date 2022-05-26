@@ -1,5 +1,5 @@
 function SlicePrepper(varargin)
-	%SlicePrepper Multi-species histology alignment program
+	%SlicePrepper Multi-species histology track annotation program
 
 	%% add subfolders
 	strFullpath = mfilename('fullpath');

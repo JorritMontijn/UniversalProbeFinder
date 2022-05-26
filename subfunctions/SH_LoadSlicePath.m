@@ -18,9 +18,9 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 	%sSliceData.Track(k).color = lines(1); %color of track #k
 	%%image alignment to atlas data
 	%sSliceData.Slice(i).Center = [0,0,0]; %location of center of image in [ML,AP,DV] atlas space
-	%sSliceData.Slice(i).RotateAroundML = 1; %degrees up/down rotation in atlas space (relative to coronal)
-	%sSliceData.Slice(i).RotateAroundDV = 2; %degrees left/right rotation in atlas space (relative to coronal)
-	%sSliceData.Slice(i).RotateAroundAP = 3; %degrees counterclockwise rotation in atlas space (same as VecMidline) (relative to coronal)
+	%sSliceData.Slice(i).RotateAroundML = 1; %pitch: degrees up/down rotation in atlas space (relative to coronal)
+	%sSliceData.Slice(i).RotateAroundDV = 2; %yaw: degrees left/right rotation in atlas space (relative to coronal)
+	%sSliceData.Slice(i).RotateAroundAP = 3; %roll: degrees counterclockwise rotation in atlas space (same as VecMidline) (relative to coronal)
 	%sSliceData.Slice(i).ResizeUpDown = 1; %stretch/shrink atlas relative to slice in up/down (presumably ~DV) axis
 	%sSliceData.Slice(i).ResizeLeftRight = 1; %stretch/shrink  atlas relative to slice in left/right (presumably ~ML) axis
 	
