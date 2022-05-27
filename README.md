@@ -1,6 +1,6 @@
 # UniversalProbeFinder 
  \
-Multi-species probe alignment program using neurophysiological markers \
+Multi-species histology slice processing pipeline and probe alignment program using neurophysiological markers \
 \
 To install & run, clone this repository and download the atlases you wish to use. Add the main directory to your matlab path and run:\
 UniversalProbeFinder\
