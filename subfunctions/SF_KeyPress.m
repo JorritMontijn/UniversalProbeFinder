@@ -63,6 +63,24 @@ function SF_KeyPress(hMain,eventdata)
 		%help
 		SF_DisplaySliceFinderControls();
 		return;
+	elseif strcmpi(eventdata.Key,'f2')
+		%invert axes
+		sGUI.AxesSign = -sGUI.AxesSign;
+		%update data
+		guidata(hMain, sGUI);
+	elseif strcmpi(eventdata.Key,'f3')
+		%toggle overlay type
+		if sGUI.OverlayType == 1
+			sGUI.OverlayType = 2;
+		elseif sGUI.OverlayType == 2
+			sGUI.OverlayType = 1;
+		end
+		
+		%update data
+		guidata(hMain, sGUI);
+		
+		%redraw
+		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'f5')
 		SF_SaveSliceFinderFile(hMain);
 	elseif strcmp(eventdata.Key,'x')
@@ -112,15 +130,15 @@ function SF_KeyPress(hMain,eventdata)
 		end
 	elseif strcmp(eventdata.Key,'j') || strcmp(eventdata.Key,'l')
 		%move ML
-		dblSign = (double(strcmp(eventdata.Key,'j'))*2-1);
+		dblSign = (double(strcmp(eventdata.Key,'l'))*2-1);
 		if strcmpi(eventdata.Modifier,'shift')
 			%stretch
 			dblShrinkGrow = dblSign*dblStep*0.01;
-			sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeUpDown = sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight + ...
+			sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight = sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight + ...
 				sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight*dblShrinkGrow;
 		else
 			%move
-			dblMoveML = dblSign*dblStep*10;
+			dblMoveML = sGUI.AxesSign*dblSign*dblStep*10;
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(1) = sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(1) + dblMoveML;
 		end
 		%update data & redraw
@@ -137,7 +155,7 @@ function SF_KeyPress(hMain,eventdata)
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'i') || strcmp(eventdata.Key,'k')
 		%move DV or stretch
-		dblSign = (double(strcmp(eventdata.Key,'i'))*2-1);
+		dblSign = (double(strcmp(eventdata.Key,'k'))*2-1);
 		if strcmpi(eventdata.Modifier,'shift')
 			%stretch
 			dblShrinkGrow = dblSign*dblStep*0.01;
@@ -145,7 +163,7 @@ function SF_KeyPress(hMain,eventdata)
 				sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeUpDown*dblShrinkGrow;
 		else
 			%move
-			dblMoveDV = dblSign*dblStep*10;
+			dblMoveDV = sGUI.AxesSign*dblSign*dblStep*10;
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(3) = sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(3) + dblMoveDV;
 		end
 		%update data & redraw

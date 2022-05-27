@@ -65,11 +65,38 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	
 	%retrieve atlas areas in slice
 	vecGetIdx = sub2ind(vecSizeMlApDv,X,Y,Z);
-	A = sGUI.sAtlas.av(vecGetIdx);
+	C = sGUI.sAtlas.av(vecGetIdx);
+	
+	if sGUI.OverlayType == 1
+		%show area surfaces
+		sGUI.handles.hAxSliceOverlay.Colormap = sGUI.sAtlas.ColorMap;
+		A = 0.5 - 0.5*double(C<2);
+	elseif sGUI.OverlayType == 2
+		%show borders
+		sGUI.handles.hAxSliceOverlay.Colormap = [0 0 0; 0.7 0.7 0.7];
+		matFilt = [-1 -1 -1; -1 8 -1; -1 -1 -1];
+		C = conv2(C,matFilt,'same');
+		C = double(C~=0);
+		%remove edges
+		C([1 end],:) = 0;
+		C(:,[1 end]) = 0;
+		A = double(C);
+	else
+		%nothing
+		A = ones(size(A));
+	end
 	
 	%overlay atlas on slice
 	[Yoverlay,Xoverlay] = meshgrid(size(A,2):-1:1,1:size(A,1));
-	set(sGUI.handles.hAtlasInSlice,'XData',Xoverlay,'YData',Yoverlay,'ZData',ones(size(Xoverlay)),'CData',A);
+	set(sGUI.handles.hAtlasInSlice,'XData',Xoverlay./sSlice.ResizeLeftRight,'YData',Yoverlay./sSlice.ResizeUpDown,'ZData',ones(size(Xoverlay)),'CData',C);
+	alim(sGUI.handles.hAxSliceOverlay,[0 1]);
+	alpha(sGUI.handles.hAtlasInSlice,A);
+	
+	xlim(sGUI.handles.hAxSliceOverlay,sGUI.SliceX);
+	ylim(sGUI.handles.hAxSliceOverlay,sGUI.SliceY);
+	
+	%disable interactions
+	setAllowAxesRotate(rotate3d(sGUI.handles.hAxSliceOverlay),sGUI.handles.hAxSliceOverlay,0);
 	
 	%update slice to gui
 	sGUI.sSliceData.Slice(sGUI.intCurrIm) = sSlice;

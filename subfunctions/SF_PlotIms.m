@@ -24,7 +24,14 @@ function SF_PlotIms(hMain,varargin)
 	
 	%show main image
 	cla(sGUI.handles.hAxSlice);
-	sGUI.handles.hIm = imshow(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,'Parent',sGUI.handles.hAxSlice);
+	[matY,matX]=meshgrid(size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,1):-1:1,1:size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,2));
+	C = double(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)./255;
+	sGUI.handles.hIm = surface(sGUI.handles.hAxSlice,matX',matY',ones(size(matY')),C,...
+		'edgecolor','none','linestyle','none');
+	xlim(sGUI.handles.hAxSlice,[min(matX(:)) max(matX(:))]);
+	ylim(sGUI.handles.hAxSlice,[min(matY(:)) max(matY(:))]);
+	sGUI.SliceX = xlim(sGUI.handles.hAxSlice);
+	sGUI.SliceY = ylim(sGUI.handles.hAxSlice);
 	
 	%update info bar
 	sGUI.handles.ptrTextInfo.String = sprintf('Image %d/%d: %s',intCurrSlice,numel(sSliceData.Slice),sSliceData.Slice(intCurrSlice).ImageName);

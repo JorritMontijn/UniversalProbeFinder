@@ -23,6 +23,7 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	hMain = figure('Menubar','none','color','w','NumberTitle','off',...
 		'Name','Universal Probe Finder: Slice Location Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@SF_DeleteFcn);
+	hMain.Visible = 'off';
 	
 	%% test renderer
 	if isempty(boolIgnoreProbeFinderRenderer) || boolIgnoreProbeFinderRenderer(1) == 0
@@ -103,11 +104,11 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	% Set up the slice axes
 	hAxSlice = axes(hMain,'Position',[0.5 0 0.5 0.77]);
 	hold(hAxSlice,'on');
-	axis(hAxSlice,'off');
+	axis(hAxSlice,'off','equal');
 	%overlay axes
 	hAxSliceOverlay = axes(hMain,'Position',[0.5 0 0.5 0.77],'Colormap',sAtlas.ColorMap);
 	hold(hAxSliceOverlay,'on');
-	axis(hAxSliceOverlay,'off');
+	axis(hAxSliceOverlay,'off','equal');
 	
 	%% assign values to structure
 	%build gui data
@@ -118,13 +119,15 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.LastUpdate = tic;
 	sGUI.IsBusy = false;
 	sGUI.StepSize = 1;
+	sGUI.AxesSign = 1; %1 or -1
+	sGUI.OverlayType = 2;
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
 	sGUI.handles.hAxSlice = hAxSlice;
 	sGUI.handles.hAxSliceOverlay = hAxSliceOverlay;
 	sGUI.handles.hAxAtlas = hAxAtlas;
-	sGUI.handles.hIm = [];set(sGUI.handles.hIm);%,'AlphaData',0.5);
+	sGUI.handles.hIm = [];%set(sGUI.handles.hIm);%,'AlphaData',0.5);
 	sGUI.handles.hSliceInAtlas = surface(hAxAtlas,'EdgeColor','none');
 	sGUI.handles.hAtlasInSlice = surface(hAxSliceOverlay,'EdgeColor','none','FaceAlpha',0.5);
 	sGUI.handles.hHeader = hHeader;
@@ -155,6 +158,7 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	
 	%plot header+current slice and update slice in atlas + redraw atlas on slice
 	SF_PlotIms(hMain);
+	hMain.Visible = 'on';
 	
 	%show help
 	SF_DisplaySliceFinderControls();
