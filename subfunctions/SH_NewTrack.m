@@ -19,8 +19,13 @@ function SH_NewTrack(hObject,varargin)
 	%add guidata
 	guidata(hObject,sGUI);
 	
+	%set new track active
+	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track.name};
+	sGUI.handles.ptrListSelectTrack.Value = intNewTrack;
+	
 	%update list/text
 	SH_SelectTrack(hObject);
+	
 	
 	%reset focus
 	figure(sGUI.handles.hMain);

@@ -5,6 +5,15 @@ function SH_SelectTrack(hObject,varargin)
 	
 	%find active track
 	intActiveTrack = sGUI.handles.ptrListSelectTrack.Value;
+	if intActiveTrack == 0
+		if numel(sGUI.sSliceData.Track) > 0
+			intActiveTrack = 1;
+			sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track.name};
+			sGUI.handles.ptrListSelectTrack.Value = intActiveTrack;
+		else
+			return;
+		end
+	end
 	strName = sGUI.sSliceData.Track(intActiveTrack).name;
 	strMarker = sGUI.sSliceData.Track(intActiveTrack).marker;
 	vecColor = sGUI.sSliceData.Track(intActiveTrack).color;

@@ -30,12 +30,14 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		strFile = ['NMT_v2.0_sym' filesep 'NMT_v2.0_sym_brainmask.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
 		if ~exist(strTarget,'file') && exist([strTarget '.gz'],'file'),gunzip([strTarget '.gz']);end %extract if gzipped
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		matBrainMask = niftiread(strTarget); %annotated cortex
 		
 		%load charm
 		strFile = ['NMT_v2.0_sym' filesep 'CHARM_in_NMT_v2.0_sym.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
 		if ~exist(strTarget,'file') && exist([strTarget '.gz'],'file'),gunzip([strTarget '.gz']);end %extract if gzipped
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		avCharm = niftiread(strTarget); %annotated cortex
 		avCharm = avCharm(:,:,:,1,end);
 		vecSizeAvCharm = size(avCharm);
@@ -49,6 +51,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		strFile = ['NMT_v2.0_sym' filesep 'SARM_in_NMT_v2.0_sym.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
 		if ~exist(strTarget,'file') && exist([strTarget '.gz'],'file'),gunzip([strTarget '.gz']);end %extract if gzipped
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		avSarm = niftiread(strTarget); %annotated cortex
 		avSarm = avSarm(:,:,:,1,end);
 		vecSizeAvSarm = size(avSarm);
@@ -57,6 +60,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		%tables_CHARM
 		strFile = ['tables_CHARM' filesep 'CHARM_key_table.csv'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		sCharm = loadcsv(strTarget,',');
 		cellTable = sCharm.Level6;
 		vecIdxCharm = cellfun(@(x) str2double(getFlankedBy(x,'',':')),cellTable);
@@ -66,6 +70,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		%tables_SARM
 		strFile = ['tables_SARM' filesep 'SARM_key_table.csv'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		sSarm = loadcsv(strTarget,',');
 		cellTable = sSarm.Level6;
 		vecIdxSarm = cellfun(@(x) str2double(getFlankedBy(x,'',':')),cellTable);
@@ -75,6 +80,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		%color map
 		strFile = ['tables_CHARM' filesep 'hue_CHARM_cmap.pal'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		sMap = loadcsv(strTarget);
 		matColorMapCharm = cell2mat(cellfun(@(x) [hex2dec(x(2:3)) hex2dec(x(4:5)) hex2dec(x(6:7))] ,sMap.Hue_CHARM_v1_3,'UniformOutput' ,false));
 		
@@ -82,6 +88,7 @@ function sAtlas = AL_PrepMCS(strCharmSarmAtlasPath)
 		strFile = ['NMT_v2.0_sym' filesep 'NMT_v2.0_sym.nii'];
 		strTarget = fullpath(strCharmSarmAtlasPath,strFile);
 		if ~exist(strTarget,'file') && exist([strTarget '.gz'],'file'),gunzip([strTarget '.gz']);end %extract if gzipped
+		if ~exist(strTarget,'file'),error([mfilename ':FileNotFound'],'File not found: %s at %s',strFile,strCharmSarmAtlasPath);end
 		tv = double(niftiread(strTarget)); %template volume
 		
 	catch ME

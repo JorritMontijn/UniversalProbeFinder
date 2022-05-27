@@ -7,10 +7,18 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 	end
 	
 	%msg
-	hMsg = msgbox(['Loading and preparing images in ' sSliceData.path ', please wait...'],'Loading data');
+	ptrWaitbar = waitbar(0,['Loading and preparing images in ' sSliceData.path ', please wait...'],'Name','Loading images');
 	
 	intImNum = numel(sSliceData.Slice);
 	for intIm=1:intImNum
+		%wait bar update
+		try
+			waitbar(intIm/intImNum,ptrWaitbar);
+		catch
+			sSliceData = [];
+			return
+		end
+		
 		%read
 		if isempty(sSliceData.Slice(intIm).ImTransformed)
 			imSlice = imread(fullpath(sSliceData.path,sSliceData.Slice(intIm).ImageName));
@@ -29,11 +37,10 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 		sSliceData.Slice(intIm).ImageSize = size(imSlice);
 	end
 	
-	
 	%run
 	try	
 		%close msg
-		close(hMsg);
+		delete(ptrWaitbar);
 	catch
 	end
 end
