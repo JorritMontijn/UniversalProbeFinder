@@ -7,7 +7,7 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 	end
 	
 	%msg
-	ptrWaitbar = waitbar(0,['Loading and preparing images in ' sSliceData.path ', please wait...'],'Name','Loading images');
+	ptrWaitbar = waitbar(0,strrep(['Loading and preparing images in ' sSliceData.path ', please wait...'],'\','\\'),'Name','Loading images');
 	
 	intImNum = numel(sSliceData.Slice);
 	for intIm=1:intImNum

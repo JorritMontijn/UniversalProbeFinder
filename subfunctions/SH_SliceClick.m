@@ -166,7 +166,7 @@ function SH_SliceClick(hObject,eventdata)
 	end
 	
 	%get gui data
-	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
 	
 	%release
 	sGUI.IsBusy = false;

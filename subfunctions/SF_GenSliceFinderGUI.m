@@ -73,6 +73,13 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	ptrButtonSave = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Save','Units','normalized',...
 		'Position',[0.685 0.81 0.06 0.03],'Callback',@SF_SaveSliceFinderFile);
 	
+	%set message area 1
+	ptrTextMessages = uicontrol(hMain,'Style','text','FontSize',12,'string','','Units','normalized',...
+		'Position',[0.02 0.81 0.2 0.03]);
+	
+	%set message area 2
+	ptrTextClipboard = uicontrol(hMain,'Style','text','FontSize',12,'string','Curr copy: nan - Prev copy: nan','Units','normalized',...
+		'Position',[0.23 0.81 0.17 0.03]);
 	
 	% Set up the atlas axes
 	hAxAtlas = axes(hMain,'Position',[0 0 0.5 0.77]);
@@ -121,7 +128,11 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.StepSize = 1;
 	sGUI.AxesSign = 1; %1 or -1
 	sGUI.OverlayType = 2;
-	
+	sGUI.CurrCopy = nan;
+	sGUI.PrevCopy = nan;
+	sGUI.sCopyBackup = struct;
+	sGUI.CopyIms = [];
+			
 	% user interface handles
 	sGUI.handles.hMain = hMain;
 	sGUI.handles.hAxSlice = hAxSlice;
@@ -129,10 +140,13 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.handles.hAxAtlas = hAxAtlas;
 	sGUI.handles.hIm = [];%set(sGUI.handles.hIm);%,'AlphaData',0.5);
 	sGUI.handles.hSliceInAtlas = surface(hAxAtlas,'EdgeColor','none');
+	sGUI.handles.vecTrackHandlesInAtlas = [];
 	sGUI.handles.hAtlasInSlice = surface(hAxSliceOverlay,'EdgeColor','none','FaceAlpha',0.5);
 	sGUI.handles.hHeader = hHeader;
 	sGUI.handles.vecHeaderAxes = sHeaderHandles.vecPlotAx;
 	sGUI.handles.ptrTextInfo = ptrTextInfo;
+	sGUI.handles.ptrTextMessages = ptrTextMessages;
+	sGUI.handles.ptrTextClipboard = ptrTextClipboard;
 	
 	%other buttons
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;

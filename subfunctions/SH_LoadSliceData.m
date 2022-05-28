@@ -28,8 +28,9 @@ function SH_LoadSliceData(hObject,varargin)
 	sGUI.intCurrIm = 1;
 	
 	%update list
-	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track(:).name};
-	sGUI.handles.ptrListSelectTrack.Value = 1;
+	sGUI.handles.ptrListSelectTrack.String = {''};
+	sGUI.handles.ptrListSelectTrack.Value = 0;
+	sGUI.handles.ptrTextActiveTrack.String = '';
 	
 	%update data
 	guidata(hMain,sGUI);

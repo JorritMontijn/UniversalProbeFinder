@@ -6,6 +6,9 @@ function SF_PlotIms(hMain,varargin)
 	sSliceData = sGUI.sSliceData;
 	vecPlotAx = sGUI.handles.vecHeaderAxes;
 	
+	%message
+	sGUI.handles.ptrTextMessages.String = 'Working...';drawnow;
+	
 	%plot header images
 	intCurrSlice = sGUI.intCurrIm;
 	vecPlotPos=1:numel(vecPlotAx);
@@ -24,7 +27,8 @@ function SF_PlotIms(hMain,varargin)
 	
 	%show main image
 	cla(sGUI.handles.hAxSlice);
-	[matY,matX]=meshgrid(size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,1):-1:1,1:size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,2));
+	intMaxY = size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,1);
+	[matY,matX]=meshgrid(intMaxY:-1:1,1:size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,2));
 	C = double(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)./255;
 	sGUI.handles.hIm = surface(sGUI.handles.hAxSlice,matX',matY',ones(size(matY')),C,...
 		'edgecolor','none','linestyle','none');
@@ -48,10 +52,10 @@ function SF_PlotIms(hMain,varargin)
 		
 		%plot[x1 y1; x2 y2]
 		sGUI.sSliceData.Slice(intIm).TrackClick(intClick).hLine = ...
-			line(sGUI.handles.hAxSlice,[matVec(1,1) matVec(2,1)],[matVec(1,2) matVec(2,2)],... %[x1 y1; x2 y2]
+			line(sGUI.handles.hAxSlice,[matVec(1,1) matVec(2,1)],intMaxY-[matVec(1,2) matVec(2,2)],[1 1],... %[x1 y1; x2 y2]
 			'color',vecColor,'LineWidth',1.5); %track #k
 		sGUI.sSliceData.Slice(intIm).TrackClick(intClick).hScatter = ...
-			scatter(sGUI.handles.hAxSlice,[matVec(1,1) matVec(2,1)],[matVec(1,2) matVec(2,2)],...
+			scatter3(sGUI.handles.hAxSlice,[matVec(1,1) matVec(2,1)],intMaxY-[matVec(1,2) matVec(2,2)],[1 1],...
 			20,vecColor,'LineWidth',1.5,'Marker',strMarker); %track #k
 		
 		%add deletion context menu

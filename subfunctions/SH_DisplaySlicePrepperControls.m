@@ -38,6 +38,12 @@ function SH_DisplaySlicePrepperControls(varargin)
 		set(sGUI.handles.ptrButtonHelp, 'enable', 'off');
 		drawnow;
 		set(sGUI.handles.ptrButtonHelp, 'enable', 'on');
+		
+		%release
+		sGUI.IsBusy = false;
+		
+		%update guidata
+		guidata(sGUI.handles.hMain,sGUI);
 	end
 end
 

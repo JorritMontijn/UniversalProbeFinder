@@ -25,6 +25,13 @@ function SF_LoadSliceData(hObject,varargin)
 	
 	%clear old data
 	sGUI.intCurrIm = 1;
+	sGUI.CurrCopy = nan;
+	sGUI.PrevCopy = nan;
+	sGUI.CopyIms = [];
+	
+	%update messages
+	sGUI.handles.ptrTextClipboard.String = sprintf('Curr copy: %d - Prev copy: %d',sGUI.CurrCopy,sGUI.PrevCopy);
+	sGUI.handles.ptrTextMessages.String = sprintf('Loaded %s',sGUI.sSliceData.path);
 	
 	%update list
 	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track(:).name};

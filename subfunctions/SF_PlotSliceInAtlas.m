@@ -3,6 +3,9 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	%get data
 	sGUI = guidata(hMain);
 	
+	%message
+	sGUI.handles.ptrTextMessages.String = 'Working...';drawnow;
+	
 	%get atlas
 	sAtlas = sGUI.sAtlas;
 	vecSizeMlApDv = size(sAtlas.av);
@@ -41,15 +44,30 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	Z = dblMiddleZ - Z; %size is X by Z (ML by DV if coronal)
 	
 	%get rotation
-	%sSliceData.Slice(i).RotateAroundML = 1; %pitch: degrees up/down rotation in atlas space (relative to coronal)
-	%sSliceData.Slice(i).RotateAroundDV = 2; %yaw: degrees left/right rotation in atlas space (relative to coronal)
-	%sSliceData.Slice(i).RotateAroundAP = 3; %roll: degrees counterclockwise rotation in atlas space (same as VecMidline) (relative to coronal)
+	dblYawDV = sSlice.RotateAroundDV; %yaw: degrees left/right rotation in atlas space (relative to coronal)
+	dblPitchML = sSlice.RotateAroundML; %pitch: degrees up/down rotation in atlas space (relative to coronal)
+	dblRollAP = sSlice.RotateAroundAP; %roll: degrees counterclockwise rotation in atlas space (same as VecMidline) (relative to coronal)
 	
+	% build rotation matrix in yaw pitch roll
+	a = deg2rad(dblYawDV);
+	c = deg2rad(dblPitchML);
+	b = deg2rad(dblRollAP);
+	matR = [...
+		cos(a)*cos(b)	cos(a)*sin(b)*sin(c)-sin(a)*cos(c)	cos(a)*sin(b)*cos(c)+sin(a)*sin(c);...
+		sin(a)*cos(b)	sin(a)*sin(b)*sin(c)+cos(a)*cos(c)	sin(a)*sin(b)*cos(c)-cos(a)*sin(c);...
+		-sin(b)			cos(b)*sin(c)						cos(b)*cos(c)]';
+	
+	%transform to points, rotate, and transform back
+	matP = cat(2,X(:),Y(:),Z(:))';
+	matRotP = matR*matP;
+	X = reshape(matRotP(1,:)',size(X));
+	Y = reshape(matRotP(2,:)',size(Y));
+	Z = reshape(matRotP(3,:)',size(Z));
+
 	%move slice to atlas space
 	X = round(X + sSlice.Center(1)); %ML
 	Y = round(Y + sSlice.Center(2)); %AP
 	Z = round(Z + sSlice.Center(3)); %DV
-	
 	
 	% Update the slice display
 	imCh1 = imResized(:,:,1);
@@ -58,6 +76,53 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	CData = cat(3,imCh1',imCh2',imCh3');
 	set(sGUI.handles.hSliceInAtlas,'XData',X,'YData',Y,'ZData',Z,'CData',CData);
 	
+	%delete old tracks
+	for intOldTrack=1:numel(sGUI.handles.vecTrackHandlesInAtlas)
+		if ishandle(sGUI.handles.vecTrackHandlesInAtlas(intOldTrack)),delete(sGUI.handles.vecTrackHandlesInAtlas(intOldTrack));end
+	end
+	sGUI.handles.vecTrackHandlesInAtlas = [];
+	
+	%plot tracks
+	intIm = sGUI.intCurrIm;
+	intClickNum = numel(sGUI.sSliceData.Slice(intIm).TrackClick);
+	sGUI.handles.vecTrackHandlesInAtlas = nan(1,numel(sGUI.handles.vecTrackHandlesInAtlas));
+	intClickNum
+	for intClick=1:intClickNum
+		%get data
+		intTrack = sGUI.sSliceData.Slice(intIm).TrackClick(intClick).Track;
+		matVec = sGUI.sSliceData.Slice(intIm).TrackClick(intClick).Vec;
+		vecColor = sGUI.sSliceData.Track(intTrack).color;
+		
+		%get new location in atlas
+		%resize
+		Xt = matVec(1,:)'*sSlice.ResizeLeftRight;
+		Zt = matVec(2,:)'*sSlice.ResizeUpDown
+		
+		imResized = imresize(imSlice,[size(imSlice,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]]);
+		%get center coordinates of image
+		dblMiddleZ = size(imResized,1)./2;
+		dblMiddleX = sSlice.MidlineX*sSlice.ResizeLeftRight;
+		
+		%get coordinates of pixels around center
+		Yt = zeros(size(Xt));
+		Xt = dblMiddleX - Xt; %possibly subtracting way round
+		Zt = dblMiddleZ - Zt; %size is X by Z (ML by DV if coronal)
+		
+		%transform to points, rotate, and transform back
+		matP = cat(2,Xt,Yt,Zt)';
+		matRotP = matR*matP;
+		%add center
+		Xt = matRotP(1,:) + sSlice.Center(1);
+		Yt = matRotP(2,:) + sSlice.Center(2);
+		Zt = matRotP(3,:) + sSlice.Center(3);
+		
+		%plot[x1 y1; x2 y2]
+		sGUI.handles.vecTrackHandlesInAtlas(intClick) = ...
+			line(sGUI.handles.hAxAtlas,Xt,Yt,Zt,... %[x1 y1; x2 y2]
+			'color',vecColor,'LineWidth',1.5); %track #k
+		break;
+	end
+		
 	%remove entries outside atlas
 	X(X<1 | X>vecSizeMlApDv(1)) = 1;
 	Y(Y<1 | Y>vecSizeMlApDv(2)) = 1;
@@ -101,5 +166,8 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	%update slice to gui
 	sGUI.sSliceData.Slice(sGUI.intCurrIm) = sSlice;
 	guidata(hMain,sGUI);
+	
+	%message
+	sGUI.handles.ptrTextMessages.String = '';
 	
 end

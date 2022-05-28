@@ -43,16 +43,18 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 	%load
 	strFormat = '*_UniversalProbeFinder_SliceFile.mat';
 	sDir = dir(fullpath(strSlicePath,strFormat));
-	if numel(sDir) > 0
-		%load file
-		if numel(sDir) > 1
-			%ask which one
-			[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SliceFinder file','PromptString','Select file to load:',...
-				'SelectionMode','single','ListString',{sDir.name});
-			if ~boolContinue,return;end
-		else
-			intFile=1;
-		end
+	%load options
+	cellFiles = {sDir.name};
+	cellFiles(end+1) = {'New'};
+	if numel(cellFiles) > 1
+		%ask which one
+		[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SliceFinder file','PromptString','Select file to load:',...
+			'SelectionMode','single','ListString',cellFiles);
+		if ~boolContinue,return;end
+	else
+		intFile = 1;
+	end
+	if intFile < numel(cellFiles)
 		strSliceFile = fullpath(strSlicePath,sDir(intFile).name);
 		
 		%make sure all images are present
