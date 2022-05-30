@@ -1,9 +1,6 @@
 function SliceFinder(varargin)
 	%SliceFinder Multi-species histology slice alignment program
 
-	%to do: test load/save, code export, rotate; probefinder: 3d structure; general: manual, wiki +
-	%biorxiv manuscript // also: integrate with acquipix pipeline 
-	
 	%% add subfolders
 	strFullpath = mfilename('fullpath');
 	strPath = fileparts(strFullpath);

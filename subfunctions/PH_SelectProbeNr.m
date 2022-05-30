@@ -9,18 +9,26 @@ function intProbeIdx = PH_SelectProbeNr(sProbeCoords,sAtlas)
 	intProbeNum = numel(sProbeCoords.cellPoints);
 	cellProbes = cell(1,intProbeNum);
 	for intProbe=1:intProbeNum
+		%get name
+		if isfield(sProbeCoords,'cellNames') && numel(sProbeCoords.cellNames) >= intProbe && ~isempty(sProbeCoords.cellNames{intProbe})
+			strName = sProbeCoords.cellNames{intProbe};
+		else
+			strName = sprintf('Probe %d',intProbe);
+		end
+		
 		%get probe vector from points
 		sProbeCoords.intProbeIdx = intProbe;
 		[vecSphereVector,vecBrainIntersection,matRefVector] = PH_Points2vec(sProbeCoords,sAtlas);
 		if isempty(vecBrainIntersection)
-			cellProbes{intProbe} = sprintf('Probe %d, starting at %s',intProbe,'"none"');
+			
+			cellProbes{intProbe} = sprintf('%s, starting at %s',strName,'"none"');
 		else
 			%get area
 			vecBrainIntersection = round(vecBrainIntersection);
 			intIntersectArea = sAtlas.av(vecBrainIntersection(1),vecBrainIntersection(2),vecBrainIntersection(3));
 			cellAreas = string(sAtlas.st.name);
 			strArea = cellAreas{intIntersectArea};
-			cellProbes{intProbe} = sprintf('Probe %d, starting at %s',intProbe,strArea);
+			cellProbes{intProbe} = sprintf('%s, starting at %s',strName,strArea);
 		end
 	end
 	

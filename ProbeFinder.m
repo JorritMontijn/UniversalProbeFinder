@@ -125,5 +125,5 @@ function ProbeFinder(varargin)
 	cd(strOldPath);
 	
 	%% run GUI
-	[hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters);
+	PH_GenGUI(sAtlas,sProbeCoords,sClusters);
 end

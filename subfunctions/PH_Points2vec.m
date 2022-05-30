@@ -17,6 +17,11 @@ function [vecSphereVector,vecLocBrainIntersect,matRefVector] = PH_Points2vec(sPr
 	[dummy,vecReorder]=sort(matHistoPoints(:,3),'descend');
 	matHistoPoints = matHistoPoints(vecReorder,:);
 	
+	%default position if points are empty
+	if isempty(matHistoPoints) || any(isnan(matHistoPoints(:)))
+		matHistoPoints = [sAtlas.Bregma; sAtlas.Bregma-[0 0 dblProbeLength]];
+	end
+	
 	%get probe vector from points
 	matRefVector = PH_GetRefVector(matHistoPoints);
 	

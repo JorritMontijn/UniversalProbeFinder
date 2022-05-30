@@ -48,7 +48,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 	cellFiles(end+1) = {'New'};
 	if numel(cellFiles) > 1
 		%ask which one
-		[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SliceFinder file','PromptString','Select file to load:',...
+		[intFile,boolContinue] = listdlg('ListSize',[300 100],'Name','Load SliceFinder file','PromptString','Select file to load:',...
 			'SelectionMode','single','ListString',cellFiles);
 		if ~boolContinue,return;end
 	else

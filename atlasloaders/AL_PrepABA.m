@@ -48,6 +48,7 @@ function sAtlas = AL_PrepABA(strAllenCCFPath)
 		tv_accf = readNPY(fullpath(strAllenCCFPath,'template_volume_10um.npy')); % grey-scale "background signal intensity"
 		av_accf = readNPY(fullpath(strAllenCCFPath,'annotation_volume_10um_by_index.npy')); % the number at each pixel labels the area, see note below
 		st = PH_loadStructureTree(fullpath(strAllenCCFPath,'structure_tree_safe_2017.csv')); % a table of what all the labels mean
+		st.name = st.safe_name;
 		close(hMsg);
 	catch ME
 		close(hMsg);

@@ -43,15 +43,31 @@ function SH_KeyPress(hMain,eventdata)
 	if strcmp(eventdata.Key,'leftarrow') || strcmp(eventdata.Key,'rightarrow')
 		%change current image
 		dblSign = double(strcmp(eventdata.Key,'rightarrow'))*2-1;
-		intCurrIm = sGUI.intCurrIm + dblSign;
-		if intCurrIm < 1 || intCurrIm > numel(sSliceData.Slice)
+		intCurrIm = sGUI.intCurrIm;
+		intNewIm = intCurrIm + dblSign;
+		if intNewIm < 1 || intNewIm > numel(sSliceData.Slice)
 			%ignore
 		else
-			sGUI.intCurrIm = intCurrIm;
-			%update data
-			guidata(hMain, sGUI);
-			%plot images
-			SH_PlotPrepIms(hMain);
+			%check if we swap or move
+			if any(strcmp(eventdata.Modifier,'shift'))
+				%swap
+				sThisSlice = sGUI.sSliceData.Slice(intCurrIm);
+				sOtherSlice = sGUI.sSliceData.Slice(intNewIm);
+				sGUI.sSliceData.Slice(intCurrIm) = sOtherSlice;
+				sGUI.sSliceData.Slice(intNewIm) = sThisSlice;
+				sGUI.intCurrIm = intNewIm;
+				%update data
+				guidata(hMain, sGUI);
+				%plot images
+				SH_PlotPrepIms(hMain);
+			else
+				%move
+				sGUI.intCurrIm = intNewIm;
+				%update data
+				guidata(hMain, sGUI);
+				%plot images
+				SH_PlotPrepIms(hMain);
+			end
 		end
 	elseif strcmpi(eventdata.Key,'f1')
 		%help

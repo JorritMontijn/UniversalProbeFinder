@@ -1,6 +1,6 @@
-function SH_GenSliceFinderGUI(sAtlas,sSliceData)
-	%SH_GenSliceFinderGUI GUI to align the slice location to atlas coordinates
-	%   SH_GenSliceFinderGUI(sAtlas,sSliceData)
+function SF_GenSliceFinderGUI(sAtlas,sSliceData)
+	%SF_GenSliceFinderGUI GUI to align the slice location to atlas coordinates
+	%   SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	
 	%% load images
 	%Obtains this pixel information
@@ -132,7 +132,9 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.PrevCopy = nan;
 	sGUI.sCopyBackup = struct;
 	sGUI.CopyIms = [];
-			
+	sGUI.transparency = 0;
+	sGUI.structure_plot_idx = [];
+	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
 	sGUI.handles.hAxSlice = hAxSlice;
@@ -147,6 +149,7 @@ function SH_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.handles.ptrTextInfo = ptrTextInfo;
 	sGUI.handles.ptrTextMessages = ptrTextMessages;
 	sGUI.handles.ptrTextClipboard = ptrTextClipboard;
+	sGUI.handles.structure_patch = [];
 	
 	%other buttons
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;

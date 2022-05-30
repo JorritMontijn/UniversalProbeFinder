@@ -1,5 +1,5 @@
-function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
-	%[hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
+function PH_GenGUI(sAtlas,sProbeCoords,sClusters)
+	%PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%% get atlas variables
 	boolIgnoreProbeFinderRenderer = PF_getIniVar('IgnoreRender');
@@ -202,6 +202,7 @@ function [hMain,hAxAtlas,hAxAreas,hAxAreasPlot,hAxZeta,hAxClusters,hAxMua] = PH_
 	sGUI.probe_length = dblProbeLength; % Length of probe in atlas voxels
 	sGUI.structure_plot_idx = []; % Plotted structures
 	sGUI.step_size = 1;
+	sGUI.transparency = 0;
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;

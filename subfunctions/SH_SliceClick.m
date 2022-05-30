@@ -56,24 +56,30 @@ function SH_SliceClick(hObject,eventdata)
 			[theta,rho] = cart2pol(dX,dY);
 			
 			%rotate image so midline is vertical
+			dblRotDeg = rad2deg(theta)-90;
 			imNew = sGUI.sSliceData.Slice(sGUI.intCurrIm).ImTransformed;
-			intMaxSize = max(sGUI.sSliceData.Slice(sGUI.intCurrIm).ImageSize);
-			imNew = imrotate(imNew,rad2deg(theta)-90,'bicubic','loose');
 			
-			%crop to max size
-			dblMidX = (vecNewPoint(1) + vecLastClickLoc(1))/2;
+			%get new size
+			imNew = imrotate(imNew,dblRotDeg,'bicubic','crop');
+			dblMidX = size(imNew,2)/2;
 			dblMidY = size(imNew,1)/2;
 			
-			vecRangeX = round(dblMidX) + ceil([1-intMaxSize/2 intMaxSize/2]);
-			vecRangeY = round(dblMidY) + ceil([1-intMaxSize/2 intMaxSize/2]);
-			intMinX = max(vecRangeX(1),1);
-			intMaxX = min(vecRangeX(2),size(imNew,2));
-			intMinY = max(vecRangeY(1),1);
-			intMaxY = min(vecRangeY(2),size(imNew,1));
+			%rotate trajectories
+			intClickNum = numel(sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick);
+			for intClick=1:intClickNum
+				%rotate
+				matVec = sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intClick).Vec;
+				[theta,rho]=cart2pol(matVec(:,1)-dblMidX,matVec(:,2)-dblMidY);
+				[x,y]=pol2cart(theta-deg2rad(dblRotDeg),rho);
+				matNewVec = [x+dblMidX y+dblMidY];
+				
+				%add track
+				sGUI = SH_AddTrajectory(sGUI,sGUI.intCurrIm,intClick,sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intClick).Track,matNewVec);
+			end
 			
 			%add x-offset
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).MidlineX = dblMidX;
-			sGUI.sSliceData.Slice(sGUI.intCurrIm).ImTransformed = imNew(intMinY:intMaxY,intMinX:intMaxX,:);
+			sGUI.sSliceData.Slice(sGUI.intCurrIm).ImTransformed = imNew;%(intMinY:intMaxY,intMinX:intMaxX,:);
 			
 			%update guidata
 			guidata(sGUI.handles.hMain,sGUI);
@@ -84,26 +90,17 @@ function SH_SliceClick(hObject,eventdata)
 			%get active track
 			intActiveTrack = sGUI.handles.ptrListSelectTrack.Value;
 			if intActiveTrack > 0
-				vecColor = sGUI.sSliceData.Track(intActiveTrack).color;
-				strMarker = sGUI.sSliceData.Track(intActiveTrack).marker;
 				
 				%finish track
 				vecNewPoint = sGUI.handles.hAxSlice.CurrentPoint(1,1:2);
 				intNewClick = numel(sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick)+1;
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).Vec = [vecLastClickLoc; vecNewPoint]; %[x1 y1; x2 y2] => normalized location in [0 1] range
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).Track = intActiveTrack; %track #k
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).hLine = ...
-					line(sGUI.handles.hAxSlice,[vecLastClickLoc(1) vecNewPoint(1)],[vecLastClickLoc(2) vecNewPoint(2)],...
-					'color',vecColor,'LineWidth',1.5); %track #k
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).hScatter = ...
-					scatter(sGUI.handles.hAxSlice,[vecLastClickLoc(1) vecNewPoint(1)],[vecLastClickLoc(2) vecNewPoint(2)],...
-					20,vecColor,'LineWidth',1.5,'Marker',strMarker); %track #k
 				
-				%add deletion context menu
-				hMenu = uicontextmenu;
-				m1 = uimenu(hMenu,'Label','Delete','Callback',{@SH_DeleteTrackVector,sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).hLine});
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).hLine.UIContextMenu = hMenu;
-				sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intNewClick).hScatter.UIContextMenu = hMenu;
+				%add track
+				intIm = sGUI.intCurrIm;
+				intClick = intNewClick;
+				intTrack = intActiveTrack;
+				matVec = [vecLastClickLoc; vecNewPoint];
+				sGUI = SH_AddTrajectory(sGUI,intIm,intClick,intTrack,matVec);
 				
 				%update guidata
 				guidata(sGUI.handles.hMain,sGUI);
@@ -133,7 +130,6 @@ function SH_SliceClick(hObject,eventdata)
 		
 		%update guidata
 		guidata(sGUI.handles.hMain,sGUI);
-		
 	elseif isempty(cellCurrModifiers)
 		%find active track
 		intActiveTrack = sGUI.handles.ptrListSelectTrack.Value;

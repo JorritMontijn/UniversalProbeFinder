@@ -76,10 +76,12 @@ function SF_KeyPress(hMain,eventdata)
 		guidata(hMain, sGUI);
 	elseif strcmpi(eventdata.Key,'f3')
 		%toggle overlay type
-		if sGUI.OverlayType == 1
+		if sGUI.OverlayType == 0
+			sGUI.OverlayType = 1;
+		elseif sGUI.OverlayType == 1
 			sGUI.OverlayType = 2;
 		elseif sGUI.OverlayType == 2
-			sGUI.OverlayType = 1;
+			sGUI.OverlayType = 0;
 		end
 		
 		%update data
@@ -175,14 +177,14 @@ function SF_KeyPress(hMain,eventdata)
 		%update data & redraw
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
-	elseif strcmp(eventdata.Key,'c') && strcmpi(eventdata.Modifier,'control')
+	elseif strcmp(eventdata.Key,'c') && ~isempty(eventdata.Modifier) && strcmpi(eventdata.Modifier,'control')
 		%copy details
 		sGUI.PrevCopy = sGUI.CurrCopy;
 		sGUI.CurrCopy = sGUI.intCurrIm;
 		sGUI.handles.ptrTextClipboard.String = sprintf('Curr copy: %d - Prev copy: %d',sGUI.CurrCopy,sGUI.PrevCopy);
 		%update data
 		guidata(hMain,sGUI);
-	elseif strcmp(eventdata.Key,'v') && strcmpi(eventdata.Modifier,'control')
+	elseif strcmp(eventdata.Key,'v') && ~isempty(eventdata.Modifier) && strcmpi(eventdata.Modifier,'control')
 		%paste details
 		if ~(isnan(sGUI.CurrCopy) || isempty(sGUI.CurrCopy) || isnan(sGUI.intCurrIm) || isempty(sGUI.intCurrIm))
 			%backup
@@ -210,7 +212,7 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.handles.ptrTextMessages.String = sprintf('Copied rotation/location from Im%d to Im%d',sGUI.CurrCopy,sGUI.intCurrIm);
 			
 		end
-	elseif strcmp(eventdata.Key,'b') && strcmpi(eventdata.Modifier,'control')
+	elseif strcmp(eventdata.Key,'b') && ~isempty(eventdata.Modifier) && strcmpi(eventdata.Modifier,'control')
 		%interpolate details
 		%paste details
 		if ~(isnan(sGUI.CurrCopy) || isempty(sGUI.CurrCopy) || isnan(sGUI.PrevCopy) || (abs(sGUI.PrevCopy - sGUI.CurrCopy) < 2))
@@ -276,7 +278,29 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.handles.ptrTextMessages.String = sprintf('Interpolated between Im%d and Im%d',sGUI.CurrCopy,sGUI.PrevCopy);
 			
 		end
-	elseif strcmp(eventdata.Key,'z')  && strcmpi(eventdata.Modifier,'control')
+	elseif strcmp(eventdata.Key,'t')
+		%transparency
+		dblAlphaValueSlice = 0.8;
+		dblAlphaValueVolumes = 0.4;
+		
+		%switch
+		if sGUI.transparency == 0
+			sGUI.transparency = 1;
+			sGUI.handles.hSliceInAtlas.FaceAlpha = dblAlphaValueSlice;
+			for intObject=1:numel(sGUI.handles.structure_patch)
+				set(sGUI.handles.structure_patch(intObject),'FaceAlpha',dblAlphaValueVolumes);
+			end
+		else
+			sGUI.transparency = 0;
+			sGUI.handles.hSliceInAtlas.FaceAlpha = 1;
+			for intObject=1:numel(sGUI.handles.structure_patch)
+				set(sGUI.handles.structure_patch(intObject),'FaceAlpha',1);
+			end
+		end
+		
+		%update
+		guidata(hMain, sGUI);
+	elseif strcmp(eventdata.Key,'z')  && ~isempty(eventdata.Modifier) && strcmpi(eventdata.Modifier,'control')
 		%undo
 		if ~isempty(sGUI.CopyIms) && ~any(isnan(sGUI.CopyIms))
 			vecReset = sGUI.CopyIms;
@@ -326,6 +350,37 @@ function SF_KeyPress(hMain,eventdata)
 		%update data & redraw
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
+	elseif strcmp(eventdata.Key,'equal') || strcmp(eventdata.Key,'add')
+		if any(strcmp(eventdata.Modifier,'shift'))
+			%increase step size
+			sGUI.StepSize = sGUI.StepSize/0.9;
+			guidata(hMain, sGUI);
+			
+			%message
+			sGUI.handles.ptrTextMessages.String = sprintf('Step size is now %d%%',round(sGUI.StepSize*100));
+		else
+			%relay to subfunction
+			PH_ShowStructure(sGUI,eventdata);
+		end
+	elseif strcmp(eventdata.Key,'hyphen') || strcmp(eventdata.Key,'subtract')
+		if any(strcmp(eventdata.Modifier,'shift'))
+			%decrease step size
+			sGUI.StepSize = sGUI.StepSize*0.9;
+			guidata(hMain, sGUI);
+			
+			%message
+			sGUI.handles.ptrTextMessages.String = sprintf('Step size is now %d%%',round(sGUI.StepSize*100));
+		else
+			% Remove structure(s) already plotted
+			if ~isempty(sGUI.structure_plot_idx)
+				vecRemAreas = listdlg('PromptString','Select an area to remove:', ...
+					'ListString',sGUI.sAtlas.st.name(sGUI.structure_plot_idx));
+				delete(sGUI.handles.structure_patch(vecRemAreas))
+				sGUI.structure_plot_idx(vecRemAreas) = [];
+				sGUI.handles.structure_patch(vecRemAreas) = [];
+				guidata(hMain, sGUI);
+			end
+		end
 	end
 	figure(sGUI.handles.hMain);
 	

@@ -34,7 +34,7 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	imResized = imresize(imSlice,[size(imSlice,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]]);
 	%get center coordinates of image
 	dblMiddleZ = size(imResized,1)./2;
-	dblMiddleX = sSlice.MidlineX*sSlice.ResizeLeftRight;
+	dblMiddleX = size(imResized,2)./2;
 	
 	%get coordinates of pixels around center
 	vecSizeSlice = size(imResized);
@@ -86,7 +86,6 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	intIm = sGUI.intCurrIm;
 	intClickNum = numel(sGUI.sSliceData.Slice(intIm).TrackClick);
 	sGUI.handles.vecTrackHandlesInAtlas = nan(1,numel(sGUI.handles.vecTrackHandlesInAtlas));
-	intClickNum
 	for intClick=1:intClickNum
 		%get data
 		intTrack = sGUI.sSliceData.Slice(intIm).TrackClick(intClick).Track;
@@ -94,33 +93,14 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 		vecColor = sGUI.sSliceData.Track(intTrack).color;
 		
 		%get new location in atlas
-		%resize
-		Xt = matVec(1,:)'*sSlice.ResizeLeftRight;
-		Zt = matVec(2,:)'*sSlice.ResizeUpDown
-		
-		imResized = imresize(imSlice,[size(imSlice,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]]);
-		%get center coordinates of image
-		dblMiddleZ = size(imResized,1)./2;
-		dblMiddleX = sSlice.MidlineX*sSlice.ResizeLeftRight;
-		
-		%get coordinates of pixels around center
-		Yt = zeros(size(Xt));
-		Xt = dblMiddleX - Xt; %possibly subtracting way round
-		Zt = dblMiddleZ - Zt; %size is X by Z (ML by DV if coronal)
-		
-		%transform to points, rotate, and transform back
-		matP = cat(2,Xt,Yt,Zt)';
-		matRotP = matR*matP;
-		%add center
-		Xt = matRotP(1,:) + sSlice.Center(1);
-		Yt = matRotP(2,:) + sSlice.Center(2);
-		Zt = matRotP(3,:) + sSlice.Center(3);
+		Xs = matVec(:,1);
+		Ys = matVec(:,2);
+		[Xa,Ya,Za] = SF_SlicePts2AtlasPts(Xs,Ys,sSlice);
 		
 		%plot[x1 y1; x2 y2]
 		sGUI.handles.vecTrackHandlesInAtlas(intClick) = ...
-			line(sGUI.handles.hAxAtlas,Xt,Yt,Zt,... %[x1 y1; x2 y2]
+			line(sGUI.handles.hAxAtlas,Xa,Ya,Za,... %[x1 y1; x2 y2]
 			'color',vecColor,'LineWidth',1.5); %track #k
-		break;
 	end
 		
 	%remove entries outside atlas
@@ -148,7 +128,7 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 		A = double(C);
 	else
 		%nothing
-		A = ones(size(A));
+		A = zeros(size(C));
 	end
 	
 	%overlay atlas on slice
