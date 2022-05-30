@@ -30,6 +30,18 @@ It is also possible to add your own ephys format by adding an ephys-loader .m fi
 \
 Please reach out to us if you wish to have a different ephys formats added with out-of-the-box support. If the data structure is straightforward, adding support should not be too difficult.
 
+# Sneak peek
+Please read the manual for how to use the program. Look below for what to expect.
+
+## SlicePrepper
+![image](https://user-images.githubusercontent.com/15422591/171044179-dbf61cba-5f29-4b54-bc7a-7fa3a7931e1b.png)
+
+## SliceFinder
+![image](https://user-images.githubusercontent.com/15422591/171044194-f5b1b6fb-bb46-4303-bf96-81ae62f00e2b.png)
+
+## ProbeFinder
+![image](https://user-images.githubusercontent.com/15422591/171044215-d99eb6f8-31c6-4b82-89f1-b96c3d3bbbf6.png)
+
 # Acknowledgements
 This work is based on earlier work by people from the cortex lab, most notably Philip Shamash and Andy Peters. See for example this paper: https://www.biorxiv.org/content/10.1101/447995v1
 \
@@ -39,7 +51,9 @@ https://github.com/JorritMontijn/Acquipix \
 https://github.com/JorritMontijn/GeneralAnalysis \
 https://github.com/kwikteam/npy-matlab \
 https://github.com/cortex-lab/spikes \
-https://github.com/JorritMontijn/zetatest
+https://github.com/JorritMontijn/zetatest \
+\
+If you use the Universal Probe Finder, please cite us. If you have any questions or problems, feel free to reach out to us! \
 
 # License
 This repository is licensed under the GNU General Public License v3.0, meaning you are free to use, edit, and redistribute any part of this code, as long as you refer to the source (this repository) and apply the same non-restrictive license to any derivative work (GNU GPL v3).\
