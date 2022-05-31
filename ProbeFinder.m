@@ -1,4 +1,4 @@
-function ProbeFinder(varargin)
+function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	%ProbeFinder Multi-species probe alignment program using neurophysiological markers
 	
 	%To use this program, simply run:
@@ -55,42 +55,46 @@ function ProbeFinder(varargin)
 	end
 	
 	%% load atlas
-	sAtlasParams = PF_getAtlasIni();
-	
-	%select which atlas to use
-	cellAtlases = {sAtlasParams.name};
-	[intSelectAtlas,boolContinue] = listdlg('ListSize',[200 100],'Name','Atlas Selection','PromptString','Select Atlas:',...
-		'SelectionMode','single','ListString',cellAtlases);
-	if ~boolContinue,return;end
-	
-	%try using Acquipix variables
-	try
-		sRP = RP_populateStructure();
-		strDefaultPath = sRP.strProbeLocPath;
-	catch
-		sRP = struct;
-		strDefaultPath=fileparts(mfilename('fullpath'));
-	end
-	
-	%load atlas
-	strAtlasName = sAtlasParams(intSelectAtlas).name;
-	strPathVar = sAtlasParams(intSelectAtlas).pathvar;
-	fLoader = sAtlasParams(intSelectAtlas).loader;
-	
-	%get path
-	strAtlasPath = PF_getIniVar(strPathVar);
-	
-	%load & prep atlas
-	sAtlas = feval(fLoader,strAtlasPath);
-	if isempty(sAtlas),return;end
-	if isfield(sAtlasParams(intSelectAtlas),'downsample') && ~isempty(sAtlasParams(intSelectAtlas).downsample)
-		sAtlas.Downsample = round(sAtlasParams(intSelectAtlas).downsample);
-	else
-		sAtlas.Downsample = 1;
+	if ~exist('sAtlas','var') || isempty(sAtlas)
+		sAtlasParams = PF_getAtlasIni();
+		
+		%select which atlas to use
+		cellAtlases = {sAtlasParams.name};
+		[intSelectAtlas,boolContinue] = listdlg('ListSize',[200 100],'Name','Atlas Selection','PromptString','Select Atlas:',...
+			'SelectionMode','single','ListString',cellAtlases);
+		if ~boolContinue,return;end
+		
+		%try using Acquipix variables
+		try
+			sRP = RP_populateStructure();
+			strDefaultPath = sRP.strProbeLocPath;
+		catch
+			sRP = struct;
+			strDefaultPath=fileparts(mfilename('fullpath'));
+		end
+		
+		%load atlas
+		strAtlasName = sAtlasParams(intSelectAtlas).name;
+		strPathVar = sAtlasParams(intSelectAtlas).pathvar;
+		fLoader = sAtlasParams(intSelectAtlas).loader;
+		
+		%get path
+		strAtlasPath = PF_getIniVar(strPathVar);
+		
+		%load & prep atlas
+		sAtlas = feval(fLoader,strAtlasPath);
+		if isempty(sAtlas),return;end
+		if isfield(sAtlasParams(intSelectAtlas),'downsample') && ~isempty(sAtlasParams(intSelectAtlas).downsample)
+			sAtlas.Downsample = round(sAtlasParams(intSelectAtlas).downsample);
+		else
+			sAtlas.Downsample = 1;
+		end
 	end
 	
 	%% load coords file
-	sProbeCoords = PH_LoadProbeFile(sAtlas,strDefaultPath);
+	if ~exist('sProbeCoords','var') || isempty(sProbeCoords)
+		sProbeCoords = PH_LoadProbeFile(sAtlas,strDefaultPath);
+	end
 	
 	%% load ephys
 	%select file
@@ -101,8 +105,10 @@ function ProbeFinder(varargin)
 		strOldPath = cd();
 		strNewPath = strOldPath;
 	end
-	%open ephys data
-	sClusters = PH_OpenEphys(strNewPath);
+	if ~exist('sClusters','var') || isempty(sClusters)
+		%open ephys data
+		sClusters = PH_OpenEphys(strNewPath);
+	end
 	
 	% load or compute zeta if ephys file is not an Acquipix format
 	if isempty(sClusters) || contains(sClusters.strZetaTit,'Contamination')

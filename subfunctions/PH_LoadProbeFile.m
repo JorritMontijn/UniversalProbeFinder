@@ -25,8 +25,9 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 		sProbeCoords = PH_ExtractProbeCoords(sProbeCoords);
 		
 		%select probe
-		intProbeIdx = PH_SelectProbeNr(sProbeCoords,sAtlas);
-		sProbeCoords.intProbeIdx = intProbeIdx;
+		if ~isfield(sProbeCoords,'intProbeIdx') || isempty(sProbeCoords.intProbeIdx)
+			sProbeCoords.intProbeIdx = PH_SelectProbeNr(sProbeCoords,sAtlas);
+		end
 	end
 	sProbeCoords.ProbeLength = dblProbeLength ./ sAtlas.VoxelSize(end); %in native atlas size
 	sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength; %in native atlas size

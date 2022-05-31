@@ -1,5 +1,5 @@
-function PH_GenGUI(sAtlas,sProbeCoords,sClusters)
-	%PH_GenGUI(sAtlas,sProbeCoords,sClusters)
+function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
+	%hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%% get atlas variables
 	boolIgnoreProbeFinderRenderer = PF_getIniVar('IgnoreRender');
@@ -10,6 +10,17 @@ function PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	av = sAtlas.av; %paxinos coordinates: av(x,y,z) where (x=ML,y=AP,z=DV)
 	st = sAtlas.st;
 	tv = sAtlas.tv;
+	sProbeCoords.AtlasType = sAtlas.Type;
+	sProbeCoords.VoxelSize = vecVoxelSize;
+	sProbeCoords.Origin = vecBregma;
+	
+	%% get running type
+	global sFigRP;
+	if isfield(sFigRP,'ptrMainGUI') && ishandle(sFigRP.ptrMainGUI) && nargout > 0
+		intRunType = 2;
+	else
+		intRunType = 1;
+	end
 	
 	%% get probe locdata
 	%probe_vector_ccf =[...
@@ -203,6 +214,7 @@ function PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.structure_plot_idx = []; % Plotted structures
 	sGUI.step_size = 1;
 	sGUI.transparency = 0;
+	sGUI.runtype = intRunType;
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
@@ -265,8 +277,6 @@ function PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
-	
-
 	
 	% Display controls
 	PH_DisplayControls;

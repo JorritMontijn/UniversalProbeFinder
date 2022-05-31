@@ -13,7 +13,27 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 	% - the probe has two angles: ML and AP where (0;0) degrees is a vertical insertion
 	
 	%check formats
-	if ~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')
+	if isfield(sProbeCoords,'sProbeAdjusted')
+		if ~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')
+			%old format in AP_histology coordinates
+			
+			%transform
+			sProbeCoords.Type = 'AP_histology';
+			sProbeCoords.format = 'ML,AP,DV';
+			
+			vecSizeABA = [1140 1320 800]; %ML,AP,DV (post-transformed)
+			for intProbe=1:numel(sProbeCoords.cellPoints)
+				%should be [ML,AP,DV]
+				%is [x,DV,y] => [y x 2]  = [3 1 2]?
+				sProbeCoords.cellPoints{intProbe} = sProbeCoords.cellPoints{intProbe}(:,[3 1 2]);
+				sProbeCoords.cellPoints{intProbe} = [...
+					vecSizeABA(1) - sProbeCoords.cellPoints{intProbe}(:,1) ...
+					vecSizeABA(2) - sProbeCoords.cellPoints{intProbe}(:,2)...
+					vecSizeABA(3) - sProbeCoords.cellPoints{intProbe}(:,3)...
+					];
+			end
+		end
+	elseif ~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')
 		if strcmpi(sProbeCoords.Type,'AP_histology')
 			%AP_histology output
 			vecSizeABA = [1140 1320 800]; %ML,AP,DV (post-transformed)
@@ -22,7 +42,7 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 				%is [x,DV,y] => [y x 2]  = [3 1 2]?
 				sProbeCoords.cellPoints{intProbe} = sProbeCoords.cellPoints{intProbe}(:,[3 1 2]);
 				sProbeCoords.cellPoints{intProbe} = [...
-					sProbeCoords.cellPoints{intProbe}(:,1) ...
+					vecSizeABA(1) - sProbeCoords.cellPoints{intProbe}(:,1) ...
 					vecSizeABA(2) - sProbeCoords.cellPoints{intProbe}(:,2)...
 					vecSizeABA(3) - sProbeCoords.cellPoints{intProbe}(:,3)...
 					];
@@ -41,5 +61,16 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 			%file not recognized
 			error([mfilename ':UnknownFormat'],'Probe location file format is not recognized');
 		end
+	end
+	
+	%add default length
+	if ~isfield(sProbeCoords,'ProbeLengthMicrons')
+		sProbeCoords.ProbeLengthMicrons = 3840;
+	end
+	if ~isfield(sProbeCoords,'ProbeLength')
+		sProbeCoords.ProbeLength = sProbeCoords.ProbeLengthMicrons ./ 10;
+	end
+	if ~isfield(sProbeCoords,'ProbeLengthOriginal')
+		sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength;
 	end
 end
