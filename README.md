@@ -6,7 +6,7 @@ To install & run, clone this repository and download the atlases you wish to use
 `UniversalProbeFinder`\
 in the matlab prompt.\
 \
-Note: if you download the program as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder: https://github.com/JorritMontijn/zetatest. If you clone this repository, it will download the submodule as normal.
+**Note: if you download the program as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder: https://github.com/JorritMontijn/zetatest. If you clone this repository, it will download the submodule as normal.**
 
 ## Atlases
 The Universal Probe Finder can use multiple atlases. At this time, the Universal Probe Finder supports the following atlases out-of-the-box:\
@@ -39,7 +39,7 @@ Please read the manual for how to use the program. Look below for what to expect
 ### SliceFinder
 ![image](https://user-images.githubusercontent.com/15422591/171044194-f5b1b6fb-bb46-4303-bf96-81ae62f00e2b.png)
 
-## ProbeFinder
+### ProbeFinder
 ![image](https://user-images.githubusercontent.com/15422591/171044215-d99eb6f8-31c6-4b82-89f1-b96c3d3bbbf6.png)
 
 ## Acknowledgements
