@@ -3,7 +3,7 @@
 Multi-species histology slice processing pipeline and probe alignment program using neurophysiological markers \
 \
 To install & run, clone this repository and download the atlases you wish to use. Add the main directory to your matlab path and run:\
-UniversalProbeFinder\
+`UniversalProbeFinder`\
 in the matlab prompt.\
 \
 Note: if you download the program as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder: https://github.com/JorritMontijn/zetatest. If you clone this repository, it will download the submodule as normal.
@@ -53,7 +53,7 @@ https://github.com/kwikteam/npy-matlab \
 https://github.com/cortex-lab/spikes \
 https://github.com/JorritMontijn/zetatest \
 \
-If you use the Universal Probe Finder, please cite us. If you have any questions or problems, feel free to reach out to us! \
+If you use the Universal Probe Finder, please cite us. If you have any questions or problems, feel free to reach out to us! 
 
 # License
 This repository is licensed under the GNU General Public License v3.0, meaning you are free to use, edit, and redistribute any part of this code, as long as you refer to the source (this repository) and apply the same non-restrictive license to any derivative work (GNU GPL v3).\
