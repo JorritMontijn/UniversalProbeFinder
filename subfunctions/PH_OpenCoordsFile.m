@@ -1,4 +1,4 @@
-function sProbeCoords = PH_OpenCoordsFile(strDefaultPath,strName)
+function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strName)
 	%open a histology coordinates file and adds the file type to the sProbeCoords field .Type
 	
 	%% pre-allocate output
@@ -15,7 +15,7 @@ function sProbeCoords = PH_OpenCoordsFile(strDefaultPath,strName)
 	catch
 		strOldPath = cd();
 	end
-	[strFile,strPath]=uigetfile('probe_ccf.mat',strPrompt);
+	[strFile,strPath]=uigetfile('ProbeTracks.mat',strPrompt);
 	cd(strOldPath);
 	if isempty(strFile) || (numel(strFile)==1 && strFile==0)
 		return;

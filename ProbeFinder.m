@@ -41,7 +41,7 @@ function ProbeFinder(varargin)
 	%
 	%Created by Jorrit Montijn at the Cortical Structure and Function laboratory (KNAW-NIN)
 	%
-	%Rev:20220517 - v1.0c
+	%Rev:20220530 - v1.0
 	
 	%% add subfolders
 	strFullpath = mfilename('fullpath');
@@ -78,11 +78,7 @@ function ProbeFinder(varargin)
 	fLoader = sAtlasParams(intSelectAtlas).loader;
 	
 	%get path
-	if isfield(sRP,strPathVar) && isfolder(sRP.(strPathVar))
-		strAtlasPath = sRP.(strPathVar);
-	else
-		strAtlasPath = PF_getIniVar(strPathVar);
-	end
+	strAtlasPath = PF_getIniVar(strPathVar);
 	
 	%load & prep atlas
 	sAtlas = feval(fLoader,strAtlasPath);

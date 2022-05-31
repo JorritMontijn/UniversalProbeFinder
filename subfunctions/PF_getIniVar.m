@@ -1,5 +1,10 @@
-function varOut = PF_getIniVar(strVarName)
+function varOut = PF_getIniVar(strVarName,boolSetValue)
 	%PF_populateStructure Prepares parameters by loading ini file, or creates one with default values
+	
+	%default
+	if ~exist('boolSetValue','var') || isempty(boolSetValue)
+		boolSetValue = false;
+	end
 	
 	%check for ini file
 	strPathFile = mfilename('fullpath');
@@ -25,7 +30,7 @@ function varOut = PF_getIniVar(strVarName)
 	end
 	
 	%retrieve or set variable
-	if isfield(sPF,strVarName)
+	if ~boolSetValue && isfield(sPF,strVarName) && ~isempty(sPF.(strVarName)) && ~(numel(strVarName) > 7 && strcmpi(strVarName(1:3),'str') && strcmpi(strVarName((end-3):end),'Path') && sPF.(strVarName)(1) == 0)
 		varOut = sPF.(strVarName);
 	else
 		%fill if empty
@@ -35,7 +40,7 @@ function varOut = PF_getIniVar(strVarName)
 		sDefaultIni.IgnoreRender = 0;
 		
 		%path vars
-		if isfield(sDefaultIni,strVarName)
+		if ~boolSetValue && isfield(sDefaultIni,strVarName)
 			varOut = sDefaultIni.(strVarName);
 		elseif numel(strVarName) > 7 && strcmpi(strVarName(1:3),'str') && strcmpi(strVarName((end-3):end),'Path')
 			%alter name
@@ -51,12 +56,23 @@ function varOut = PF_getIniVar(strVarName)
 			varOut = uigetdir('',sprintf('Select path for %s',strAtlasName));
 		else
 			%open text entry dialog
+			if isfield(sPF,strVarName)
+				if isnumeric(sPF.(strVarName))
+					sPF.(strVarName) = num2str(sPF.(strVarName));
+				end
+				strDefInput={sPF.(strVarName)};
+			else
+				strDefInput={''};
+			end
 			cellPrompt = {'Value:'};
 			strTitle = sprintf('Set %s',strVarName);
 			vecDims = [5 50];
-			varOut = inputdlg(cellPrompt,strTitle,vecDims);
+			varOut = inputdlg(cellPrompt,strTitle,vecDims,strDefInput);
 			if numel(varOut) == 1
 				varOut = varOut{1};
+			end
+			if ~iscell(varOut) && ~isnan(str2double(varOut))
+				varOut = str2double(varOut);
 			end
 		end
 		

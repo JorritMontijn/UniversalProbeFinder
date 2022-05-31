@@ -1,13 +1,16 @@
-function sProbeCoords = PH_LoadProbeFile(sAtlas,strPath)
+function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strName)
 	%PH_LoadProbeFile Load probe file with file selection window and extract coords
-	%   sProbeCoords = PH_LoadProbeFile(sAtlas,strPath)
+	%   [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath)
 	
 	if ~exist('strPath','var') || isempty(strPath) || strPath(1) == 0
 		strPath = cd();
 	end
+	if ~exist('strName','var') || isempty(strName)
+		strName = '';
+	end
 	
 	%open file
-	sProbeCoords = PH_OpenCoordsFile(strPath);
+	[sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strPath,strName);
 	dblProbeLength = 3840;%in microns (hardcode, sometimes kilosort2 drops channels)
 	
 	%select probe nr

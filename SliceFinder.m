@@ -40,11 +40,7 @@ function SliceFinder(varargin)
 	fLoader = sAtlasParams(intSelectAtlas).loader;
 	
 	%get path
-	if isfield(sRP,strPathVar) && isfolder(sRP.(strPathVar))
-		strAtlasPath = sRP.(strPathVar);
-	else
-		strAtlasPath = PF_getIniVar(strPathVar);
-	end
+	strAtlasPath = PF_getIniVar(strPathVar);
 	
 	%load & prep atlas
 	sAtlas = feval(fLoader,strAtlasPath);
