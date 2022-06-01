@@ -70,6 +70,7 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	sGUI.LastClickType = '';
 	sGUI.LastUpdate = tic;
 	sGUI.IsBusy = false;
+	sGUI.name = 'SlicePrepper';
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
@@ -119,5 +120,5 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	hMain.Visible = 'on';
 	
 	%show help
-	SH_DisplaySlicePrepperControls();
+	SH_DisplaySlicePrepperControls(hMain);
 end

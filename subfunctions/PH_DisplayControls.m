@@ -1,9 +1,9 @@
-function PH_DisplayControls(varargin)
+function PH_DisplayControls(hObject,varargin)
 	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';
 	CreateStruct.WindowStyle = 'non-modal';
-	msgbox( ...
+	hMsgBox = msgbox( ...
 		{'\fontsize{12}' ...
 		'\bfTip: If the GUI is slow, try turning off the atlas slice (s)\rm' ...
 		'' ...
@@ -32,6 +32,17 @@ function PH_DisplayControls(varargin)
 		'h : load and plot histology-defined trajectory', ...
 		'F1 : bring up this window'}, ...
 		'Controls',CreateStruct);
+	
+	%add handles & return to hMsgBox
+	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
+	hRealMain = sGUI.handles.hMain;
+	sMiniGUI = struct;
+	sMiniGUI.hMain = hRealMain;
+	sMiniGUI.handles.hMain = hRealMain;
+	guidata(hMsgBox,sMiniGUI);
+	set(hMsgBox,'KeyPressFcn',@PH_KeyPress);
+	set(hMsgBox,'DeleteFcn',@PH_DeleteHelpFcn);
 	
 end
 

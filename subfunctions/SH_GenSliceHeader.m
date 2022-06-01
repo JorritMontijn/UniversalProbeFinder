@@ -23,7 +23,8 @@ function [hHeader,sHeaderHandles] = SH_GenSliceHeader(hMain,sSliceData)
 			cla(vecPlotAx(intMakePlot));
 		else
 			imPlot = sSliceData.Slice(intPlotSlice).ImTransformed;
-			imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			hIm = imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			hIm.ButtonDownFcn = {@SH_HeaderClick,intPlotSlice};
 		end
 	end
 	

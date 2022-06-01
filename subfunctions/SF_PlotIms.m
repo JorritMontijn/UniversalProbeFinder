@@ -20,8 +20,10 @@ function SF_PlotIms(hMain,varargin)
 			cla(vecPlotAx(intMakePlot));
 		else
 			imPlot = sSliceData.Slice(intPlotSlice).ImTransformed;
-			imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			hIm=imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			
 			setAllowAxesRotate(rotate3d(vecPlotAx(intMakePlot)),vecPlotAx(intMakePlot),0);
+			hIm.ButtonDownFcn = {@SH_HeaderClick,intPlotSlice};
 		end
 	end
 	

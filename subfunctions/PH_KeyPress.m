@@ -9,8 +9,10 @@ function PH_KeyPress(hMain,eventdata)
 	
 	% Get guidata
 	sGUI = guidata(hMain);
+	sGUI = guidata(sGUI.handles.hMain);
 	if toc(sGUI.lastPress) < 0.1;return;end
 	sGUI.lastPress = tic;
+	hMain = sGUI.handles.hMain;
 	guidata(hMain, sGUI);
 	dblBaseStep = 10;
 	
@@ -66,7 +68,7 @@ function PH_KeyPress(hMain,eventdata)
 	elseif strcmp(eventdata.Key,'f1')
 		
 		% Bring up controls again
-		PH_DisplayControls;
+		PH_DisplayControls(hMain);
 		
 	elseif strcmp(eventdata.Key,'b')
 		% Toggle brain outline visibility

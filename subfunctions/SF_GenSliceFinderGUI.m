@@ -134,6 +134,7 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.CopyIms = [];
 	sGUI.transparency = 0;
 	sGUI.structure_plot_idx = [];
+	sGUI.name = 'SliceFinder';
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
@@ -178,5 +179,5 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	hMain.Visible = 'on';
 	
 	%show help
-	SF_DisplaySliceFinderControls();
+	SF_DisplaySliceFinderControls(hMain);
 end

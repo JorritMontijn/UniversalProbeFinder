@@ -23,7 +23,6 @@ function SH_SelectTrack(hObject,varargin)
 	sGUI.handles.ptrTextActiveTrack.ForegroundColor = vecColor;
 	
 	%reset focus
-	figure(sGUI.handles.hMain);
 	set(sGUI.handles.ptrListSelectTrack, 'enable', 'off');
 	drawnow;
 	set(sGUI.handles.ptrListSelectTrack, 'enable', 'on');

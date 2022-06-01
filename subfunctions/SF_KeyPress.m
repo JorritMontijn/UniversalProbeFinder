@@ -39,6 +39,7 @@ function SF_KeyPress(hMain,eventdata)
 	
 	% Get guidata
 	sGUI = guidata(hMain);
+	sGUI = guidata(sGUI.handles.hMain);
 	hMain = sGUI.handles.hMain;
 	if sGUI.IsBusy,return;end
 	sGUI.LastUpdate = tic;
@@ -382,7 +383,6 @@ function SF_KeyPress(hMain,eventdata)
 			end
 		end
 	end
-	figure(sGUI.handles.hMain);
 	
 	%release
 	sGUI = guidata(hMain);

@@ -215,6 +215,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.step_size = 1;
 	sGUI.transparency = 0;
 	sGUI.runtype = intRunType;
+	sGUI.name = 'ProbeFinder';
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
@@ -279,5 +280,5 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
 	
 	% Display controls
-	PH_DisplayControls;
+	PH_DisplayControls(hMain);
 	

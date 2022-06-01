@@ -20,7 +20,8 @@ function SH_PlotPrepIms(hMain,varargin)
 			cla(vecPlotAx(intMakePlot));
 		else
 			imPlot = sSliceData.Slice(intPlotSlice).ImTransformed;
-			imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			hIm=imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
+			hIm.ButtonDownFcn = {@SH_HeaderClick,intPlotSlice};
 		end
 	end
 	
@@ -58,7 +59,7 @@ function SH_PlotPrepIms(hMain,varargin)
 			20,vecColor,'LineWidth',1.5,'Marker',strMarker); %track #k
 		
 		%add deletion context menu
-		hMenu = uicontextmenu;
+		hMenu = uicontextmenu(sGUI.handles.hMain);
 		m1 = uimenu(hMenu,'Label','Delete','Callback',{@SH_DeleteTrackVector,sGUI.sSliceData.Slice(intIm).TrackClick(intClick).hLine});
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intClick).hLine.UIContextMenu = hMenu;
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).TrackClick(intClick).hScatter.UIContextMenu = hMenu;

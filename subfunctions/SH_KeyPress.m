@@ -33,6 +33,7 @@ function SH_KeyPress(hMain,eventdata)
 	
 	% Get guidata
 	sGUI = guidata(hMain);
+	sGUI = guidata(sGUI.handles.hMain);
 	hMain = sGUI.handles.hMain;
 	if toc(sGUI.LastUpdate) < 0.1 || sGUI.IsBusy,return;end
 	sGUI.LastUpdate = tic;
@@ -71,7 +72,7 @@ function SH_KeyPress(hMain,eventdata)
 		end
 	elseif strcmpi(eventdata.Key,'f1')
 		%help
-		SH_DisplaySlicePrepperControls();
+		SH_DisplaySlicePrepperControls(hMain);
 		return;
 	elseif strcmp(eventdata.Key,'x') || strcmp(eventdata.Key,'f5')
 		%save
@@ -119,7 +120,6 @@ function SH_KeyPress(hMain,eventdata)
 			SH_PlotPrepIms(hMain);
 		end
 	end
-	figure(sGUI.handles.hMain);
 	
 	%release
 	sGUI = guidata(hMain);

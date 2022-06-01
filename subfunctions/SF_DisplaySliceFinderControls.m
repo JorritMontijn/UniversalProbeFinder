@@ -1,9 +1,9 @@
-function SF_DisplaySliceFinderControls(varargin)
+function SF_DisplaySliceFinderControls(hObject,varargin)
 	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';
 	CreateStruct.WindowStyle = 'non-modal';
-	msgbox( ...
+	hMsgBox = msgbox( ...
 		{'\fontsize{12}Tip: if the keyboard controls stop working after you press a button, click somewhere in the header area to return focus to the GUI.' ...
 		'' ...
 		'\bf Image navigation: \rm' ...
@@ -43,17 +43,25 @@ function SF_DisplaySliceFinderControls(varargin)
 		'F1 : bring up this window'}, ...
 		'Controls',CreateStruct);
 	
-	%reset focus
-	if nargin > 0
-		sGUI = guidata(varargin{1});
-		sGUI.IsBusy = false;
-		guidata(varargin{1}, sGUI);
+	%add handles & return to hMsgBox
+	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
+	hRealMain = sGUI.handles.hMain;
+	sMiniGUI = struct;
+	sMiniGUI.hMain = hRealMain;
+	sMiniGUI.handles.hMain = hRealMain;
+	guidata(hMsgBox,sMiniGUI);
+	set(hMsgBox,'KeyPressFcn',@SF_KeyPress);
+	set(hMsgBox,'DeleteFcn',@PH_DeleteHelpFcn);
 	
-		figure(sGUI.handles.hMain);
-		set(sGUI.handles.ptrButtonHelp, 'enable', 'off');
-		drawnow;
-		set(sGUI.handles.ptrButtonHelp, 'enable', 'on');
-	end
+	%reset focus
+	set(sGUI.handles.ptrButtonHelp, 'enable', 'off');
+	drawnow;
+	set(sGUI.handles.ptrButtonHelp, 'enable', 'on');
+		
+	%release
+	sGUI.IsBusy = false;
+	guidata(sGUI.handles.hMain,sGUI);
 end
 
 
