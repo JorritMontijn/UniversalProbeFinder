@@ -82,6 +82,8 @@ function SF_KeyPress(hMain,eventdata)
 		elseif sGUI.OverlayType == 1
 			sGUI.OverlayType = 2;
 		elseif sGUI.OverlayType == 2
+			sGUI.OverlayType = 3;
+		elseif sGUI.OverlayType == 3
 			sGUI.OverlayType = 0;
 		end
 		

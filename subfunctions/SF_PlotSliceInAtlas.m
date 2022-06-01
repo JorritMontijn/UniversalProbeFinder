@@ -110,14 +110,15 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	
 	%retrieve atlas areas in slice
 	vecGetIdx = sub2ind(vecSizeMlApDv,X,Y,Z);
-	C = sGUI.sAtlas.av(vecGetIdx);
 	
 	if sGUI.OverlayType == 1
 		%show area surfaces
+		C = sGUI.sAtlas.av(vecGetIdx);
 		sGUI.handles.hAxSliceOverlay.Colormap = sGUI.sAtlas.ColorMap;
 		A = 0.5 - 0.5*double(C<2);
 	elseif sGUI.OverlayType == 2
 		%show borders
+		C = sGUI.sAtlas.av(vecGetIdx);
 		sGUI.handles.hAxSliceOverlay.Colormap = [0 0 0; 0.7 0.7 0.7];
 		matFilt = [-1 -1 -1; -1 8 -1; -1 -1 -1];
 		C = conv2(C,matFilt,'same');
@@ -126,8 +127,13 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 		C([1 end],:) = 0;
 		C(:,[1 end]) = 0;
 		A = double(C);
+	elseif sGUI.OverlayType == 3
+		C = sGUI.sAtlas.tv(vecGetIdx);
+		sGUI.handles.hAxSliceOverlay.Colormap = gray(255);
+		A = double(C>2);
 	else
 		%nothing
+		C = sGUI.sAtlas.av(vecGetIdx);
 		A = zeros(size(C));
 	end
 	
