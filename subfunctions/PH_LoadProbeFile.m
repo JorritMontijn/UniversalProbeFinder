@@ -10,7 +10,7 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 	end
 	
 	%open file
-	[sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strPath,strName);
+	[sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strPath,strName,sAtlas);
 	dblProbeLength = 3840;%in microns (hardcode, sometimes kilosort2 drops channels)
 	
 	%select probe nr

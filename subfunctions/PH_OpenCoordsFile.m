@@ -1,4 +1,4 @@
-function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strName)
+function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strName,sAtlas)
 	%open a histology coordinates file and adds the file type to the sProbeCoords field .Type
 	
 	%% pre-allocate output
@@ -23,7 +23,11 @@ function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strNa
 	
 	%% load
 	sLoad = load(fullpath(strPath,strFile));
-	if isfield(sLoad,'sProbeCoords') && isstruct(sLoad.sProbeCoords)
+	if isfield(sLoad,'sSliceData') && isstruct(sLoad.sSliceData)
+		%transform from aligned data file
+		sProbeCoords = SF_SliceFile2TracksFile(sLoad.sSliceData,sAtlas);
+		sProbeCoords.Type = 'native';
+	elseif isfield(sLoad,'sProbeCoords') && isstruct(sLoad.sProbeCoords)
 		sProbeCoords = sLoad.sProbeCoords;
 		sProbeCoords.Type = 'native';
 	elseif isfield(sLoad,'probe_ccf') && isstruct(sLoad.probe_ccf) && isfield(sLoad.probe_ccf,'points')
