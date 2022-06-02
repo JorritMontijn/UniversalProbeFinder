@@ -1,10 +1,7 @@
 function SetVariablesUPF(varargin)
 	
 	%check for ini file
-	strPathFile = mfilename('fullpath');
-	cellDirs = strsplit(strPathFile,filesep);
-	strPath = strjoin(cellDirs(1:(end-1)),filesep);
-	strIni = strcat(strPath,filesep,'configPF.ini');
+	strIni = strcat(SH_getIniPath(),filesep,'configPF.ini');
 	%load data
 	fFile = fopen(strIni,'rt');
 	vecData = fread(fFile);
