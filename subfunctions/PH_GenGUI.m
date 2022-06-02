@@ -232,6 +232,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.cortex_outline = hMesh;
 	sGUI.handles.structure_patch = []; % Plotted structures
 	sGUI.handles.axes_atlas = hAxAtlas; % Axes with 3D atlas
+	sGUI.handles.hAxAtlas = hAxAtlas; % Axes with 3D atlas
 	sGUI.handles.axes_probe_areas = hAxAreas; % Axes with probe areas
 	sGUI.handles.axes_probe_areas2 = hAxAreas2; % Axes with probe areas
 	sGUI.handles.slice_plot = surface('EdgeColor','none'); % Slice on 3D atlas
