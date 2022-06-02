@@ -44,6 +44,9 @@ function UniversalProbeFinder
 	%use, edit, and redistribute any part of this code, as long as you refer to the source (this
 	%repository) and apply the same non-restrictive license to any derivative work (GNU GPL v3).
 	%
+	%The logo for the Universal Probe Finder uses this image as background (CC licensed):
+	%https://upload.wikimedia.org/wikipedia/commons/7/75/Massive_galaxies_discovered_in_the_early_Universe.jpg 
+	%
 	%Created by Jorrit Montijn at the Cortical Structure and Function laboratory (KNAW-NIN)
 	%
 	%Rev:20220602 - v1.0.1
@@ -51,7 +54,7 @@ function UniversalProbeFinder
 	%ask which program to run
 	
 	%create GUI
-	hChooseGui = figure('Name','Choose program','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
+	hChooseGui = figure('Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
 	hChooseGui.Units = 'normalized';
 	
 	%create gui

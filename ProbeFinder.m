@@ -58,7 +58,7 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% load atlas
 	%check if input comes from gui
-	if isa(sAtlas,'matlab.ui.control.UIControl')
+	if exist('sAtlas','var') && isa(sAtlas,'matlab.ui.control.UIControl')
 		sAtlas = [];
 		sProbeCoords = [];
 		sClusters = [];
