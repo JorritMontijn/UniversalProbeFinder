@@ -31,7 +31,7 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 	if isempty(sSlice.RotateAroundDV),sSlice.RotateAroundDV = 0;end%yaw
 	
 	%resize
-	imResized = imresize(imSlice,[size(imSlice,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]]);
+	imResized = imresize(imSlice,[xsize(imSlice,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]]);
 	%get center coordinates of image
 	dblMiddleZ = size(imResized,1)./2;
 	dblMiddleX = size(imResized,2)./2;

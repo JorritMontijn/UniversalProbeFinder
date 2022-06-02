@@ -1,4 +1,7 @@
-function varargout = size(A,varargin)
+function varargout = xsize(A,varargin)
+	%works like size() in modern matlab versions; this function produces the same results for older
+	%versions; specifically it can handle vectors of dimensions for which to return the size.
+	
 	if nargin == 1
 		vecDimsOut = builtin('size',A);
 	elseif nargin == 2 && numel(varargin{1}) == 1

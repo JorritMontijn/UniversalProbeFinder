@@ -1,7 +1,7 @@
 function SH_HeaderClick(hObject,eventdata,intIm)
 	
 	sGUI = guidata(hObject);
-	if intIm < 1 || intIm > numel(sGUI.sSliceData.Slice)
+	if intIm < 1 || intIm > numel(sGUI.sSliceData.Slice) || sGUI.intCurrIm == intIm
 		%ignore
 	else
 		sGUI.intCurrIm = intIm;

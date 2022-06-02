@@ -47,7 +47,7 @@ function [Xa,Ya,Za] = SF_SlicePts2AtlasPts(Xs,Ys,sSlice,vecSizeMlApDv)
 	%resize
 	Xa = Xs*sSlice.ResizeLeftRight;
 	Za = Ys*sSlice.ResizeUpDown;
-	vecNewSize = round(size(sSlice.ImTransformed,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]);
+	vecNewSize = round(xsize(sSlice.ImTransformed,1:2).*[sSlice.ResizeUpDown sSlice.ResizeLeftRight]);
 	
 	%get center coordinates of image
 	dblMiddleZ = vecNewSize(1)./2;

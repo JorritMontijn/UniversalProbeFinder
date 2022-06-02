@@ -7,8 +7,9 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 	end
 	
 	%msg
-	ptrWaitbar = waitbar(0,['Loading and preparing images in ' sSliceData.path ', please wait...'],'Name','Loading images');
+	ptrWaitbar = waitbar(0,['Loading and preparing images in ' repmat('x',[1 numel(sSliceData.path)]) ', please wait...'],'Name','Loading images');
 	ptrWaitbar.Children.Title.Interpreter = 'none';
+	ptrWaitbar.Children.Title.String = ['Loading and preparing images in ' sSliceData.path ', please wait...'];
 	
 	intImNum = numel(sSliceData.Slice);
 	for intIm=1:intImNum
@@ -29,7 +30,7 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 		
 		%reduce
 		if any(~isinf(vecMaxResolution))
-			dblReduceBy = min(vecMaxResolution ./ size(imSlice,1:numel(vecMaxResolution)));
+			dblReduceBy = min(vecMaxResolution ./ xsize(imSlice,1:numel(vecMaxResolution)));
 			imSlice = imresize(imSlice,dblReduceBy);
 		end
 		

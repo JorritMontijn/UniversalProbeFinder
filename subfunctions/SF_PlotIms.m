@@ -21,15 +21,15 @@ function SF_PlotIms(hMain,varargin)
 		else
 			imPlot = sSliceData.Slice(intPlotSlice).ImTransformed;
 			hIm=imshow(imPlot,'Parent',vecPlotAx(intMakePlot));
-			
 			setAllowAxesRotate(rotate3d(vecPlotAx(intMakePlot)),vecPlotAx(intMakePlot),0);
 			hIm.ButtonDownFcn = {@SH_HeaderClick,intPlotSlice};
+			set(vecPlotAx(intMakePlot),'ButtonDownFcn',{@SH_HeaderClick,intPlotSlice});
 		end
 	end
 	
 	%show main image
 	cla(sGUI.handles.hAxSlice);
-	[intMaxY,intMaxX] = size(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,[1 2]);
+	[intMaxY,intMaxX] = xsize(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,[1 2]);
 	[matY,matX]=meshgrid(intMaxY:-1:1,(1:intMaxX));
 	C = double(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)./255;
 	sGUI.handles.hIm = surface(sGUI.handles.hAxSlice,matX',matY',ones(size(matY')),C,...

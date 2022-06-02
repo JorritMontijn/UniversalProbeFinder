@@ -93,8 +93,10 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	xlim([-1,ml_max+1])
 	ylim([-1,ap_max+1])
 	zlim([-1,dv_max+1])
-	h = rotate3d(hAxAtlas);
-	h.Enable = 'on';
+	hRot = rotate3d(hAxAtlas);
+	hRot.ButtonDownFilter = @SH_ButtonDownFilterFcn;
+	hRot.Enable = 'on';
+	hAxAtlas.Tag = 'Rotate3D';
 	
 	
 	% Position the axes
