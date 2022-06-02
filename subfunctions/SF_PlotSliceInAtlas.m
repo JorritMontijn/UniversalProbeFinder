@@ -128,6 +128,7 @@ function SF_PlotSliceInAtlas(hMain,varargin)
 		C(:,[1 end]) = 0;
 		A = double(C);
 	elseif sGUI.OverlayType == 3
+		%show template slice
 		C = sGUI.sAtlas.tv(vecGetIdx);
 		sGUI.handles.hAxSliceOverlay.Colormap = gray(255);
 		A = double(C>2);
