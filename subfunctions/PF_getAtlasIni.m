@@ -3,10 +3,7 @@ function sAtlasParams = PF_getAtlasIni()
 	%   sAtlasParams = PF_getAtlasIni()
 	
 	%check for ini file
-	strPathFile = mfilename('fullpath');
-	cellDirs = strsplit(strPathFile,filesep);
-	strPath = strjoin(cellDirs(1:(end-2)),filesep);
-	strIni = strcat(strPath,filesep,'configAtlas.ini');
+	strIni = strcat(SH_getIniPath(),filesep,'configAtlas.ini');
 	
 	%load ini
 	if exist(strIni,'file')

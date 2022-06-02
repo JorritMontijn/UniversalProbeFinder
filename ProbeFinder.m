@@ -44,17 +44,25 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	%Rev:20220530 - v1.0
 	
 	%% add subfolders
-	strFullpath = mfilename('fullpath');
-	strPath = fileparts(strFullpath);
-	sDir=dir([strPath filesep '**' filesep]);
-	%remove git folders
-	sDir(contains({sDir.folder},[filesep '.git'])) = [];
-	cellFolders = unique({sDir.folder});
-	for intFolder=1:numel(cellFolders)
-		addpath(cellFolders{intFolder});
+	if ~isdeployed
+		strFullpath = mfilename('fullpath');
+		strPath = fileparts(strFullpath);
+		sDir=dir([strPath filesep '**' filesep]);
+		%remove git folders
+		sDir(contains({sDir.folder},[filesep '.git'])) = [];
+		cellFolders = unique({sDir.folder});
+		for intFolder=1:numel(cellFolders)
+			addpath(cellFolders{intFolder});
+		end
 	end
 	
 	%% load atlas
+	%check if input comes from gui
+	if isa(sAtlas,'matlab.ui.control.UIControl')
+		sAtlas = [];
+		sProbeCoords = [];
+		sClusters = [];
+	end
 	if ~exist('sAtlas','var') || isempty(sAtlas)
 		sAtlasParams = PF_getAtlasIni();
 		

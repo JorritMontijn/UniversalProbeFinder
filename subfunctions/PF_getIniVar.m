@@ -7,10 +7,7 @@ function varOut = PF_getIniVar(strVarName,boolSetValue)
 	end
 	
 	%check for ini file
-	strPathFile = mfilename('fullpath');
-	cellDirs = strsplit(strPathFile,filesep);
-	strPath = strjoin(cellDirs(1:(end-2)),filesep);
-	strIni = strcat(strPath,filesep,'configPF.ini');
+	strIni = strcat(SH_getIniPath(),filesep,'configPF.ini');
 	
 	%load ini
 	if exist(strIni,'file')

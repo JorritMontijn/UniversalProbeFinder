@@ -3,10 +3,7 @@ function sEphysParams = PF_getEphysIni()
 	%   sEphysParams = PF_getEphysIni()
 	
 	%check for ini file
-	strPathFile = mfilename('fullpath');
-	cellDirs = strsplit(strPathFile,filesep);
-	strPath = strjoin(cellDirs(1:(end-2)),filesep);
-	strIni = strcat(strPath,filesep,'configEphys.ini');
+	strIni = strcat(SH_getIniPath(),filesep,'configEphys.ini');
 	
 	%load ini
 	if exist(strIni,'file')
