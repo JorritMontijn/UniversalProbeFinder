@@ -75,17 +75,10 @@ function SF_KeyPress(hMain,eventdata)
 		end
 		%update data
 		guidata(hMain, sGUI);
-	elseif strcmpi(eventdata.Key,'f3')
+	elseif strcmpi(eventdata.Key,'f3') || strcmpi(eventdata.Key,'f4')
 		%toggle overlay type
-		if sGUI.OverlayType == 0
-			sGUI.OverlayType = 1;
-		elseif sGUI.OverlayType == 1
-			sGUI.OverlayType = 2;
-		elseif sGUI.OverlayType == 2
-			sGUI.OverlayType = 3;
-		elseif sGUI.OverlayType == 3
-			sGUI.OverlayType = 0;
-		end
+		intSign = double(strcmpi(eventdata.Key,'f3'))*2-1;
+		sGUI.OverlayType = modx(sGUI.OverlayType + intSign,3);
 		
 		%update data
 		guidata(hMain, sGUI);
