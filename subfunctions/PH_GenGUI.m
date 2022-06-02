@@ -2,9 +2,6 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%% get atlas variables
-	sAtlas
-	sProbeCoords
-	sClusters
 	boolIgnoreProbeFinderRenderer = PF_getIniVar('IgnoreRender');
 	vecBregma = sAtlas.Bregma;% bregma in paxinos coordinates (x=ML,y=AP,z=DV)
 	vecVoxelSize= sAtlas.VoxelSize;% voxel size
