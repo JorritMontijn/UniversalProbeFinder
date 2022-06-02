@@ -57,6 +57,14 @@ function UniversalProbeFinder
 	hChooseGui = figure('Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
 	hChooseGui.Units = 'normalized';
 	
+	try
+		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+		jframe=get(hChooseGui,'javaframe');
+		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));
+		jframe.setFigureIcon(jIcon);
+	catch
+	end
+	
 	%create gui
 	ptrTextPrepper = uicontrol(hChooseGui,'Style','text','String','Select the program you wish to run:',...
 		'Units','normalized','FontSize',12,'Position',[0.1 0.8 0.8 0.15],'backgroundcolor',[1 1 1]);

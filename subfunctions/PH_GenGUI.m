@@ -36,6 +36,13 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	hMain = figure('Menubar','none','color','w','NumberTitle','off',...
 		'Name','Universal Probe Finder: Coordinate Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@PH_DeleteFcn);
+	try
+		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+		jframe=get(hMain,'javaframe');
+		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));
+		jframe.setFigureIcon(jIcon);
+	catch
+	end
 	
 	%test renderer
 	if isempty(boolIgnoreProbeFinderRenderer) || boolIgnoreProbeFinderRenderer(1) == 0

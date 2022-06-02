@@ -24,6 +24,13 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 		'Name','Universal Probe Finder: Slice Location Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@SF_DeleteFcn);
 	hMain.Visible = 'off';
+	try
+		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+		jframe=get(hMain,'javaframe');
+		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));
+		jframe.setFigureIcon(jIcon);
+	catch
+	end
 	
 	%% test renderer
 	if isempty(boolIgnoreProbeFinderRenderer) || boolIgnoreProbeFinderRenderer(1) == 0

@@ -15,6 +15,13 @@ function SH_GenSlicePrepperGUI(sSliceData)
 		'Name','Universal Probe Finder: Slice Prepper','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@SH_DeleteFcn);
 	hMain.Visible = 'off';
+	try
+		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+		jframe=get(hMain,'javaframe');
+		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));
+		jframe.setFigureIcon(jIcon);
+	catch
+	end
 	
 	%set up upper row of images
 	[hHeader,sHeaderHandles] = SH_GenSliceHeader(hMain,sSliceData);
