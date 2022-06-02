@@ -1,4 +1,5 @@
 function strPath = SH_getIniPath()
+	
 	try
 		if isdeployed && ismac
 			NameOfDeployedApp = 'UniversalProbeFinder'; % do not include the '.app' extension
