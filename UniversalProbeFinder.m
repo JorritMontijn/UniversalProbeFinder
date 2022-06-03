@@ -57,7 +57,22 @@ function UniversalProbeFinder
 	hChooseGui = figure('Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
 	hChooseGui.Units = 'normalized';
 	
+	%add paths
+	if ~isdeployed
+		strFullpath = mfilename('fullpath');
+		strPath = fileparts(strFullpath);
+		sDir=dir([strPath filesep '**' filesep]);
+		%remove git folders
+		sDir(contains({sDir.folder},[filesep '.git'])) = [];
+		cellFolders = unique({sDir.folder});
+		for intFolder=1:numel(cellFolders)
+			addpath(cellFolders{intFolder});
+		end
+	end
+	
+	%change icon
 	try
+		warning('off','MATLAB:ui:javaframe:PropertyToBeRemoved');
 		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 		jframe=get(hChooseGui,'javaframe');
 		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));

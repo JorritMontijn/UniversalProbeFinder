@@ -229,4 +229,7 @@ function UCI_Delete(hMain,eventdata)
 	
 	%update list
 	handles.ptrImList.String = cellImList;
+	if handles.ptrImList.Value > numel(cellImList)
+		handles.ptrImList.Value = numel(cellImList);
+	end
 end

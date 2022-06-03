@@ -34,6 +34,23 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 			imSlice = imresize(imSlice,dblReduceBy);
 		end
 		
+		%fill range
+		imSlice = double(imSlice)./double(intmax(class(imSlice)));
+		for intCh=1:size(imSlice,3)
+			imSlice(:,:,intCh) = imadjust(imSlice(:,:,intCh));
+		end
+		
+		%future feature: image adjustment in slice prepper
+		%J = imadjust(I,[low_in high_in],[low_out high_out],gamma) 
+		
+		%transform to uint16 [X by Y by 3]
+		imSlice = uint16(imSlice*double(intmax('uint16')));
+		if size(imSlice,3) == 1
+			imSlice = repmat(imSlice,[1 1 3]);
+		elseif size(imSlice,3) > 3
+			imSlice = imSlice(:,:,1:3);
+		end
+		
 		%save
 		sSliceData.Slice(intIm).ImTransformed = imSlice;
 		sSliceData.Slice(intIm).ImageSize = size(imSlice);
