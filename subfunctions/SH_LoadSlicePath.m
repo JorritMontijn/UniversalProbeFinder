@@ -4,6 +4,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 	
 	%SliceData structure:
 	%sSliceData = struct;
+	%sSliceData.autoadjust = true/false; %automatically adjust images with imadjust
 	%sSliceData.path = 'C:/images';
 	%sSliceData.editdate = '20220524';
 	%%image pre-process + track id data
@@ -92,7 +93,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 		end
 		
 		%confirm with user
-		cellLoadImages = userConfirmImages(cellPotentialImages);
+		[cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages);
 		if isempty(cellLoadImages)
 			sSliceData = [];
 			return
@@ -102,6 +103,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 		for intSlice=numel(cellLoadImages):-1:1
 			sSliceData.Slice(intSlice).ImageName = cellLoadImages{intSlice};
 		end
+		sSliceData.autoadjust = boolAutoAdjust;
 	end
 end
 function Slice = genDummySlice()
@@ -132,7 +134,7 @@ function Track = genDummyTrack()
 	Track(1).color = lines(1); %color of track
 	Track(:) = [];
 end
-function cellLoadImages = userConfirmImages(cellPotentialImages)
+function [cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages)
 	%create GUI: OK, delete, move up, move down
 	hImConfGui = figure('Name','Confirm Images','Menubar','none','NumberTitle','off','Position',[500 300 300 600]);
 	hImConfGui.Units = 'normalized';
@@ -143,6 +145,9 @@ function cellLoadImages = userConfirmImages(cellPotentialImages)
 	handles.ptrButtonAccept = uicontrol(hImConfGui,'Style','pushbutton','String','Accept',...
 		'Units','normalized','FontSize',12,'Position',[0.1 0.945 0.3 0.05],...
 		'Callback',@UCI_Accept);
+	
+	handles.ptrButtonAutoAdjust = uicontrol(hImConfGui,'Style','checkbox','String','Auto-adjust',...
+		'Units','normalized','FontSize',10,'Position',[0.6 0.95 0.3 0.04],'backgroundcolor',[1 1 1]);
 	
 	handles.ptrButtonDelete = uicontrol(hImConfGui,'Style','pushbutton','String','Delete',...
 		'Units','normalized','FontSize',10,'Position',[0.01 0.9 0.32 0.04],...
@@ -170,10 +175,12 @@ function cellLoadImages = userConfirmImages(cellPotentialImages)
 	uiwait(hImConfGui);
 	
 	if ishandle(hImConfGui) && strcmp(hImConfGui.UserData,'Accept')
+		boolAutoAdjust = handles.ptrButtonAutoAdjust.Value;
 		handles = guidata(hImConfGui);
 		cellLoadImages = handles.ptrImList.String;
 		close(hImConfGui);
 	else
+		boolAutoAdjust = [];
 		cellLoadImages = [];
 	end
 end

@@ -24,31 +24,33 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 		%read
 		if isempty(sSliceData.Slice(intIm).ImTransformed)
 			imSlice = imread(fullpath(sSliceData.path,sSliceData.Slice(intIm).ImageName));
+			
+			%reduce
+			if any(~isinf(vecMaxResolution))
+				dblReduceBy = min(vecMaxResolution ./ xsize(imSlice,1:numel(vecMaxResolution)));
+				imSlice = imresize(imSlice,dblReduceBy);
+			end
+			
+			%fill range
+			imSlice = double(imSlice)./double(intmax(class(imSlice)));
+			if sSliceData.autoadjust
+				for intCh=1:size(imSlice,3)
+					imSlice(:,:,intCh) = imadjust(imSlice(:,:,intCh));
+				end
+			end
+			
+			%future feature: image adjustment in slice prepper
+			%J = imadjust(I,[low_in high_in],[low_out high_out],gamma)
+			
+			%transform to uint16 [X by Y by 3]
+			imSlice = uint16(imSlice*double(intmax('uint16')));
+			if size(imSlice,3) == 1
+				imSlice = repmat(imSlice,[1 1 3]);
+			elseif size(imSlice,3) > 3
+				imSlice = imSlice(:,:,1:3);
+			end
 		else
 			imSlice = sSliceData.Slice(intIm).ImTransformed;
-		end
-		
-		%reduce
-		if any(~isinf(vecMaxResolution))
-			dblReduceBy = min(vecMaxResolution ./ xsize(imSlice,1:numel(vecMaxResolution)));
-			imSlice = imresize(imSlice,dblReduceBy);
-		end
-		
-		%fill range
-		imSlice = double(imSlice)./double(intmax(class(imSlice)));
-		for intCh=1:size(imSlice,3)
-			imSlice(:,:,intCh) = imadjust(imSlice(:,:,intCh));
-		end
-		
-		%future feature: image adjustment in slice prepper
-		%J = imadjust(I,[low_in high_in],[low_out high_out],gamma) 
-		
-		%transform to uint16 [X by Y by 3]
-		imSlice = uint16(imSlice*double(intmax('uint16')));
-		if size(imSlice,3) == 1
-			imSlice = repmat(imSlice,[1 1 3]);
-		elseif size(imSlice,3) > 3
-			imSlice = imSlice(:,:,1:3);
 		end
 		
 		%save
@@ -57,7 +59,7 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 	end
 	
 	%run
-	try	
+	try
 		%close msg
 		delete(ptrWaitbar);
 	catch

@@ -15,21 +15,12 @@ function boolValid = SH_AssertSliceValidity(strSliceFile)
 		return;
 	end
 	
-	%make sure all files are present
+	%make sure the file is not empty
 	intImNum = numel(sLoad.sSliceData.Slice);
 	if intImNum == 0
 		errordlg(sprintf('File is empty: %s',strSliceFile),'Corrupt file');
 		return;
 	end
-	strLocalPath = fileparts(strSliceFile);
-	indImPresent = false(1,intImNum);
-	for intIm=1:intImNum
-		strImFile = fullpath(strLocalPath,sLoad.sSliceData.Slice(intIm).ImageName);
-		indImPresent(intIm) = exist(strImFile,'file') > 0;
-	end
-	boolValid = all(indImPresent);
-	if ~boolValid
-		errordlg(sprintf('%d image files missing, such as: %s',sum(indImPresent),sLoad.sSliceData.Slice(intIm).ImageName),'Corrupt file');
-	end
+	boolValid = true;
 end
 

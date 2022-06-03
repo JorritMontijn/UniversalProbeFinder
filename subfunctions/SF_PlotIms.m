@@ -31,7 +31,7 @@ function SF_PlotIms(hMain,varargin)
 	cla(sGUI.handles.hAxSlice);
 	[intMaxY,intMaxX] = xsize(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,[1 2]);
 	[matY,matX]=meshgrid(intMaxY:-1:1,(1:intMaxX));
-	C = double(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)./255;
+	C = double(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)./double(intmax(class(sSliceData.Slice(sGUI.intCurrIm).ImTransformed)));
 	sGUI.handles.hIm = surface(sGUI.handles.hAxSlice,matX',matY',ones(size(matY')),C,...
 		'edgecolor','none','linestyle','none');
 	xlim(sGUI.handles.hAxSlice,[min(matX(:)) max(matX(:))]);

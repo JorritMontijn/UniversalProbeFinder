@@ -49,8 +49,15 @@ function varOut = PF_getIniVar(strVarName,boolSetValue)
 				strAtlasName = strAtlasName(1:(end-4));
 			end
 			
+			if isfield(sPF,strVarName) && exist(sPF.(strVarName),'dir')
+				strDefPath = sPF.(strVarName);
+			else
+				strDefPath = '';
+			end
+			
 			%open path finding dialog
-			varOut = uigetdir('',sprintf('Select path for %s',strAtlasName));
+			varOut = uigetdir(strDefPath,sprintf('Select path for %s',strAtlasName));
+			if isempty(varOut) || varOut(1)==0,return;end
 		else
 			%open text entry dialog
 			if isfield(sPF,strVarName)
@@ -71,6 +78,7 @@ function varOut = PF_getIniVar(strVarName,boolSetValue)
 			if ~iscell(varOut) && ~isnan(str2double(varOut))
 				varOut = str2double(varOut);
 			end
+			if isempty(varOut),return;end
 		end
 		
 		%add var to structure

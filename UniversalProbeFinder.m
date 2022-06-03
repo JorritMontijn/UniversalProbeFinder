@@ -54,7 +54,7 @@ function UniversalProbeFinder
 	%ask which program to run
 	
 	%create GUI
-	hChooseGui = figure('Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
+	hChooseGui = figure('WindowStyle','Normal','Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
 	hChooseGui.Units = 'normalized';
 	
 	%add paths
@@ -96,9 +96,15 @@ function UniversalProbeFinder
 		'Units','normalized','FontSize',12,'Position',[0.2 0.23 0.6 0.15],...
 		'Callback',@ProbeFinder);
 	
-	ptrButtonSetter = uicontrol(hChooseGui,'Style','pushbutton','String','Settings',...
-		'Units','normalized','FontSize',12,'Position',[0.3 0.05 0.4 0.12],...
-		'Callback',@SetVariablesUPF);
+	%check for ini file
+	strIni = strcat(SH_getIniPath(),filesep,'configPF.ini');
+	
+	%load ini
+	if exist(strIni,'file')
+		ptrButtonSetter = uicontrol(hChooseGui,'Style','pushbutton','String','Settings',...
+			'Units','normalized','FontSize',12,'Position',[0.3 0.05 0.4 0.12],...
+			'Callback',@SetVariablesUPF);
+	end
 	
 	%move
 	movegui(hChooseGui,'center');
