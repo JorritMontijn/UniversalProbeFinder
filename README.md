@@ -6,6 +6,8 @@ To install & run, clone this repository and download the atlases you wish to use
 `UniversalProbeFinder`\
 in the matlab prompt.\
 \
+Please read the manual for more information: https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder.pdf \
+\
 **Note:** if you click "Code" and then download the code as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder from here: https://github.com/JorritMontijn/zetatest. If you clone this repository, it will download the submodule as it should. If you download a zip-packaged release or the MCR version, it also includes the submodule.
 
 ## Using the Universal Probe Finder without a MATLAB license
