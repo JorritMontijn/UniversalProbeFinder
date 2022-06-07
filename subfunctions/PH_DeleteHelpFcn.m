@@ -2,13 +2,13 @@ function PH_DeleteHelpFcn(hObject,varargin)
 	
 	%get data
 	sGUI = guidata(hObject);
-	sGUI = guidata(sGUI.handles.hMain);
 	hMain = sGUI.handles.hMain;
 	
 	%delete
-	close(hObject);
+	delete(hObject);
 	
 	%reset focus
+	if ~ishandle(hMain),return;end
 	figure(hMain);drawnow;
 	set(sGUI.handles.ptrButtonHelp, 'enable', 'off');
 	drawnow;

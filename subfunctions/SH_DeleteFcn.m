@@ -5,6 +5,8 @@ function SH_DeleteFcn(hObject,varargin)
 		delete(hObject);
 		return;
 	end
+	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
 	
 	%ask to quit
 	opts = struct;
@@ -19,9 +21,11 @@ function SH_DeleteFcn(hObject,varargin)
 			%update gui &close
 			hObject.UserData = 'close';
 			SH_DeleteFcn(hObject);
+			if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end
 		case 'Exit & Discard data'
 			hObject.UserData = 'close';
 			SH_DeleteFcn(hObject);
+			if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end
 		case 'Cancel'
 			return;
 	end

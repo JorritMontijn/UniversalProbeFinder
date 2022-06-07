@@ -34,7 +34,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%% set up the gui
 	%main figure
 	hMain = figure('WindowStyle','Normal','Menubar','none','color','w','NumberTitle','off',...
-		'Name','Universal Probe Finder: Coordinate Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
+		'Name','UPF: Probe Finder','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@PH_DeleteFcn);
 	try
 		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
@@ -234,6 +234,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.ptrButtonLoadZeta = ptrButtonLoadZeta;
 	sGUI.handles.ptrButtonShowClusters = ptrButtonShowClusters;
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
+	sGUI.handles.hDispHelp = [];
 	
 	% plotting handles
 	sGUI.handles.cortex_outline = hMesh;

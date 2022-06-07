@@ -12,7 +12,7 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	warning('off','MATLAB:hg:uicontrol:ValueMustBeWithinStringRange');
 	warning('off','MATLAB:hg:uicontrol:StringMustBeNonEmpty');
 	hMain = figure('WindowStyle','Normal','Menubar','none','color','w','NumberTitle','off',...
-		'Name','Universal Probe Finder: Slice Prepper','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
+		'Name','UPF: Slice Prepper','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@SH_DeleteFcn);
 	hMain.Visible = 'off';
 	try
@@ -39,6 +39,13 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	
 	ptrButtonSave = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Save','Units','normalized',...
 		'Position',[0.94 0.69 0.06 0.03],'Callback',@SH_SaveSlicePrepperFile);
+	
+	%set up image control buttons
+	hImagePanel = uipanel(hMain,'FontSize',11,'Title','Image control','BackgroundColor','white','Position',[0.88 0.4 0.12 0.1]);
+	
+	ptrButtonFlipHorz = uicontrol(hImagePanel,'Style','pushbutton','FontSize',12,'string','Flip horizontally','Units','normalized',...
+		'Position',[0.1 0.3 0.8 0.5],'Callback',@SH_FlipHorz);
+	
 	
 	%set up track selector
 	hTrackPanel = uipanel(hMain,'FontSize',11,'Title','Track selector','BackgroundColor','white','Position',[0.88 0.53 0.12 0.15]);
@@ -86,6 +93,7 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	sGUI.handles.hHeader = hHeader;
 	sGUI.handles.vecHeaderAxes = sHeaderHandles.vecPlotAx;
 	sGUI.handles.ptrTextInfo = ptrTextInfo;
+	sGUI.handles.hDispHelp = [];
 	
 	%drawing handles
 	sGUI.handles.hLastClick = [];
@@ -99,6 +107,10 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	sGUI.handles.ptrListSelectTrack = ptrListSelectTrack;
 	sGUI.handles.ptrStaticTextActiveTrack = ptrStaticTextActiveTrack;
 	sGUI.handles.ptrTextActiveTrack = ptrTextActiveTrack;
+	
+	%image control handles
+	sGUI.handles.hImagePanel = hImagePanel;
+	sGUI.handles.ptrButtonFlipHorz  = ptrButtonFlipHorz;
 	
 	%other buttons
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;

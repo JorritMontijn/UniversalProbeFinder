@@ -21,7 +21,7 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	%main figure
 	warning('off','MATLAB:hg:uicontrol:ValueMustBeWithinStringRange');
 	hMain = figure('WindowStyle','Normal','Menubar','none','color','w','NumberTitle','off',...
-		'Name','Universal Probe Finder: Slice Location Adjuster','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
+		'Name','UPF: Slice Finder','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@SF_DeleteFcn);
 	hMain.Visible = 'off';
 	try
@@ -71,8 +71,8 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	ptrButtonHelp = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Help','Units','normalized',...
 		'Position',[0.9 0.81 0.08 0.04],'Callback',@SF_DisplaySliceFinderControls);
 	
-	ptrButtonExport = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Export','Units','normalized',...
-		'Position',[0.8 0.81 0.06 0.03],'Callback',@SF_ExportSliceFinderFile);
+	%ptrButtonExport = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Export','Units','normalized',...
+	%	'Position',[0.8 0.81 0.06 0.03],'Callback',@SF_ExportSliceFinderFile);
 	
 	ptrButtonLoad = uicontrol(hMain,'Style','pushbutton','FontSize',12,'string','Load','Units','normalized',...
 		'Position',[0.62 0.81 0.06 0.03],'Callback',@SF_LoadSliceData);
@@ -160,12 +160,13 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.handles.ptrTextMessages = ptrTextMessages;
 	sGUI.handles.ptrTextClipboard = ptrTextClipboard;
 	sGUI.handles.structure_patch = [];
+	sGUI.handles.hDispHelp = [];
 	
 	%other buttons
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
 	sGUI.handles.ptrButtonLoad = ptrButtonLoad;
 	sGUI.handles.ptrButtonSave = ptrButtonSave;
-	sGUI.handles.ptrButtonExport = ptrButtonExport;
+	sGUI.handles.ptrButtonExport = [];%ptrButtonExport; %removed
 
 	%other
 	sGUI.boolReadyForExit = false;

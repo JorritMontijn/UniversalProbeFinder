@@ -1,4 +1,9 @@
 function [strName,strMarker,vecColor] = SH_TrackUI(strDefName,varDefMarker,vecDefColor,strTitle)
+	%pre-allocate
+	strName = [];
+	strMarker = [];
+	vecColor = [];
+	
 	%get marker list
 	cellMarkerList = {'+',...
 		'o',...

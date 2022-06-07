@@ -124,7 +124,7 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		sZetaResp = PH_OpenZeta(sClusters,strNewPath);
 		
 		%save
-		if ~isempty(sZetaResp) && isfield(sZetaResp,'vecZetaP')
+		if ~isempty(sZetaResp) && isfield(sZetaResp,'vecZetaP') && ~isempty(sZetaResp.vecZetaP)
 			sClusters.vecDepth = sZetaResp.vecDepth;
 			sClusters.vecZeta = norminv(1-(sZetaResp.vecZetaP/2));
 			sClusters.strZetaTit = 'ZETA (z-score)';

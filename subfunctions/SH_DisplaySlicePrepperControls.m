@@ -1,5 +1,12 @@
 function SH_DisplaySlicePrepperControls(hObject,varargin)
 	
+	%check if help is already open
+	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
+	if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp)
+		figure(sGUI.handles.hDispHelp);return;
+	end
+	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';
 	CreateStruct.WindowStyle = 'non-modal';
@@ -34,12 +41,10 @@ function SH_DisplaySlicePrepperControls(hObject,varargin)
 		'Controls',CreateStruct);
 	
 	%add handles & return to hMsgBox
-	sGUI = guidata(hObject);
-	sGUI = guidata(sGUI.handles.hMain);
 	hRealMain = sGUI.handles.hMain;
 	sMiniGUI = struct;
 	sMiniGUI.hMain = hRealMain;
-	sMiniGUI.handles.hMain = hRealMain;
+	sMiniGUI.handles = sGUI.handles;
 	guidata(hMsgBox,sMiniGUI);
 	set(hMsgBox,'KeyPressFcn',@SH_KeyPress);
 	set(hMsgBox,'DeleteFcn',@PH_DeleteHelpFcn);
@@ -59,6 +64,7 @@ function SH_DisplaySlicePrepperControls(hObject,varargin)
 	set(sGUI.handles.ptrButtonHelp, 'enable', 'on');
 		
 	%release
+	sGUI.handles.hDispHelp = hMsgBox;
 	sGUI.IsBusy = false;
 	guidata(sGUI.handles.hMain,sGUI);
 end

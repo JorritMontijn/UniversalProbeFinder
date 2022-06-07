@@ -4,9 +4,9 @@ function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strNa
 	%% pre-allocate output
 	sProbeCoords = [];
 	if ~exist('strName','var') || isempty(strName)
-		strPrompt = 'Select probe coordinate file';
+		strPrompt = 'Select aligned slice or probe coordinate file';
 	else
-		strPrompt = ['Select probe coordinate file for ' strName];
+		strPrompt = ['Select aligned slice or probe coordinate file for ' strName];
 	end
 	
 	%% select file

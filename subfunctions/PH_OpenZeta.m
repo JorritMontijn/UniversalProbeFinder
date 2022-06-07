@@ -10,6 +10,7 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 	sLoad = load(fullpath(strZetaPath,strZetaFile));
 	
 	%determine file type
+	vecZetaP = [];
 	if isfield(sLoad,'vecZetaP') && isfield(sLoad,'vecDepth')
 		%native
 		vecDepth = sLoad.vecDepth;
@@ -53,11 +54,12 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 			[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strZetaPath);
 			
 		else
-			errordlg('Your repository is corrupt: cannot find zetatest.Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
+			errordlg('Your repository is corrupt: cannot find zetatest. Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
 		end
 	else
 		%file not recognized
 		vecDepth = sClusters.vecDepth;
+		vecZetaP = [];
 		cellFields = fieldnames(sLoad);
 		if numel(cellFields) == 1
 			varIn = sLoad.(cellFields{1});
@@ -70,7 +72,7 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 				opts.Interpreter = 'none';
 				strAns = questdlg(sprintf('Does the variable "%s" contain event (onset) times?',cellFields{1}),'Confirm variable type','Yes','Cancel',opts);
 				if ~strcmpi(strAns,'yes')
-					error([mfilename ':WrongVariableType'],'Please save your event onset times as a single array to a .mat file and try again');
+					return;
 				else
 					vecEventOn = varIn;
 				end
@@ -93,6 +95,11 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 				end
 			end
 		end
+	end
+	
+	%check output
+	if isempty(vecZetaP)
+		errordlg('Could not load or calculate ZETA responsiveness, please try again.','ZETA values missing');
 	end
 	
 	%save

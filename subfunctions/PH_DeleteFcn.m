@@ -13,6 +13,7 @@ function PH_DeleteFcn(hObject,varargin)
 		return;
 	end
 	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
 	
 	%ask to quit
 	opts = struct;
@@ -27,10 +28,12 @@ function PH_DeleteFcn(hObject,varargin)
 			%create deletion timer
 			hObject.UserData = 'close';
 			start(timer('StartDelay',0.2,'TimerFcn',{@PH_DeleteFcn,hObject}));
+			if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end
 		case 'Exit & Discard data'
 			hObject.UserData = 'close';
 			guidata(hObject,[]);
 			start(timer('StartDelay',0.2,'TimerFcn',{@PH_DeleteFcn,hObject}));
+			if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end
 		case 'Cancel'
 			return;
 	end

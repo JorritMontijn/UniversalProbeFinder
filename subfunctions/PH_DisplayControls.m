@@ -1,9 +1,17 @@
 function PH_DisplayControls(hObject,varargin)
 	
+	%check if help is already open
+	sGUI = guidata(hObject);
+	sGUI = guidata(sGUI.handles.hMain);
+	if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp)
+		figure(sGUI.handles.hDispHelp);return;
+	end
+	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';
 	CreateStruct.WindowStyle = 'non-modal';
-	cellTxt = {'\fontsize{12}' ...
+	cellTxt = {''...
+		'\fontsize{12}' ...
 		'\bfTip: If the GUI is slow, try turning off the atlas slice (s)\rm' ...
 		'' ...
 		'\bf Probe: \rm' ...
@@ -44,16 +52,17 @@ function PH_DisplayControls(hObject,varargin)
 	hTxt.ButtonDownFcn = @(~,~)web('https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder.pdf'); % this opens the website
 	
 	%add handles & return to hMsgBox
-	sGUI = guidata(hObject);
-	sGUI = guidata(sGUI.handles.hMain);
 	hRealMain = sGUI.handles.hMain;
 	sMiniGUI = struct;
 	sMiniGUI.hMain = hRealMain;
-	sMiniGUI.handles.hMain = hRealMain;
+	sMiniGUI.handles = sGUI.handles;
 	guidata(hMsgBox,sMiniGUI);
 	set(hMsgBox,'KeyPressFcn',@PH_KeyPress);
 	set(hMsgBox,'DeleteFcn',@PH_DeleteHelpFcn);
 	
+	%update main gui
+	sGUI.handles.hDispHelp = hMsgBox;
+	guidata(sGUI.handles.hMain,sGUI);
 end
 
 
