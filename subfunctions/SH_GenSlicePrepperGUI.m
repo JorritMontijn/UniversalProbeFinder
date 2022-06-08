@@ -16,6 +16,7 @@ function SH_GenSlicePrepperGUI(sSliceData)
 		'CloseRequestFcn',@SH_DeleteFcn);
 	hMain.Visible = 'off';
 	try
+		warning('off','MATLAB:ui:javaframe:PropertyToBeRemoved');
 		warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 		jframe=get(hMain,'javaframe');
 		jIcon=javax.swing.ImageIcon(fullpath(SH_getIniPath(),'icon.png'));
