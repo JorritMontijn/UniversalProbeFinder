@@ -33,6 +33,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%% set up the gui
 	%main figure
+	warning('off','MATLAB:unknownElementsNowStruc');
 	hMain = figure('WindowStyle','Normal','Menubar','none','color','w','NumberTitle','off',...
 		'Name','UPF: Probe Finder','Units','normalized','Position',[0.05,0.05,0.9,0.9],...
 		'CloseRequestFcn',@PH_DeleteFcn);

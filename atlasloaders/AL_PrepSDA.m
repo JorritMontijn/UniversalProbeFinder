@@ -33,11 +33,21 @@ function sAtlas = AL_PrepSDA(strSpragueDawleyAtlasPath)
 	
 	%% load atlas
 	try
+		warning('off','MATLAB:table:ModifiedAndSavedVarnames');
 		hMsg = msgbox('Loading Sprague Dawley rat brain Atlas, please wait...','Loading SDA');
 		tv = niftiread(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_T2star_v1.01.nii')); %has lots of signal outside brain
 		av = niftiread(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_atlas_v4.nii')); %annotated volume
 		st = readtable(fullpath(strSpragueDawleyAtlasPath,'WHS_SD_rat_atlas_v4.label'),'filetype','text',...
-			'Delimiter', '\t ', 'MultipleDelimsAsOne', true, 'HeaderLines', 14);
+			'Delimiter', ' ', 'MultipleDelimsAsOne', true, 'HeaderLines', 14);
+		if size(st,2) == 9
+			%R2022a error: non-existing leading variable added; remove from table
+			stNew = table();
+			for intVar=2:9
+				stNew.(sprintf('Var%d',intVar-1)) = st.(sprintf('Var%d',intVar));
+			end
+			st = stNew;
+			clear stNew;
+		end
 		close(hMsg);
 	catch ME
 		close(hMsg);
