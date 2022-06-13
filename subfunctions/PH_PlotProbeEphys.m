@@ -36,7 +36,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	strZetaTit = sClusters.strZetaTit;
 	dblProbeLength = sClusters.dblProbeLength;
 	indShowCells = true(size(sClusters.vecZeta));
-	if isfield(sClusters,'ClustQual')
+	if isfield(sClusters,'ClustQualLabel')
 		cellUniqueClustQ = unique(sClusters.ClustQualLabel);
 		%update list
 		hShowClust.String = cat(1,'all',cellUniqueClustQ(:));
@@ -46,14 +46,14 @@ function PH_PlotProbeEphys(hMain,varargin)
 			indShowCells = strcmpi(sClusters.ClustQualLabel,strShowClust);
 		end
 	else
-		sClusters.ClustQual = ones(size(indShowCells));
+		sClusters.ClustQualLabel = cellfill('none',size(indShowCells));
 	end
 	vecDepth = sClusters.vecDepth(indShowCells);
 	vecZeta = sClusters.vecZeta(indShowCells);
-	vecClustQual = sClusters.ClustQual(indShowCells);
+	vecClustQual = val2idx(sClusters.ClustQualLabel(indShowCells));
 	
 	%% plot zeta
-	vecUniqueQ = unique(sClusters.ClustQual);
+	vecUniqueQ = unique(vecClustQual);
 	mapCol = redbluepurple(numel(vecUniqueQ));
 	mapCol = mapCol(end:-1:1,:);
 	mapCol(end,:) = [0 0 0]; %make good quality clusters black

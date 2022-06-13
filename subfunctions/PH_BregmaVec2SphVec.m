@@ -26,7 +26,7 @@ function vecSphereVector = PH_BregmaVec2SphVec(vecBregmaVector,sAtlas)
 	[dZ,dY,dX] = sph2cart(deg2rad(-dblAngleAP_deg),deg2rad(dblAngleML_deg),dblLengthAtlas);
 	
 	%find highest point of brain at these ML,AP coordinates
-	vecBrainEntry = [dblAtlasML dblAtlasAP sAtlas.Bregma(3)];
+	vecBrainEntry = round([dblAtlasML dblAtlasAP sAtlas.Bregma(3)]);
 	if dZ < 0
 		intDV = find(sAtlas.av(vecBrainEntry(1),vecBrainEntry(2),:) > 1,1,'first');
 	else

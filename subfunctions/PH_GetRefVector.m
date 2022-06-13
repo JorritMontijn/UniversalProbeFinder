@@ -1,6 +1,6 @@
 function matRefVector = PH_GetRefVector(matCartPoints)
-	%PH_GetRefVector Summary of this function goes here
-	%   Detailed explanation goes here
+	%PH_GetRefVector Calculates vector from points
+	%   Uses singular value decomposition to extract the principal vector
 	
 	r0 = mean(matCartPoints,1);
 	xyz = bsxfun(@minus,matCartPoints,r0);
