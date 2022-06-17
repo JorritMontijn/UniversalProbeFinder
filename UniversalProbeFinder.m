@@ -53,8 +53,13 @@ function UniversalProbeFinder
 	
 	%ask which program to run
 	
+	%set disable/enable global
+	global sUPF_ChooseGui
+	if isfield(sUPF_ChooseGui,'hMain') && ishandle(sUPF_ChooseGui.hMain),return;end
+	
 	%create GUI
-	hChooseGui = figure('WindowStyle','Normal','Name','Universal Probe Finder','Menubar','none','NumberTitle','off','Position',[500 500 400 200]);
+	hChooseGui = figure('WindowStyle','Normal','Name','Universal Probe Finder',...
+		'Menubar','none','NumberTitle','off','Position',[500 500 400 200],'CloseRequestFcn',@UPF_DeleteFcn);
 	hChooseGui.Units = 'normalized';
 	
 	%add paths
@@ -105,6 +110,15 @@ function UniversalProbeFinder
 			'Units','normalized','FontSize',12,'Position',[0.3 0.05 0.4 0.12],...
 			'Callback',@SetVariablesUPF);
 	end
+	
+	%add handles to global
+	sUPF_ChooseGui = struct;
+	sUPF_ChooseGui.hMain = hChooseGui;
+	sUPF_ChooseGui.handles.ptrTextPrepper = ptrTextPrepper;
+	sUPF_ChooseGui.handles.ptrButtonPrepper = ptrButtonPrepper;
+	sUPF_ChooseGui.handles.ptrButtonFinder = ptrButtonFinder;
+	sUPF_ChooseGui.handles.ptrButtonProber = ptrButtonProber;
+	sUPF_ChooseGui.handles.ptrButtonSetter = ptrButtonSetter;
 	
 	%move
 	movegui(hChooseGui,'center');

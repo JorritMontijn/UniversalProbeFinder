@@ -2,14 +2,24 @@ function SlicePrepper(varargin)
 	%SlicePrepper Multi-species histology track annotation program
 
 	%% add subfolders
-	strFullpath = mfilename('fullpath');
-	strPath = fileparts(strFullpath);
-	sDir=dir([strPath filesep '**' filesep]);
-	%remove git folders
-	sDir(contains({sDir.folder},[filesep '.git'])) = [];
-	cellFolders = unique({sDir.folder});
-	for intFolder=1:numel(cellFolders)
-		addpath(cellFolders{intFolder});
+	if ~isdeployed
+		%disable buttons
+		global sUPF_ChooseGui %#ok<TLEV>
+		UPF_DisableButtons(sUPF_ChooseGui);
+		
+		%add folders
+		strFullpath = mfilename('fullpath');
+		strPath = fileparts(strFullpath);
+		sDir=dir([strPath filesep '**' filesep]);
+		%remove git folders
+		sDir(contains({sDir.folder},[filesep '.git'])) = [];
+		cellFolders = unique({sDir.folder});
+		for intFolder=1:numel(cellFolders)
+			addpath(cellFolders{intFolder});
+		end
+		
+		%enable buttons
+		UPF_EnableButtons(sUPF_ChooseGui);
 	end
 	
 	%% try using Acquipix variables
@@ -17,7 +27,7 @@ function SlicePrepper(varargin)
 		sRP = RP_populateStructure();
 		strDefaultPath = sRP.strProbeLocPath;
 	catch
-		sRP = struct;
+		sRP = struct; %#ok<NASGU>
 		strDefaultPath=fileparts(mfilename('fullpath'));
 	end
 	

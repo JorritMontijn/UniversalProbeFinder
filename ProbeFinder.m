@@ -1,4 +1,4 @@
-function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
+function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	%ProbeFinder Multi-species probe alignment program using neurophysiological markers
 	
 	%To use this program, simply run:
@@ -45,6 +45,11 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% add subfolders
 	if ~isdeployed
+		%disable buttons
+		global sUPF_ChooseGui %#ok<TLEV>
+		UPF_DisableButtons(sUPF_ChooseGui);
+		
+		%add folders
 		strFullpath = mfilename('fullpath');
 		strPath = fileparts(strFullpath);
 		sDir=dir([strPath filesep '**' filesep]);
@@ -54,6 +59,9 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		for intFolder=1:numel(cellFolders)
 			addpath(cellFolders{intFolder});
 		end
+		
+		%enable buttons
+		UPF_EnableButtons(sUPF_ChooseGui);
 	end
 	
 	%% load atlas
@@ -82,7 +90,7 @@ function hMain = ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		end
 		
 		%load atlas
-		strAtlasName = sAtlasParams(intSelectAtlas).name;
+		strAtlasName = sAtlasParams(intSelectAtlas).name; %#ok<NASGU>
 		strPathVar = sAtlasParams(intSelectAtlas).pathvar;
 		fLoader = sAtlasParams(intSelectAtlas).loader;
 		
