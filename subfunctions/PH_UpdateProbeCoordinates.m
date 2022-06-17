@@ -44,11 +44,11 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	%table; [ML AP ML-deg AP-deg depth length]
 	ML = probe_vector_bregma(1);
 	AP = probe_vector_bregma(2);
-	Angle_ML = probe_vector_bregma(3);
-	Angle_AP = probe_vector_bregma(4);
+	AngleML = probe_vector_bregma(3);
+	AngleAP = probe_vector_bregma(4);
 	Depth = probe_vector_bregma(5);
-	Probe_Length = probe_vector_bregma(6);
-	sGUI.sProbeCoords.sProbeAdjusted.stereo_coordinates = table(ML,AP,Angle_ML,Angle_AP,Depth,Probe_Length);
+	ProbeLength = probe_vector_bregma(6);
+	sGUI.sProbeCoords.sProbeAdjusted.stereo_coordinates = table(ML,AP,AngleML,AngleAP,Depth,ProbeLength);
 	
 	%area per cluster
 	if isfield(sGUI.sClusters,'vecDepth') && ~isempty(sGUI.sClusters.vecDepth)

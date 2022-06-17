@@ -8,7 +8,7 @@ function SH_SaveSlicePrepperFile(hMain,varargin)
 	h1=msgbox('Saving data...','Saved data');
 	sSliceData = sGUI.sSliceData;
 	assignin('base','sSliceData',sSliceData)
-	strFile = ['Prepped' getDate '_UniversalProbeFinder_SliceFile.mat'];
+	strFile = ['SliceFile_' getDate '_UniversalProbeFinder.mat'];
 	save(fullpath(sSliceData.path,strFile),'sSliceData');
 	if ishandle(h1),delete(h1);end
 	h2=msgbox(sprintf('Saved data to:\n  File: %s\n  Path: %s\n',strFile,sSliceData.path),'Saved data');

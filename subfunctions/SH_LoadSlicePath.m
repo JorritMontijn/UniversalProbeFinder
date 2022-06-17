@@ -42,7 +42,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 	
 	%% find slice file, otherwise create
 	%load
-	strFormat = '*_UniversalProbeFinder_SliceFile.mat';
+	strFormat = '*_UniversalProbeFinder*.mat';
 	sDir = dir(fullpath(strSlicePath,strFormat));
 	%load options
 	cellFiles = {sDir.name};

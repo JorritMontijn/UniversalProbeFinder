@@ -190,6 +190,8 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.sCopyBackup.RotateAroundML = sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundML;
 			sGUI.sCopyBackup.RotateAroundDV = sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundDV;
 			sGUI.sCopyBackup.RotateAroundAP = sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundAP;
+			sGUI.sCopyBackup.ResizeUpDown = sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeUpDown;
+			sGUI.sCopyBackup.ResizeLeftRight = sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight;
 			
 			%copy location
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).Center = sGUI.sSliceData.Slice(sGUI.CurrCopy).Center;
@@ -197,6 +199,8 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundML = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundML;
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundDV = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundDV;
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundAP = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundAP;
+			sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeUpDown = sGUI.sSliceData.Slice(sGUI.CurrCopy).ResizeUpDown;
+			sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight = sGUI.sSliceData.Slice(sGUI.CurrCopy).ResizeLeftRight;
 			
 			%update data
 			guidata(hMain,sGUI);
@@ -212,17 +216,23 @@ function SF_KeyPress(hMain,eventdata)
 		%interpolate details
 		%paste details
 		if ~(isnan(sGUI.CurrCopy) || isempty(sGUI.CurrCopy) || isnan(sGUI.PrevCopy) || (abs(sGUI.PrevCopy - sGUI.CurrCopy) < 2))
-			%copy location 1
+			%copy slice 1
 			vecC1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).Center;
 			dblR_ML1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundML;
 			dblR_AP1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundAP;
 			dblR_DV1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).RotateAroundDV;
 			
-			%copy location 2
+			dblS_UD1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).ResizeUpDown;
+			dblS_LR1 = sGUI.sSliceData.Slice(sGUI.CurrCopy).ResizeLeftRight;
+			
+			%copy slice 2
 			vecC2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).Center;
 			dblR_ML2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).RotateAroundML;
 			dblR_AP2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).RotateAroundAP;
 			dblR_DV2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).RotateAroundDV;
+			
+			dblS_UD2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).ResizeUpDown;
+			dblS_LR2 = sGUI.sSliceData.Slice(sGUI.PrevCopy).ResizeLeftRight;
 			
 			%create interpolation
 			intP = abs(sGUI.PrevCopy - sGUI.CurrCopy)+1;
@@ -230,6 +240,9 @@ function SF_KeyPress(hMain,eventdata)
 			vecC_ML = linspace(vecC1(1),vecC2(1),intP);
 			vecC_AP = linspace(vecC1(2),vecC2(2),intP);
 			vecC_DV = linspace(vecC1(3),vecC2(3),intP);
+			
+			vecC_UD = linspace(dblS_UD1,dblS_UD2,intP);
+			vecC_LR = linspace(dblS_LR1,dblS_LR2,intP);
 			
 			dblDiffR_ML = rad2deg(circ_dist(deg2rad(dblR_ML1),deg2rad(dblR_ML2)));
 			if dblR_ML1 < dblR_ML2,dblDiffR_ML=-dblDiffR_ML;end
@@ -254,6 +267,8 @@ function SF_KeyPress(hMain,eventdata)
 				sGUI.sCopyBackup(intIdx).RotateAroundML = sGUI.sSliceData.Slice(intApplyIm).RotateAroundML;
 				sGUI.sCopyBackup(intIdx).RotateAroundAP = sGUI.sSliceData.Slice(intApplyIm).RotateAroundAP;
 				sGUI.sCopyBackup(intIdx).RotateAroundDV = sGUI.sSliceData.Slice(intApplyIm).RotateAroundDV;
+				sGUI.sCopyBackup(intIdx).ResizeUpDown = sGUI.sSliceData.Slice(intApplyIm).ResizeUpDown;
+				sGUI.sCopyBackup(intIdx).ResizeLeftRight = sGUI.sSliceData.Slice(intApplyIm).ResizeLeftRight;
 				
 				%apply
 				sGUI.sSliceData.Slice(intApplyIm).Center(1) = vecC_ML(intIdx);
@@ -262,6 +277,9 @@ function SF_KeyPress(hMain,eventdata)
 				sGUI.sSliceData.Slice(intApplyIm).RotateAroundML = vecR_ML(intIdx);
 				sGUI.sSliceData.Slice(intApplyIm).RotateAroundAP = vecR_AP(intIdx);
 				sGUI.sSliceData.Slice(intApplyIm).RotateAroundDV = vecR_DV(intIdx);
+				
+				sGUI.sSliceData.Slice(intApplyIm).ResizeUpDown = vecC_UD(intIdx);
+				sGUI.sSliceData.Slice(intApplyIm).ResizeLeftRight = vecC_LR(intIdx);
 			end
 			
 			%update data

@@ -25,7 +25,9 @@ function PH_SaveProbeFile(hMain,varargin)
 	pvb = probe_vector_bregma;
 	assignin('base','probe_vector_bregma',probe_vector_bregma)
 	assignin('base','sProbeCoords',sProbeCoords)
-	if ~(sGUI.runtype == 2 && nargin == 1),uisave('sProbeCoords',['ProbeLocationFile' getDate]);end
+	if ~(sGUI.runtype == 2 && nargin == 1)
+		uisave('sProbeCoords',['ProbeLocationFile' getDate]);
+	end
 	fprintf(['\nCurrent probe location in Paxinos coordinates:\n'...
 		'  ML: %.1f microns\n'...
 		'  AP: %.1f microns\n'...
