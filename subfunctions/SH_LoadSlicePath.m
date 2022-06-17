@@ -136,7 +136,7 @@ function Track = genDummyTrack()
 end
 function [cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages)
 	%create GUI: OK, delete, move up, move down
-	hImConfGui = figure('Name','Confirm Images','Menubar','none','NumberTitle','off','Position',[500 300 300 600]);
+	hImConfGui = figure('Name','Confirm Images','WindowStyle','Normal','Menubar','none','NumberTitle','off','Position',[500 300 300 600]);
 	hImConfGui.Units = 'normalized';
 	
 	%create buttons
