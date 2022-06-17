@@ -48,6 +48,9 @@ function PH_PlotProbeEphys(hMain,varargin)
 	else
 		sClusters.ClustQualLabel = cellfill('none',size(indShowCells));
 	end
+	if numel(sClusters.ClustQualLabel) == 1
+		sClusters.ClustQualLabel(1:numel(indShowCells)) = sClusters.ClustQualLabel(1);
+	end
 	vecDepth = sClusters.vecDepth(indShowCells);
 	vecZeta = sClusters.vecZeta(indShowCells);
 	vecClustQual = val2idx(sClusters.ClustQualLabel(indShowCells));

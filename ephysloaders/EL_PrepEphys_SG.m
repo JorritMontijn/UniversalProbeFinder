@@ -61,7 +61,7 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 	vecZeta = vecContamination;
 	strZetaTit = 'Contamination (%)';
 	vecClusterQuality = zeros(size(vecNormSpikeCounts));
-	cellClustQualLabel = {'mua'};
+	cellClustQualLabel = cellfill('mua',size(vecClusterQuality));
 
 	%% prep ephys
 	%work-around using global in case the probe length is wrong
