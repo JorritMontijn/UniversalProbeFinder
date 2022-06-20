@@ -49,7 +49,7 @@ function sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 	sClusters.ClustQual = sClusters.ClustQual;
 	sClusters.ClustQualLabel = sClusters.ClustQualLabel;
 	if numel(sClusters.ClustQualLabel) == 1
-		sClusters.cellClustQualLabel = cellfill(sClusters.ClustQualLabel{1},size(sClusters.vecDepth));
+		sClusters.ClustQualLabel = cellfill(sClusters.ClustQualLabel{1},size(sClusters.vecDepth));
 	end
 	sClusters.ContamP = sClusters.ContamP;
 	%get channel mapping
