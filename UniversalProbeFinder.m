@@ -105,10 +105,13 @@ function UniversalProbeFinder
 	strIni = strcat(SH_getIniPath(),filesep,'configPF.ini');
 	
 	%load ini
-	if exist(strIni,'file')
-		ptrButtonSetter = uicontrol(hChooseGui,'Style','pushbutton','String','Settings',...
+	ptrButtonSetter = uicontrol(hChooseGui,'Style','pushbutton','String','Settings',...
 			'Units','normalized','FontSize',12,'Position',[0.3 0.05 0.4 0.12],...
 			'Callback',@SetVariablesUPF);
+	if exist(strIni,'file')
+		ptrButtonSetter.Visible = 'on';
+	else
+		ptrButtonSetter.Visible = 'off';
 	end
 	
 	%add handles to global
