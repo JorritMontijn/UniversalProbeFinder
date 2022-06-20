@@ -28,7 +28,7 @@ function SlicePrepper(varargin)
 		strDefaultPath = sRP.strProbeLocPath;
 	catch
 		sRP = struct; %#ok<NASGU>
-		strDefaultPath=fileparts(mfilename('fullpath'));
+		strDefaultPath=cd();
 	end
 	
 	%% ask for folder & meta data (if any)

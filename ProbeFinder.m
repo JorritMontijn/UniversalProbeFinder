@@ -86,7 +86,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 			strDefaultPath = sRP.strProbeLocPath;
 		catch
 			sRP = struct;
-			strDefaultPath=fileparts(mfilename('fullpath'));
+			strDefaultPath=cd();
 		end
 		
 		%load atlas

@@ -32,7 +32,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 			sRP = RP_populateStructure();
 			strDefaultPath = sRP.strProbeLocPath;
 		catch
-			strDefaultPath=fileparts(mfilename('fullpath'));
+			strDefaultPath=cd();
 		end
 	end
 	

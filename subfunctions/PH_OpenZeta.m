@@ -35,6 +35,14 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 		
 		%calculate zeta
 		if exist('zetatest','file')
+			if isempty(sClusters) || ~isfield(sClusters,'vecDepth')
+				%save
+				sZetaResp.name = [];
+				sZetaResp.folder = [];
+				sZetaResp.vecDepth = [];
+				sZetaResp.vecZetaP = [];
+				return;
+			end
 			vecDepth = sClusters.vecDepth;
 			intNumN = numel(vecDepth);
 			vecZetaP = nan(1,intNumN);
