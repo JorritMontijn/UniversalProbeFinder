@@ -12,6 +12,9 @@ function strPath = SH_getIniPath()
 			else
 				msgbox({'realpwd not set:',result})
 			end
+		elseif isdeployed && isunix
+			[status, result] = system('echo $PATH');
+			strPath = char(regexpi(result, '(.*?):', 'tokens', 'once'));
 		elseif isdeployed
 			[status, result] = system('path');
 			strPath = char(regexpi(result, 'Path=(.*?);', 'tokens', 'once'));
