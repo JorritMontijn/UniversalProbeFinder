@@ -58,7 +58,7 @@ https://github.com/kwikteam/npy-matlab \
 https://github.com/cortex-lab/spikes \
 https://github.com/JorritMontijn/zetatest \
 \
-If you use the Universal Probe Finder, please cite us. If you have any questions or problems, feel free to reach out to us! 
+If you use the Universal Probe Finder, please cite our paper: https://www.biorxiv.org/content/10.1101/2022.06.20.496782v1. If you have any questions or problems, feel free to reach out to us! 
 
 ## License
 This repository is licensed under the GNU General Public License v3.0, meaning you are free to use, edit, and redistribute any part of this code, as long as you refer to the source (this repository) and apply the same non-restrictive license to any derivative work (GNU GPL v3).\
