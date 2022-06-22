@@ -8,7 +8,7 @@ in the matlab prompt.\
 \
 Please read the manual for more information: https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder.pdf \
 \
-**Note:** if you click "Code" and then download the code as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder from here: https://github.com/JorritMontijn/zetatest. If you clone this repository, it will download the submodule as it should. If you download a zip-packaged release or the MCR version, it also includes the submodule.
+**Note:** if you click "Code" and then download the code as a .zip, it will *not* include the zetatest submodule, so you will have to install it yourself manually in the zetatest subfolder from here: https://github.com/JorritMontijn/zetatest. If you clone the repository using git, you can include the submodule if you use "git clone --recurse-submodules https://github.com/JorritMontijn/UniversalProbeFinder". If you clone this repository with the desktop app, it will automatically include the submodule. If you download a zip-packaged release or the MCR version, it also includes the submodule.
 
 ## Using the Universal Probe Finder without a MATLAB license
 For those who do not have a MATLAB license, we provide a MATLAB Runtime (MCR) installer for the Universal Probe Finder. You won't have to spend any money, but you'll unfortunately still have to download and install a some support packages (approximately 1.9 GB). The web installer can be downloaded under "Releases".
