@@ -64,6 +64,11 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		UPF_EnableButtons(sUPF_ChooseGui);
 	end
 	
+	%% check if zetatest submodule is present
+	if ~exist('zetatest','file')
+		errordlg('Your repository is corrupt: cannot find zetatest and dependencies. Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','Missing dependencies');
+	end
+		
 	%% load atlas
 	%check if input comes from gui
 	if exist('sAtlas','var') && isa(sAtlas,'matlab.ui.control.UIControl')
