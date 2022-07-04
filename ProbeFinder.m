@@ -40,8 +40,6 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	%repository) and apply the same non-restrictive license to any derivative work (GNU GPL v3).
 	%
 	%Created by Jorrit Montijn at the Cortical Structure and Function laboratory (KNAW-NIN)
-	%
-	%Rev:20220530 - v1.0
 	
 	%% add subfolders
 	if ~isdeployed

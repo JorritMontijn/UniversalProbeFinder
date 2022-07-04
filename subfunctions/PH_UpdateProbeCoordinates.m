@@ -62,6 +62,11 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = {};
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = {};
 	end
+	if isfield(sGUI.sClusters,'vecUseClusters') && ~isempty(sGUI.sClusters.vecUseClusters)
+		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = sClusters.vecUseClusters;
+	else
+		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = [];
+	end
 	
 	% update gui
 	set(sGUI.handles.probe_vector_cart,'XData',probe_vector_cart(:,1), ...

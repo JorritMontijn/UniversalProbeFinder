@@ -3,6 +3,10 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 	sZetaResp = struct;
 	
 	%ask what to load
+	strText = 'Select event time, ZETA or Acquipix file';
+	if ismac; msgbox(strText,'OK'); end
+	uigetfile(strPath,strText);
+	
 	[strZetaFile,strZetaPath] = uigetfile(strPath,'Select event time, ZETA or Acquipix file');
 	if isempty(strZetaFile) || strZetaFile(1) == 0,return;end
 		

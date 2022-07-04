@@ -5,7 +5,7 @@ function SF_SaveSliceFinderFile(hMain,varargin)
 	sGUI = guidata(hMain);
 	
 	% Export the probe coordinates to the workspace & save to file
-	h1=msgbox('Saving data...','Saved data');
+	h1=msgbox('Saving data...','Saving data');
 	sSliceData = sGUI.sSliceData;
 	assignin('base','sSliceData',sSliceData)
 	strFile = ['SliceFile_' getDate '_UniversalProbeFinder.mat'];
