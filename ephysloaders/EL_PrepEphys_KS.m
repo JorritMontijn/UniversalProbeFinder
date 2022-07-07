@@ -33,23 +33,23 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sEphysData.templateDuration = templateDuration;
 	sEphysData.waveforms = waveforms;
 	
+	%labels
+	vecLabels = [0 1 2 3 4];
+	cellLabels = {'noise','mua','good','unsorted'};
+	sEphysData.cluster_id = sEphysData.cids;
+	sEphysData.ClustQual = sEphysData.cgs;
+	sEphysData.ClustQualLabel = cellLabels(sEphysData.ClustQual+1);
+	
 	%get contamination
 	strContamFile = fullpath(strPathEphys, 'cluster_ContamPct.tsv');
 	sCsv = loadcsv(strContamFile,char(9));
-	sEphysData.cluster_id = sCsv.cluster_id;
-	[vecOrigId2Cids,vecCid2OrigId]=find(sEphysData.cluster_id == sEphysData.cids);
-	
-	%labels
-	strLabelFile = fullpath(strPathEphys, 'cluster_KSlabel.tsv');
-	sCsv2 = loadcsv(strLabelFile,char(9));
-	sEphysData.ClustQual = cellfun(@(x) strcmp(x,'mua') + strcmp(x,'good')*2,sCsv2.KSLabel) - 1;
-	sEphysData.ClustQualLabel = sCsv2.KSLabel;
-	
-	%transform original ids to new ids
-	sEphysData.cluster_id = sCsv.cluster_id(vecOrigId2Cids);
-	sEphysData.ContamP = sCsv.ContamPct(vecOrigId2Cids);
-	sEphysData.ClustQual = sEphysData.ClustQual(vecOrigId2Cids);
-	sEphysData.ClustQualLabel = sEphysData.ClustQualLabel(vecOrigId2Cids);
+	sEphysData.cluster_contam_id = sCsv.cluster_id;
+	sEphysData.ContamP = 100*ones(size(sEphysData.ClustQual));
+	for intN=1:numel(sEphysData.ContamP)
+		intId = find(sEphysData.cluster_id(intN) == sEphysData.cluster_contam_id);
+		if isempty(intId),continue;end
+		sEphysData.ContamP(intN) = sEphysData.ContamP(intId);
+	end
 	
 	%get channel mapping
 	try
