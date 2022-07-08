@@ -20,7 +20,8 @@ function PH_ShowStructure(sGUI,eventdata)
 		vecListAreas = find(contains(lower(sGUI.sAtlas.st.name),strSearch));
 		vecEligibleAreas = intersect(vecAreaIds,vecListAreas);
 		if isempty(vecEligibleAreas)
-			warndlg('No areas match your search string','No results')
+			warndlg('No areas match your search string','No results');
+			return;
 		end
 		
 		vecPlotStructs = listdlg('Name','Area Selection','PromptString','Select an area to plot:', ...
