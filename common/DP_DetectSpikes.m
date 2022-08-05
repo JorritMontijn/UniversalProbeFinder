@@ -19,7 +19,7 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	%
 	%output:
 	% - vecSpikeCh; uint16 gpuArray, channel origin of spike
-	% - vecSpikeT; uint32 gpuArray, time of spike in ms after data start
+	% - vecSpikeT; int64 gpuArray, time of spike in ms after data start
 	% - dblTotT; total processed time in seconds
 	%
 	%Based on Kilosort2's get_good_channels.m
@@ -62,9 +62,17 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	vecSpikeT = zeros(5e4,1, 'int64');
 	intSpikeCounter = 0;
 	
+	%set class
+	if ~exist('strClass','var') || isempty(strClass)
+		strClass = class(matData);
+	end
+	
 	%get starting times
-	vecStartBatches = (1 + intStartT):intBuffT:min(intTotSamples,intStopT);
-	intLastBatch = intTotSamples-vecStartBatches(end)-1;
+	intTotSamples = size(matData,2);
+	intEndSample = min(intTotSamples,intStopT);
+	intMaxStart = intTotSamples-intBuffT-1;
+	vecStartBatches = (1 + intStartT):intBuffT:min(intMaxStart,intEndSample);
+	intLastBatchSize = intEndSample-vecStartBatches(end)+1;
 	
 	% detect rough spike timings
 	matCarryOver = zeros(0,strClass);
@@ -72,8 +80,15 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 		%define start
 		intStart = vecStartBatches(intBatch);
 		
+		%get processing length
+		if intBatch == numel(vecStartBatches)
+			intProcLength = intLastBatchSize;
+		else
+			intProcLength = intBuffT;
+		end
+		
 		%reorder to chan map & transfer to gpu
-		matDataArray = gpuArray(matData(vecChanMap,(intStart:(intStart+intBuffT-1))));
+		matDataArray = gpuArray(matData(vecChanMap,(intStart:(intStart+intProcLength-1))));
 		
 		%add carry-over to beginning of array
 		matBuffer = cat(2,matCarryOver,matDataArray);
@@ -111,7 +126,7 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	end
 	
 	%calculate outputs
-	intTotT = (intBuffT*intBatch + intLastBatch);
+	intTotT = (intBuffT*(intBatch-1) + intLastBatchSize);
 	if isempty(intTotT),intTotT=0;end
 	vecSpikeCh = vecSpikeCh(1:intSpikeCounter);
 	vecSpikeT = vecSpikeT(1:intSpikeCounter);
