@@ -32,24 +32,48 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sEphysData.tempsUnW = tempsUnW;
 	sEphysData.templateDuration = templateDuration;
 	sEphysData.waveforms = waveforms;
+
+	%load labels
+	[dummy, dummy,cellDataLabels]=tsvread(fullpath(strPathEphys, 'cluster_KSlabel.tsv'));
+	vecClustIdx_KSG = cellfun(@str2double,cellDataLabels(2:end,1));
+	vecKilosortGood = contains(cellDataLabels(2:end,2),'good');
+	%load contam
+	[dummy, dummy,cellDataContam]=tsvread(fullpath(strPathEphys, 'cluster_ContamPct.tsv'));
+	vecClustIdx_KSC = cellfun(@str2double,cellDataContam(2:end,1));
+	vecKilosortContamination = cellfun(@str2double,cellDataContam(2:end,2));
+
+	%get clusters with spikes
+	vecAllSpikeTimes = sEphysData.st;
+	vecAllSpikeClust = sEphysData.clu;
+	[vecTemplateIdx,dummy,spike_templates_reidx] = unique(vecAllSpikeClust);
 	
-	%labels
+	%get probe length
+	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
+		dblProbeLength = max(sEphysData.ycoords); %should work, but kilosort might drop channels
+	end
+	
+	%work-around using global in case the probe length is wrong
+	global gForceProbeLength_PH_PrepEphys;
+	if ~isempty(gForceProbeLength_PH_PrepEphys)
+		dblProbeLength = gForceProbeLength_PH_PrepEphys;
+	end
+	
+	%assign data
 	vecLabels = [0 1 2 3 4];
 	cellLabels = {'noise','mua','good','unsorted'};
-	sEphysData.cluster_id = sEphysData.cids;
-	sEphysData.ClustQual = sEphysData.cgs;
-	sEphysData.ClustQualLabel = cellLabels(sEphysData.ClustQual+1);
-	
-	%get contamination
-	strContamFile = fullpath(strPathEphys, 'cluster_ContamPct.tsv');
-	sCsv = loadcsv(strContamFile,char(9));
-	sEphysData.cluster_contam_id = sCsv.cluster_id;
-	sEphysData.ContamP = 100*ones(size(sEphysData.ClustQual));
-	for intN=1:numel(sEphysData.ContamP)
-		intId = find(sEphysData.cluster_id(intN) == sEphysData.cluster_contam_id);
-		if isempty(intId),continue;end
-		sEphysData.ContamP(intN) = sEphysData.ContamP(intId);
+	vecNormSpikeCounts = mat2gray(log10(accumarray(spike_templates_reidx,1)+1));
+	vecContamination = nan(1,numel(vecTemplateIdx));
+	vecClusterQuality = nan(1,numel(vecTemplateIdx));
+	vecTemplateDepths = nan(1,numel(vecTemplateIdx));
+	cellSpikes = cell(1,numel(vecTemplateIdx));
+	for intCluster=1:numel(vecTemplateIdx)
+		intClustIdx = vecTemplateIdx(intCluster);
+		vecContamination(intCluster) = vecKilosortContamination(vecClustIdx_KSC==intClustIdx);
+		vecClusterQuality(intCluster) = vecKilosortGood(vecClustIdx_KSG==intClustIdx);
+		vecTemplateDepths(intCluster) = dblProbeLength - sEphysData.templateDepths(vecTemplateIdx==intClustIdx);
+		cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 	end
+	cellClustQualLabel = cellLabels(vecClusterQuality+1);
 	
 	%get channel mapping
 	try
@@ -62,39 +86,11 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	%check inputs
 	sClusters = [];
 	if isempty(sEphysData),return;end
-	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
-		dblProbeLength = max(sEphysData.ycoords); %should work, but kilosort might drop channels
-	end
-	
-	%work-around using global in case the probe length is wrong
-	global gForceProbeLength_PH_PrepEphys;
-	if ~isempty(gForceProbeLength_PH_PrepEphys)
-		dblProbeLength = gForceProbeLength_PH_PrepEphys;
-	end
-	
-	%get depths
-	[vecTemplateIdx,dummy,spike_templates_reidx] = unique(sEphysData.spikeTemplates);
-	vecUseClusters = vecTemplateIdx+1;
-	vecNormSpikeCounts = mat2gray(log10(accumarray(spike_templates_reidx,1)+1));
-	vecTemplateDepths = dblProbeLength-sEphysData.templateDepths(vecUseClusters);
-	vecClusterQuality = sEphysData.ClustQual(vecUseClusters);
-	vecContamination = sEphysData.ContamP(vecUseClusters);
-	cellClustQualLabel = sEphysData.ClustQualLabel(vecUseClusters);
 	
 	%add depth/contam
 	vecDepth = vecTemplateDepths;
-	vecZeta = sEphysData.ContamP(vecUseClusters);
+	vecZeta = vecContamination;
 	strZetaTit = 'Contamination (%)';
-	
-	%build spikes per cluster
-	vecAllSpikeTimes = sEphysData.st;
-	vecAllSpikeClust = sEphysData.clu;
-	intClustNum = numel(vecUseClusters);
-	cellSpikes = cell(1,intClustNum);
-	for intCluster=1:intClustNum
-		intClustIdx = vecUseClusters(intCluster);
-		cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
-	end
 	
 	%check if depth is the same
 	dblDepthR = corr(vecDepth(:),vecTemplateDepths(:));
@@ -107,7 +103,7 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	%add extra data
 	sClusters = struct;
 	sClusters.dblProbeLength = dblProbeLength;
-	sClusters.vecUseClusters = vecUseClusters;
+	sClusters.vecUseClusters = 1:numel(cellSpikes);
 	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
 	sClusters.vecDepth = vecDepth;
 	sClusters.vecZeta = vecZeta;
@@ -116,6 +112,7 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sClusters.ClustQual = vecClusterQuality;
 	sClusters.ClustQualLabel = cellClustQualLabel;
 	sClusters.ContamP = vecContamination;
+	sClusters.OrigIdx = vecTemplateIdx;
 	%get channel mapping
 	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
 		sClusters.ChanIdx = sEphysData.ChanIdx;

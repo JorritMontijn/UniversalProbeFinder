@@ -31,6 +31,8 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 					vecSizeABA(2) - sProbeCoords.cellPoints{intProbe}(:,2)...
 					vecSizeABA(3) - sProbeCoords.cellPoints{intProbe}(:,3)...
 					];
+				sProbeCoords.cellPoints{intProbe}(2,1) = ...
+					2*sProbeCoords.cellPoints{intProbe}(1,1) - sProbeCoords.cellPoints{intProbe}(2,1);
 			end
 		end
 	elseif ~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')
@@ -68,7 +70,12 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 		sProbeCoords.ProbeLengthMicrons = 3840;
 	end
 	if ~isfield(sProbeCoords,'ProbeLength')
-		sProbeCoords.ProbeLength = sProbeCoords.ProbeLengthMicrons ./ 10;
+		if isfield(sProbeCoords,'VoxelSize')
+			dblVoxelSize = mean(sProbeCoords.VoxelSize);
+		else
+			dblVoxelSize = 10;
+		end
+		sProbeCoords.ProbeLength = sProbeCoords.ProbeLengthMicrons ./ dblVoxelSize;
 	end
 	if ~isfield(sProbeCoords,'ProbeLengthOriginal')
 		sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength;

@@ -4,8 +4,9 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 	
 	%ask what to load
 	strText = 'Select event time, ZETA or Acquipix file';
-	if ismac; msgbox(strText,'OK'); end
-	uigetfile(strPath,strText);
+	if ismac; msgbox(strText,'OK');
+		[strZetaFile,strZetaPath] = uigetfile(strPath,strText);
+	end
 	
 	[strZetaFile,strZetaPath] = uigetfile(strPath,'Select event time, ZETA or Acquipix file');
 	if isempty(strZetaFile) || strZetaFile(1) == 0,return;end

@@ -49,7 +49,7 @@ function UniversalProbeFinder
 	%
 	%Created by Jorrit Montijn at the Cortical Structure and Function laboratory (KNAW-NIN)
 	%
-	%Rev:20220704 - v1.0.4
+	%Rev:202200809 - v1.0.5
 	
 	%ask which program to run
 	
