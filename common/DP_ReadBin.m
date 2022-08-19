@@ -69,7 +69,7 @@ function [matDataArray,intFeof] = DP_ReadBin(intSamp0, intReadSamps, sMeta, strF
 		elseif numel(vecReadCh) == 1 %read single channel
 			%move pointer to correct channel
 			intStatus=fseek(ptrFile,(vecReadCh-1)*2,'cof');
-			matDataArray = [1, intReadSamps];
+			matDataArray = zeros([1, intReadSamps],strClass);
 			%read samples from 1 channel while skipping all others; should be
 			%faster than read-all-and-discard, but it doesn't actually seem to
 			%make much difference
@@ -88,7 +88,7 @@ function [matDataArray,intFeof] = DP_ReadBin(intSamp0, intReadSamps, sMeta, strF
 			end
 		else
 			%read specific channels
-			matDataArray = [numel(vecReadCh), intReadSamps];
+			matDataArray = zeros([numel(vecReadCh), intReadSamps],strClass);
 			hTic=tic;
 			%read increments of 1000, then discard anything not needed
 			intSampsPerRead = 1000;

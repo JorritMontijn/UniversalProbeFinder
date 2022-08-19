@@ -92,7 +92,11 @@ function PH_PlotProbeEphys(hMain,varargin)
 		catch
 		end
 	end
-	
+	if isfield(sClusters,'strRateTit')
+		strRateTit = sClusters.strRateTit;
+	else
+		strRateTit = 'Norm. log(N) spikes';
+	end
 	vecNormSpikeCounts = sClusters.vecNormSpikeCounts(indShowCells);
 	vecContampP = sClusters.ContamP(indShowCells);
 	cellSpikes = sClusters.cellSpikes(indShowCells);
@@ -134,7 +138,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	view(hAxClust,0,90);
 	set(hAxClust,'YDir','reverse');
 	ylim(hAxClust,[0,dblProbeLength]);
-	xlabel(hAxClust,'Norm. log(N) spikes')
+	xlabel(hAxClust,strRateTit)
 	title(hAxClust,'Spiking rate')
 	set(hAxClust,'FontSize',12)
 	ylabel(hAxClust,'Depth (\mum)');

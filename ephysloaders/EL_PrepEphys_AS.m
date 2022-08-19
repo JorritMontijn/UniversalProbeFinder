@@ -46,10 +46,10 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 		dblProbeLength = gForceProbeLength_PH_PrepEphys;
 	end
 	
+	
 	%set variables
 	cellLabels = {'mua','good'};
 	cellSpikes = {sSynthData.sCluster.SpikeTimes};
-	vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));
 	vecDepth = cell2vec({sSynthData.sCluster.Depth});
 	vecZeta = norminv(1-(cellfun(@min,{sSynthData.sCluster.ZetaP})/2));
 	strZetaTit = 'Responsiveness ZETA (z-score)';
@@ -57,11 +57,21 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	cellClustQualLabel = cellLabels(vecClustQual);
 	vecContamination = cell2vec({sSynthData.sCluster.Contamination});
 	
+	%check whether to use left/right or spiking rate
+	if isfield(sSynthData.sCluster,'dPrimeLR') && ~all(cellfun(@(x) all(isnan(x)),{sSynthData.sCluster.dPrimeLR}))
+		vecNormSpikeCounts = cellfun(@nanmean,{sSynthData.sCluster.dPrimeLR});
+		strRateTit = 'dprime LR';
+	else
+		vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));
+		strRateTit = 'Norm. log(N+1) spikes';
+	end
+	
 	%add extra data
 	sClusters = struct;
 	sClusters.dblProbeLength = dblProbeLength;
 	sClusters.vecUseClusters = 1:numel(sSynthData.sCluster);
 	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
+	sClusters.strRateTit = strRateTit;
 	sClusters.vecDepth = vecDepth;
 	sClusters.vecZeta = vecZeta;
 	sClusters.strZetaTit = strZetaTit;
