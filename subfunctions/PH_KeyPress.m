@@ -134,6 +134,28 @@ function PH_KeyPress(hMain,eventdata)
 		
 		PH_UpdateSlice(hMain);
 		
+	elseif strcmp(eventdata.Key,'d')
+		% Toggle histo points visibility
+		strShowDots = sGUI.handles.probe_points.Visible;
+		if strcmpi(strShowDots,'on')
+			strNewSwitch = 'off';
+		elseif strcmpi(strShowDots,'off')
+			strNewSwitch = 'on';
+		end
+		set(sGUI.handles.probe_points,'Visible',strNewSwitch);
+		guidata(hMain, sGUI);
+		
+	elseif strcmp(eventdata.Key,'o')
+		% Toggle origin visibility
+		strShowOrigin = sGUI.handles.bregma.Visible;
+		if strcmpi(strShowOrigin,'on')
+			strNewSwitch = 'off';
+		elseif strcmpi(strShowOrigin,'off')
+			strNewSwitch = 'on';
+		end
+		set(sGUI.handles.bregma,'Visible',strNewSwitch);
+		guidata(hMain, sGUI);
+		
 	elseif strcmp(eventdata.Key,'p')
 		% Toggle probe visibility
 		strShowProbe = sGUI.handles.probe_vector_cart.Visible;

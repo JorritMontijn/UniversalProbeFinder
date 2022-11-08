@@ -1,6 +1,6 @@
-function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
+function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap, strClass)
 	%DP_DetectSpikes Performs fast GPU-accelerated thresholded-spike detection
-	%	[vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap)
+	%	[vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMap, strClass)
 	%
 	%input:
 	% - matData [Ch x T]: gpuArray [Channel by Timepoint] data matrix
@@ -27,7 +27,9 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikes(matData, sP, vecChanMa
 	%Version history:
 	%1.0 - 5 Dec 2019
 	%	Created by Jorrit Montijn
-		
+	%1.1 - 3 Nov 2022
+	%	Some bug fixes, added strClass input
+	
 	%get parameters
 	intStartT = getOr(sP,'tstart',0);
 	intStopT = getOr(sP,'tend',inf);

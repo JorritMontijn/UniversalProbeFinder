@@ -1,6 +1,6 @@
-function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilename,sP,vecChanMap)
+function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilename,sP,vecChanMap, strClass)
 	%DP_DetectSpikesInBinaryFile Detect spike times in binary (SpikeGLX) file
-	%   [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFile,sP,vecChanMap)
+	%   [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFile,sP,vecChanMap, strClass)
 	%
 	%Note: vecSpikeT is in sample numbers, not in seconds. To convert to seconds, use:
 	%sMeta = DP_ReadMeta(fullpath(strPath,strMetaFile)); %meta file for your binary
@@ -9,6 +9,8 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 	%
 	%Note2: as window edges can induce false positives, this function will not return spikes close
 	%to the beginning or end of the recording (default cut-off: ~1/500 * sampling rate)
+	%
+	%See also DP_DetectSpikes.m
 	
 	%load meta data
 	[strPath,strFile,strExt] = fileparts(strFilename);

@@ -15,6 +15,7 @@ function PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas,boolReset)
 	%plot histology points
 	delete(sGUI.handles.probe_points);
 	sGUI.handles.probe_points = scatter3(sGUI.handles.axes_atlas,matHistoPoints(:,1),matHistoPoints(:,2),matHistoPoints(:,3),40,[0 0 0.8],'.','Linewidth',2);
+	guidata(hMain,sGUI);
 	
 	%get vector from points
 	if isfield(sProbeCoords,'sProbeAdjusted') && isfield(sProbeCoords.sProbeAdjusted,'probe_vector_sph') && ~boolReset
