@@ -1,5 +1,6 @@
-function [vecClustAreaId,cellClustAreaLabel,cellClustAreaFull] = PF_GetAreaPerCluster(sProbeCoords,vecDepth)
-	%PF_GetAreaPerCluster Retrieve areas per cluster by depth
+function [vecClustAreaId,cellClustAreaLabel,cellClustAreaFull,vecVoxelDepth] = PF_GetAreaPerCluster(sProbeCoords,vecDepth)
+	%PF_GetAreaPerCluster Retrieve areas per cluster by depth in microns from tip of the probe
+	%according to channel map file (so uncorrected for probe lengthening/shrinking)
 	
 	%calculate cluster locations along probe trajectory
 	probe_area_ids = sProbeCoords.sProbeAdjusted.probe_area_ids_per_depth;

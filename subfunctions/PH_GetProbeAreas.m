@@ -1,6 +1,6 @@
-function [probe_area_ids,probe_area_boundaries,probe_area_centers] = PH_GetProbeAreas(probe_vector_cart,av)
+function [probe_area_ids,probe_area_boundaries,probe_area_centers,matLocCh] = PH_GetProbeAreas(probe_vector_cart,av)
 	%PH_GetProbeAreas Retrieve areas along probe
-	%   [probe_area_ids,probe_area_boundaries,probe_area_centers] = PH_GetProbeAreas(probe_vector_cart,av)
+	%   [probe_area_ids,probe_area_boundaries,probe_area_centers,matLocCh] = PH_GetProbeAreas(probe_vector_cart,av)
 	
 	% get coords
 	probe_n_coords = sqrt(sum(diff(probe_vector_cart,[],1).^2));
@@ -17,6 +17,7 @@ function [probe_area_ids,probe_area_boundaries,probe_area_centers] = PH_GetProbe
 	probe_xcoords(probe_xcoords>vecSizeAtlas(1)) = vecSizeAtlas(1);
 	probe_ycoords(probe_ycoords>vecSizeAtlas(2)) = vecSizeAtlas(2);
 	probe_zcoords(probe_zcoords>vecSizeAtlas(3)) = vecSizeAtlas(3);
+	matLocCh = cat(1,probe_xcoords,probe_ycoords,probe_zcoords);
 	
 	%get areas
 	%vecIDs = sGUI.sAtlas.av(sub2ind(vecSizeAtlas,round(probe_xcoords),round(probe_ycoords),round(probe_zcoords)));
