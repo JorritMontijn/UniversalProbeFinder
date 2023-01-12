@@ -63,7 +63,7 @@ function SF_KeyPress(hMain,eventdata)
 		end
 	elseif strcmpi(eventdata.Key,'f1')
 		%help
-		SF_DisplaySliceFinderControls();
+		SF_DisplaySliceFinderControls(hMain);
 		return;
 	elseif strcmpi(eventdata.Key,'f2')
 		%invert axes
@@ -78,7 +78,7 @@ function SF_KeyPress(hMain,eventdata)
 	elseif strcmpi(eventdata.Key,'f3') || strcmpi(eventdata.Key,'f4')
 		%toggle overlay type
 		intSign = double(strcmpi(eventdata.Key,'f3'))*2-1;
-		sGUI.OverlayType = modx(sGUI.OverlayType + intSign,3);
+		sGUI.OverlayType = modx(sGUI.OverlayType + intSign,4);
 		
 		%update data
 		guidata(hMain, sGUI);
