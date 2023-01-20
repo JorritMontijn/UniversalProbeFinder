@@ -41,9 +41,9 @@ function SF_KeyPress(hMain,eventdata)
 	sGUI = guidata(hMain);
 	sGUI = guidata(sGUI.handles.hMain);
 	hMain = sGUI.handles.hMain;
-	if sGUI.IsBusy,return;end
+	if toc(sGUI.LastUpdate) < 0.1;return;end
 	sGUI.LastUpdate = tic;
-	sGUI.IsBusy = true;
+	%sGUI.IsBusy = true;
 	guidata(hMain, sGUI);
 	sSliceData = sGUI.sSliceData;
 	dblStep = sGUI.StepSize;
