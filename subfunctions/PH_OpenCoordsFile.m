@@ -38,6 +38,10 @@ function [sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strDefaultPath,strNa
 		%sharp track
 		sProbeCoords.cellPoints = sLoad.pointList.pointList(:,1);
 		sProbeCoords.Type = 'SHARP-track';
+	elseif isfield(sLoad,'sAP') && isstruct(sLoad.sAP) && isfield(sLoad.sAP,'sSources') && isstruct(sLoad.sAP.sSources) && isfield(sLoad.sAP.sSources,'sProbeCoords') && isstruct(sLoad.sAP.sSources.sProbeCoords)
+		%acquipix
+		sProbeCoords = sLoad.sAP.sSources.sProbeCoords;
+		sProbeCoords.Type = 'native';
 	else
 		try
 			error([mfilename ':FileTypeNotRecognized'],'File is of unknown format');
