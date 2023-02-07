@@ -27,5 +27,4 @@ function PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas,boolReset)
 	
 	% Update probe coordinates
 	PH_UpdateProbeCoordinates(hMain,vecSphereVector);
-	
 end

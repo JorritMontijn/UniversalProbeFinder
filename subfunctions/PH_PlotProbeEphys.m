@@ -152,9 +152,12 @@ function PH_PlotProbeEphys(hMain,varargin)
 	set(hAxMua,'FontSize',12)
 	setAllowAxesRotate(rotate3d(hAxMua),hAxMua,0);
 	
-	%update
-	guidata(hMain,sGUI);
-	
-	%redraw lines
-	PH_UpdateProbeCoordinates(hMain, PH_CartVec2SphVec(PH_GetProbeVector(hMain)));
+	%update draw length
+	matCartVec = PH_GetProbeVector(hMain);
+	vecSphVec =  PH_CartVec2SphVec(matCartVec);
+	vecLocationBrainIntersection = PH_GetBrainIntersection(matCartVec,sGUI.sAtlas.av);
+	vecBregmaVec = PH_SphVec2BregmaVec(vecSphVec,vecLocationBrainIntersection,sGUI.sAtlas);
+	vecBregmaVec(end) = dblProbeLength;
+	vecSphVecNew = PH_BregmaVec2SphVec(vecBregmaVec,sGUI.sAtlas);
+	PH_UpdateProbeCoordinates(hMain, vecSphVecNew, true);
 end

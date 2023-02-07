@@ -1,4 +1,9 @@
-function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
+function PH_UpdateProbeCoordinates(hMain,vecSphereVector,boolForceYupdate)
+	%default
+	if ~exist('boolForceYupdate','var') || isempty(boolForceYupdate)
+		boolForceYupdate = false;
+	end
+	
 	% Get guidata
 	sGUI = guidata(hMain);
 	
@@ -113,7 +118,7 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector)
 	
 	%if probe length has changed
 	vecOldLim = get(sGUI.handles.probe_zeta,'YLim');
-	if abs(vecOldLim(2) - dblProbeLength) > 0.1
+	if boolForceYupdate || abs(vecOldLim(2) - dblProbeLength) > 0.1
 		%update ylims
 		boolUpdateYLim = true;
 		set(sGUI.handles.axes_probe_areas,'YLim',[0 dblProbeLength]);

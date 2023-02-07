@@ -28,8 +28,15 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%   815   359   690];
 	sProbeCoords = PH_ExtractProbeCoords(sProbeCoords);
 	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
-	dblProbeLength = sProbeCoords.ProbeLength;
-	sClusters.dblProbeLength = sProbeCoords.ProbeLengthMicrons;
+	if isfield(sProbeCoords,'sProbeAdjusted') && strcmpi(sProbeCoords.Type,'native')
+		dblProbeLength = sProbeCoords.sProbeAdjusted. ProbeLength;
+	else
+		if isfield(sClusters,'dblProbeLength')
+			dblProbeLength = sClusters.dblProbeLength;
+		else
+			dblProbeLength = sProbeCoords.ProbeLength;
+		end
+	end
 	
 	%% set up the gui
 	%main figure
@@ -284,11 +291,11 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%make full screen
 	maxfig(hMain);
 	
-	%plot ephys
-	PH_PlotProbeEphys(hMain,sClusters);
-	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
+	
+	%plot ephys
+	PH_PlotProbeEphys(hMain,sClusters);
 	
 	% Display controls
 	PH_DisplayControls(hMain);

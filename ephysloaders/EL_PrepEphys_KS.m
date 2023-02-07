@@ -32,15 +32,25 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sEphysData.tempsUnW = tempsUnW;
 	sEphysData.templateDuration = templateDuration;
 	sEphysData.waveforms = waveforms;
-
+	
 	%load labels
-	[dummy, dummy,cellDataLabels]=tsvread(fullpath(strPathEphys, 'cluster_KSlabel.tsv'));
-	vecClustIdx_KSG = cellfun(@str2double,cellDataLabels(2:end,1));
-	vecKilosortGood = contains(cellDataLabels(2:end,2),'good');
+	[dummy1, dummy2,cellGroup]=tsvread(fullpath(strPathEphys, 'cluster_group.tsv'));
+	vecClustIdx_KSG = cellfun(@str2double,cellGroup(2:end,1));
+	vecKilosortGood = contains(cellGroup(2:end,2),'good');
+	
 	%load contam
 	[dummy, dummy,cellDataContam]=tsvread(fullpath(strPathEphys, 'cluster_ContamPct.tsv'));
 	vecClustIdx_KSC = cellfun(@str2double,cellDataContam(2:end,1));
-	vecKilosortContamination = cellfun(@str2double,cellDataContam(2:end,2));
+	vecKilosortContaminationSource = cellfun(@str2double,cellDataContam(2:end,2));
+	%fill array
+	vecKilosortContamination = nan(size(vecKilosortGood));
+	for intCluster=1:numel(vecClustIdx_KSG)
+		intClustIdx = vecClustIdx_KSG(intCluster);
+		intContamEntry = find(vecClustIdx_KSC==intClustIdx);
+		if ~isempty(intContamEntry)
+			vecKilosortContamination(intCluster) = vecKilosortContaminationSource(intContamEntry);
+		end
+	end
 
 	%get clusters with spikes
 	vecAllSpikeTimes = sEphysData.st;
@@ -68,8 +78,16 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	cellSpikes = cell(1,numel(vecTemplateIdx));
 	for intCluster=1:numel(vecTemplateIdx)
 		intClustIdx = vecTemplateIdx(intCluster);
-		vecContamination(intCluster) = vecKilosortContamination(vecClustIdx_KSC==intClustIdx);
-		vecClusterQuality(intCluster) = vecKilosortGood(vecClustIdx_KSG==intClustIdx);
+		intContamEntry = find(vecClustIdx_KSG==intClustIdx);
+		if isempty(intContamEntry)
+			dblContamP = nan;
+			dblGood = 0;
+		else
+			dblContamP = vecKilosortContamination(intContamEntry);
+			dblGood = vecKilosortGood(intContamEntry);
+		end
+		vecContamination(intCluster) = dblContamP;
+		vecClusterQuality(intCluster) = dblGood;
 		vecTemplateDepths(intCluster) = dblProbeLength - sEphysData.templateDepths(vecTemplateIdx==intClustIdx);
 		cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 	end
