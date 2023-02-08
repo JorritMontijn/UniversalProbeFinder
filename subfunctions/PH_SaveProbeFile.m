@@ -9,9 +9,10 @@ function PH_SaveProbeFile(hMain,varargin)
 	sProbeCoords = sGUI.sProbeCoords;
 	
 	%add depth
-	intCurrentProbeLength = floor(sProbeCoords.sProbeAdjusted.probe_vector_sph(end));
+	dblCurrentProbeLength = sProbeCoords.sProbeAdjusted.probe_vector_sph(end);
 	if isfield(sGUI.sClusters,'vecDepth')
-		sProbeCoords.sProbeAdjusted.depth_per_cluster = (sGUI.sClusters.vecDepth ./ sProbeCoords.ProbeLengthMicrons)*intCurrentProbeLength;
+		dblRescaling = (dblCurrentProbeLength / sGUI.sProbeCoords.ProbeLengthOriginal);
+		sProbeCoords.sProbeAdjusted.depth_per_cluster = sGUI.sClusters.vecDepth .* dblRescaling;
 	else
 		sProbeCoords.sProbeAdjusted.depth_per_cluster = [];
 	end

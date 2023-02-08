@@ -152,7 +152,17 @@ function PH_PlotProbeEphys(hMain,varargin)
 	set(hAxMua,'FontSize',12)
 	setAllowAxesRotate(rotate3d(hAxMua),hAxMua,0);
 	
-	%update draw length
+	%% update probe length
+	%set new probe size
+	dblRescaleFactor = dblProbeLength / sGUI.sProbeCoords.ProbeLengthMicrons;
+	sGUI.sProbeCoords.ProbeLengthMicrons = sGUI.sProbeCoords.ProbeLengthMicrons * dblRescaleFactor;
+	sGUI.sProbeCoords.ProbeLength = sGUI.sProbeCoords.ProbeLength * dblRescaleFactor;
+	sGUI.sProbeCoords.ProbeLengthOriginal = sGUI.sProbeCoords.ProbeLengthOriginal * dblRescaleFactor;
+	
+	%update
+	guidata(hMain,sGUI);
+	
+	%redraw
 	matCartVec = PH_GetProbeVector(hMain);
 	vecSphVec =  PH_CartVec2SphVec(matCartVec);
 	vecLocationBrainIntersection = PH_GetBrainIntersection(matCartVec,sGUI.sAtlas.av);
