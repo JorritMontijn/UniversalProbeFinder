@@ -101,7 +101,7 @@ function [vecSpikeCh,vecSpikeT,intTotT] = DP_DetectSpikesInBinaryFile(strFilenam
 	
 	%set class
 	if ~exist('strClass','var') || isempty(strClass)
-		strClass = class(matData);
+		strClass = 'int16';
 	end
 	
 	%open file
