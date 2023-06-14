@@ -81,6 +81,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	end
 	
 	% Set up the atlas axes
+	figure(hMain);
 	hAxAtlas = subplot(2,3,1);
 	vecGridColor = [0.7 0.7 0.7];
 	hMesh = plot3(hAxAtlas, matBrainMesh(:,1), matBrainMesh(:,2), matBrainMesh(:,3), 'Color', vecGridColor);
