@@ -2,6 +2,7 @@ function strFullpath = fullpath(varargin)
 	%fullpath Like fullfile but also works for relative network paths
 	%   strFullpath = fullpath(varargin)
 	
+	boolLeadingDouble = false;
 	if numel(varargin{1})>1 && strcmp(varargin{1}(1:2),[filesep filesep])
 		boolLeadingDouble = true;
 	end
