@@ -4,88 +4,58 @@
 
 %download, extract, and add to path: https://downloads.openmicroscopy.org/bio-formats/7.1.0/artifacts/bfmatlab.zip
 
-strFile = 'H:\DataNeuropixels\TissueScans\BL6\Topo7\Valentina_160320220319.czi';
-sInfo  = czifinfo(strFile);
-
-%load with bfopen
-data = bfopen(strFile);
+strFileLoc = 'H:\DataNeuropixels\TissueScans\BL6\Topo7\Valentina_160320220319.czi';
+sInfo  = cziinfo(strFileLoc);
+[strPath,strFile,strExt] = fileparts(strFileLoc);
 
 %% load
-reader = bfGetReader(strFile);
-omeMeta = reader.getMetadataStore();
-series1_plane1 = bfGetPlane(reader, 1);
-xmlmeta=cast(omeMeta.dumpXML(),'char');
-strXmlFile = 'H:\DataNeuropixels\TissueScans\BL6\Topo7\Valentina_160320220319.xml';
-fID = fopen(strXmlFile,'w','n','UTF-8');
-fwrite(fID,xmlmeta);
-fclose(fID);
-sInfo  = czifinfo(strFile);
+boolWriteTif = true;
+objReader = bfGetReader(strFileLoc);
+omeMeta = objReader.getMetadataStore();
+strXmlMeta=cast(omeMeta.dumpXML(),'char');
+sXml = xml2struct(strXmlMeta);
+sMeta = sXml.OME;
+%xmlmeta = strrep(xmlmeta,'utf-8','UTF-8');
+%fID = fopen(strXmlFile,'w','n','UTF-8');
+%fwrite(fID,xmlmeta,'char');
+%fclose(fID);
 
-sMeta=xmlread(strXmlFile)
-%%
-%go through blocks
-fID = fopen(strFile);
-
-%detect source bit
-%sInfo.genInfo.pixelType
-try
-	%get general info
-	vecStartX = cell2vec({sInfo.sBlockList_P0.XStart});
-	vecSizeX = cell2vec({sInfo.sBlockList_P0.XSize});
-	vecStartY = cell2vec({sInfo.sBlockList_P0.YStart});
-	vecSizeY = cell2vec({sInfo.sBlockList_P0.YSize});
-	vecStartC = cell2vec({sInfo.sBlockList_P0.CStart});
-	vecStartM = cell2vec({sInfo.sBlockList_P0.MStart});
+%go through scenes
+vecSceneList = [sInfo(:).scene];
+vecScaleList = [sInfo(:).scale];
+vecUniqueScenes = unique(vecSceneList);
+intSceneNum = numel(vecUniqueScenes);
+cellImages = cell(1,intSceneNum);
+for intSceneIdx = 1:intSceneNum
+	%find best scale
+	intScene = vecUniqueScenes(intSceneIdx);
+	dblIdealSize = 2000;
+	vecUseScenes = find(vecSceneList==intScene);
+	vecScales = vecScaleList(vecUseScenes);
+	vecX=[sInfo(vecUseScenes).sizex];
+	vecY=[sInfo(vecUseScenes).sizey];
+	[dummy,intUseScaleX] = min(abs(vecX-dblIdealSize));
+	[dummy,intUseScaleY] = min(abs(vecY-dblIdealSize));
+	intUseScale = vecScales(min(intUseScaleX,intUseScaleY));
 	
-	intMinX = min(vecStartX);
-	intMaxX = max(vecStartX+vecSizeX);
-	intRangeX = intMaxX - intMinX + 1;
-	
-	intMinY = min(vecStartY);
-	intMaxY = max(vecStartY+vecSizeY);
-	intRangeY = intMaxY - intMinY + 1;
-	
-	intMinC = min(vecStartC);
-	intMaxC = max(vecStartC);
-	intRangeC = intMaxC - intMinC  + 1;
-	
-	intMinM = min(vecStartM);
-	intMaxM = max(vecStartM);
-	intRangeM = intMaxM - intMinM + 1;
-	
-	%pre-allocate
-	matOut = zeros(intRangeX,intRangeY,intRangeC,'uint8');
-	
-	%load data
-	for i=1:numel(sInfo.sBlockList_P0)
-		%get block start
-		intStart = sInfo.sBlockList_P0(i).dataStartPos;
+	%find scene & scale
+	intImage = find([sInfo(:).scene]==intScene & [sInfo(:).scale] == intUseScale,1);
+	intChNum = sInfo(intImage).channelcount;
+	for intCh=1:intChNum
+		%  load image
+		setSeries(objReader,intImage-1);
+		imCh = imadjust(bfGetPlane(objReader, intCh));
+		if intCh==1
+			cellImages{intSceneIdx} = imCh;
+		else
+			cellImages{intSceneIdx}(:,:,intCh) = imCh;
+		end
 		
-		%get current location and skip to block start
-		intCurrPos = ftell(fID);
-		fseek(fID,intStart-intCurrPos,'cof');
-		
-		%read data
-		intSize = sInfo.sBlockList_P0(i).dataSize;
-		blockData = fread(fID,intSize);%'uint16=>uint8'
-		
-		%assign data
-		intBeginX = sInfo.sBlockList_P0(i).XStart;
-		intSizeX = sInfo.sBlockList_P0(i).XSize;
-		vecAssignX = ((intBeginX - intMinX):(intBeginX + intSizeX - intMinX)) + 1;
-		
-		intBeginY = sInfo.sBlockList_P0(i).YStart;
-		intSizeY = sInfo.sBlockList_P0(i).YSize;
-		vecAssignY = ((intBeginY - intMinY):(intBeginY + intSizeY - intMinY)) + 1;
-		
-		intEls = intSizeX*intSizeY;
-		
-		matOut(intBeginX:(intBeginX)
-		
+		%write tif?
+		if boolWriteTif
+			fprintf('Writing image %d/%d, channel %d/%d [%s]\n',intSceneIdx,intSceneNum,intCh,intChNum,getTime);
+			strImOut = fullpath(strPath,[strFile '_S' num2str(intScene) '_C' num2str(intCh) '.tif']);
+			imwrite(cellImages{intSceneIdx}(:,:,intCh),strImOut,'tiff');
+		end
 	end
-	fclose(fID);
-catch
-	fclose(fID);
 end
-%end
-
