@@ -29,7 +29,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sProbeCoords = PH_ExtractProbeCoords(sProbeCoords);
 	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
 	if isfield(sProbeCoords,'sProbeAdjusted') && strcmpi(sProbeCoords.Type,'native')
-		dblProbeLength = sProbeCoords.sProbeAdjusted. ProbeLength;
+		dblProbeLength = sProbeCoords.sProbeAdjusted.ProbeLength;
 	else
 		if isfield(sClusters,'dblProbeLength')
 			dblProbeLength = sClusters.dblProbeLength;

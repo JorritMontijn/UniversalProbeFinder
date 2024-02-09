@@ -51,7 +51,7 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 			vecKilosortContamination(intCluster) = vecKilosortContaminationSource(intContamEntry);
 		end
 	end
-
+	
 	%get clusters with spikes
 	vecAllSpikeTimes = sEphysData.st;
 	vecAllSpikeClust = sEphysData.clu;
