@@ -4,16 +4,41 @@
 
 %download, extract, and add to path: https://downloads.openmicroscopy.org/bio-formats/7.1.0/artifacts/bfmatlab.zip
 
-strFileLoc = 'H:\DataNeuropixels\TissueScans\BL6\Topo7\Valentina_160320220319.czi';
-sInfo  = cziinfo(strFileLoc);
-[strPath,strFile,strExt] = fileparts(strFileLoc);
+%strFileLoc = 'H:\DataNeuropixels\TissueScans\BL6\Topo7\Valentina_160320220319.czi';
+strFileLoc = 'D:\Data\Raw\TissueScans_BL6\Topo7\Valentina_160320220319.czi';
+
+%% assert bioformats
+try
+	[~,v] = bfCheckJavaPath();
+catch
+	strPath = uigetdir('','Please select the folder for the bioformats MATLAB API (bfmatlab)');
+	if isempty(strPath) || strPath(1) == 0 || ~exist('F:\Code\Toolboxes\bfmatlab','dir')
+		%cancel
+		error([mfilename ':bioformatserror'],'Invalid bioformats path\n');
+	else
+		%add path
+		addpath(strPath);
+		try
+			[~,v] = bfCheckJavaPath();
+		catch
+			error([mfilename ':bioformatserror'],'The bioformats API is not working; please check your installation\n');
+		end
+	end
+end
+loci.common.DebugTools.enableLogging('WARN');
+bfInitLogging('WARN');
+r = loci.formats.Memoizer(bfGetReader(), 0);
+r.setId(strFileLoc);
+r.close();
 
 %% load
+sInfo  = cziinfo(strFileLoc);
+[strPath,strFile,strExt] = fileparts(strFileLoc);
 boolWriteTif = true;
 objReader = bfGetReader(strFileLoc);
 omeMeta = objReader.getMetadataStore();
 strXmlMeta=cast(omeMeta.dumpXML(),'char');
-sXml = xml2struct(strXmlMeta);
+sXml = xml2struct2(strXmlMeta);
 sMeta = sXml.OME;
 %xmlmeta = strrep(xmlmeta,'utf-8','UTF-8');
 %fID = fopen(strXmlFile,'w','n','UTF-8');

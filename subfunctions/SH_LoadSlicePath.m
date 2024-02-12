@@ -75,6 +75,17 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 
 		%compile valid formats
 		sImFormats = imformats();
+		
+		%add czi
+		intCzi = numel(sImFormats)+1;
+		sImFormats(intCzi).ext = {'czi'};
+		sImFormats(intCzi).isa = @isczi;
+		sImFormats(intCzi).info = @cziinfo;
+		sImFormats(intCzi).read = @cziread;
+		sImFormats(intCzi).write = '';
+		sImFormats(intCzi).alpha = 1;
+		sImFormats(intCzi).description = 'Zeiss Image';
+		%crop exts
 		cellExt = {};
 		for intFormat=1:numel(sImFormats)
 			varExt=sImFormats(intFormat).ext;
@@ -93,7 +104,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 		end
 		
 		%confirm with user
-		[cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages);
+		[cellLoadImages,cellMergeMagic,boolAutoAdjust] = userConfirmImages(cellPotentialImages);
 		if isempty(cellLoadImages)
 			sSliceData = [];
 			return
@@ -102,6 +113,7 @@ function sSliceData = SH_LoadSlicePath(strDefaultPath)
 		%add to structure
 		for intSlice=numel(cellLoadImages):-1:1
 			sSliceData.Slice(intSlice).ImageName = cellLoadImages{intSlice};
+			sSliceData.Slice(intSlice).MergeMagic = cellMergeMagic{intSlice};
 		end
 		sSliceData.autoadjust = boolAutoAdjust;
 	end
@@ -134,35 +146,141 @@ function Track = genDummyTrack()
 	Track(1).color = lines(1); %color of track
 	Track(:) = [];
 end
-function [cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages)
+function cellMergeMagic = encodeMagic(intFieldSize,vecS,vecX,vecY,vecZ,vecC)
+	intIms = numel(vecS);
+	if ~exist('vecX','var') || isempty(vecX),vecX=zeros(1,intIms);end
+	if ~exist('vecY','var') || isempty(vecY),vecY=zeros(1,intIms);end
+	if ~exist('vecZ','var') || isempty(vecZ),vecZ=zeros(1,intIms);end
+	if ~exist('vecC','var') || isempty(vecC),vecC=zeros(1,intIms);end
+	
+	strFieldSize = ['%0' num2str(intFieldSize) 'd'];
+	strFormat = ['S' strFieldSize 'X' strFieldSize 'Y' strFieldSize 'Z' strFieldSize 'C' strFieldSize 'E'];
+	cellMergeMagic = cellfill(strFormat,size(vecS));
+	for intIm=1:intIms
+		cellMergeMagic{intIm} = sprintf(cellMergeMagic{intIm},vecS(intIm),vecX(intIm),vecY(intIm),vecZ(intIm),vecC(intIm));
+	end
+end
+function matImLocs = decodeMagic(cellMergeMagic,cellPotentialImages)
+	matImLocs = nan(numel(cellPotentialImages),5);
+	for intIm=1:numel(cellPotentialImages)
+		strMergeMagic = cellMergeMagic{intIm};
+		matImLocs(intIm,1) = str2double(getFlankedBy(strMergeMagic,'S','X'));
+		matImLocs(intIm,2) = str2double(getFlankedBy(strMergeMagic,'X','Y'));
+		matImLocs(intIm,3) = str2double(getFlankedBy(strMergeMagic,'Y','Z'));
+		matImLocs(intIm,4) = str2double(getFlankedBy(strMergeMagic,'Z','C'));
+		matImLocs(intIm,5) = str2double(getFlankedBy(strMergeMagic,'C','E'));
+	end
+end
+function cellDispList = formatDispList(cellMergeMagic,cellPotentialImages,intFieldSize)
+	%inverse of retrieveMagic
+	
+	%find which variables are homogenous
+	strSeparator = '  <  ';
+	matImLocs = decodeMagic(cellMergeMagic,cellPotentialImages);
+	vecNonEmpty = find(range(matImLocs,1)~=0);
+	strFieldSize = ['%0' num2str(intFieldSize) 'd'];
+	strFieldKeys = 'SXYZC';
+	
+	%fill list
+	intIms = numel(cellMergeMagic);
+	cellDispList = cell(intIms,1);
+	for intIm=1:intIms
+		strAssignString = '';
+		for intAssignField=1:numel(vecNonEmpty)
+			intField = vecNonEmpty(intAssignField);
+			strAssignString = strcat(strAssignString,sprintf([strFieldKeys(intField) strFieldSize],matImLocs(intIm,intField)));
+		end
+		cellDispList{intIm} = [strAssignString strSeparator cellPotentialImages{intIm}];
+	end
+	
+	%sort
+	cellDispList = sort(cellDispList);
+end
+function [cellMergeMagic,cellLoadImages,intFieldSize] = retrieveMagic(cellDispList)
+	%inverse of formatDispList
+	
+	%check field size and which fields are present
+	strSeparator = '  <  ';
+	strFieldKeys = '(S|X|Y|Z|C)';
+	strMagic1 = getFlankedBy(cellDispList{1},'',strSeparator);
+	cellFields = regexp(strMagic1,['[' strFieldKeys(2:2:end) ']\d*'],'match');
+	intFieldSize = length(cellFields{1})-1;
+	vecFields = regexp(strMagic1,strFieldKeys);
+	vecFieldsPresent = ismember(strFieldKeys(2:2:end),strMagic1(vecFields));
+	
+	%retrieve field values and image name
+	intIms = numel(cellDispList);
+	cellLoadImages = cell(intIms,1);
+	vecS = zeros(intIms,1);
+	vecX = zeros(intIms,1);
+	vecY = zeros(intIms,1);
+	vecZ = zeros(intIms,1);
+	vecC = zeros(intIms,1);
+	for intIm=1:intIms
+		%name
+		cellLoadImages{intIm} = getFlankedBy(cellDispList{intIm},strSeparator,'');
+		
+		%fields
+		cellFields = regexp(getFlankedBy(cellDispList{intIm},'',strSeparator),['[' strFieldKeys(2:2:end) ']\d*'],'match');
+		for intField=1:numel(cellFields)
+			strKey = cellFields{intField}(1);
+			if strcmp(strKey,'S')
+				vecS(intIm) = str2double(cellFields{intField}(2:end));
+			elseif strcmp(strKey,'X')
+				vecX(intIm) = str2double(cellFields{intField}(2:end));
+			elseif strcmp(strKey,'Y')
+				vecY(intIm) = str2double(cellFields{intField}(2:end));
+			elseif strcmp(strKey,'Z')
+				vecZ(intIm) = str2double(cellFields{intField}(2:end));
+			elseif strcmp(strKey,'C')
+				vecC(intIm) = str2double(cellFields{intField}(2:end));
+			end
+		end
+	end
+	
+	cellMergeMagic = encodeMagic(intFieldSize,vecS,vecX,vecY,vecZ,vecC);
+end
+function [cellLoadImages,cellMergeMagic,boolAutoAdjust] = userConfirmImages(cellPotentialImages)
 	%create GUI: OK, delete, move up, move down
-	hImConfGui = figure('Name','Confirm Images','WindowStyle','Normal','Menubar','none','NumberTitle','off','Position',[500 300 300 600]);
+	hImConfGui = figure('Name','Confirm Images','WindowStyle','Normal','Menubar','none','NumberTitle','off','Position',[500 300 400 600]);
 	hImConfGui.Units = 'normalized';
+	
+	%unpack czi images and remove from list
+	error to do; ask which size to unpack
+	
+	%generate list with default assignments
+	intIms = numel(cellPotentialImages);
+	intFieldSize = ceil(log10(intIms+1));
+	cellMergeMagic = encodeMagic(intFieldSize,1:intIms);
+	cellDispList = formatDispList(cellMergeMagic,cellPotentialImages,intFieldSize);
 	
 	%create buttons
 	handles = struct;
 	handles.hMain = hImConfGui;
 	handles.ptrButtonAccept = uicontrol(hImConfGui,'Style','pushbutton','String','Accept',...
-		'Units','normalized','FontSize',12,'Position',[0.1 0.945 0.3 0.05],...
+		'Units','normalized','FontSize',12,'Position',[0.05 0.945 0.3 0.05],...
 		'Callback',@UCI_Accept);
 	
-	handles.ptrButtonAutoAdjust = uicontrol(hImConfGui,'Style','checkbox','String','Auto-adjust',...
-		'Units','normalized','FontSize',10,'Position',[0.6 0.95 0.3 0.04],'backgroundcolor',[1 1 1]);
+	handles.ptrButtonMergeMagic = uicontrol(hImConfGui,'Style','pushbutton','String','Merge Magic',...
+		'Units','normalized','FontSize',10,'Position',[0.4 0.945 0.29 0.05],...
+		'Callback',@UCI_MergeMagic);
 	
-	handles.ptrButtonDelete = uicontrol(hImConfGui,'Style','pushbutton','String','Delete',...
-		'Units','normalized','FontSize',10,'Position',[0.01 0.9 0.32 0.04],...
+	handles.ptrButtonAutoAdjust = uicontrol(hImConfGui,'Style','checkbox','String','Auto-adjust',...
+		'Units','normalized','FontSize',10,'Position',[0.7 0.95 0.25 0.04],'backgroundcolor',[1 1 1]);
+	
+	handles.ptrText = uitext(hImConfGui,'Style','text','String','Image:',...
+		'VerticalAlignment','middle','Units','normalized','FontSize',10,'Position',[0.05 0.902 0.1 0.04]);
+	
+	handles.ptrButtonMergeEdit = uicontrol(hImConfGui,'Style','pushbutton','String','Edit',...
+		'Units','normalized','FontSize',10,'Position',[0.15 0.9 0.25 0.04],...
+		'Callback',@UCI_Edit);
+	
+	handles.ptrButtonDelete = uicontrol(hImConfGui,'Style','pushbutton','String','Discard',...
+		'Units','normalized','FontSize',10,'Position',[0.40 0.9 0.25 0.04],...
 		'Callback',@UCI_Delete);
 	
-	handles.ptrButtonMoveUp = uicontrol(hImConfGui,'Style','pushbutton','String','Move Up',...
-		'Units','normalized','FontSize',10,'Position',[0.34 0.9 0.32 0.04],...
-		'Callback',@UCI_MoveUp);
-	
-	handles.ptrButtonMoveDown = uicontrol(hImConfGui,'Style','pushbutton','String','Move Down',...
-		'Units','normalized','FontSize',10,'Position',[0.67 0.9 0.32 0.04],...
-		'Callback',@UCI_MoveDown);
-	
 	%create list
-	handles.ptrImList = uicontrol(hImConfGui,'Style','listbox','String',cellPotentialImages,...
+	handles.ptrImList = uicontrol(hImConfGui,'Style','listbox','String',cellDispList,...
 		'Units','normalized','FontSize',9,'Position',[0.01 0.01 0.98 0.88]);
 	
 	%set guidata
@@ -177,12 +295,98 @@ function [cellLoadImages,boolAutoAdjust] = userConfirmImages(cellPotentialImages
 	if ishandle(hImConfGui) && strcmp(hImConfGui.UserData,'Accept')
 		boolAutoAdjust = handles.ptrButtonAutoAdjust.Value;
 		handles = guidata(hImConfGui);
-		cellLoadImages = handles.ptrImList.String;
+		[cellMergeMagic,cellLoadImages,intFieldSize] = retrieveMagic(handles.ptrImList.String);
 		close(hImConfGui);
 	else
 		boolAutoAdjust = [];
+		cellMergeMagic = [];
 		cellLoadImages = [];
 	end
+end
+function UCI_Edit(hMain,eventdata)
+	%get data
+	handles = guidata(hMain);
+	cellDispList = handles.ptrImList.String;
+	intIm = handles.ptrImList.Value;
+	
+	%retrieve current image assignments
+	[cellMergeMagic,cellLoadImages,intFieldSize] = retrieveMagic(cellDispList);
+	strAssignment = cellMergeMagic{intIm};
+	strTitle = cellLoadImages{intIm};
+	
+	%generate edit gui
+	strNewAssignment = SH_EditAssignment(strTitle,strAssignment);
+	
+	%edit assignment
+	if ~strcmp(strAssignment,strNewAssignment)
+		cellMergeMagic{intIm} = strNewAssignment;
+		
+		%reorder
+		handles.ptrImList.String = formatDispList(cellMergeMagic,cellLoadImages,intFieldSize);
+	end
+end
+function UCI_MergeMagic(hMain,eventdata)
+	%get data
+	handles = guidata(hMain);
+	cellDispList = handles.ptrImList.String;
+	intIm = handles.ptrImList.Value;
+	
+	%retrieve current image assignments
+	[cellMergeMagic,cellLoadImages,intFieldSize] = retrieveMagic(cellDispList);
+	
+	%generate edit gui
+	sRegExpAssignment = SH_MagicAssignment();
+	
+	%set new image assignments
+	cellMergeMagic = UCI_AssignRegexp(cellLoadImages,sRegExpAssignment,intFieldSize);
+	
+	%reorder
+	handles.ptrImList.String = formatDispList(cellMergeMagic,cellLoadImages,intFieldSize);
+end
+function cellMergeMagic = UCI_AssignRegexp(cellLoadImages,sRegExpAssignment,intFieldSize)
+	
+	intIms = numel(cellLoadImages);
+	vecS = zeros(intIms,1);
+	vecX = zeros(intIms,1);
+	vecY = zeros(intIms,1);
+	vecZ = zeros(intIms,1);
+	vecC = zeros(intIms,1);
+	
+	for intIm=1:intIms
+		%name
+		strIm = cellLoadImages{intIm};
+		
+		%image
+		cellTok = regexp(strIm,sRegExpAssignment.Image,'match');
+		if ~isempty(cellTok),vecS(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%ch1
+		cellTok = regexp(strIm,sRegExpAssignment.Ch1,'match');
+		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%ch2
+		cellTok = regexp(strIm,sRegExpAssignment.Ch2,'match');
+		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%ch3
+		cellTok = regexp(strIm,sRegExpAssignment.Ch3,'match');
+		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%x
+		cellTok = regexp(strIm,sRegExpAssignment.X,'match');
+		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%y
+		cellTok = regexp(strIm,sRegExpAssignment.Y,'match');
+		if ~isempty(cellTok),vecY(intIm) = str2double(cellTok{1}(2:end));end
+		
+		%z
+		cellTok = regexp(strIm,sRegExpAssignment.Z,'match');
+		if ~isempty(cellTok),vecZ(intIm) = str2double(cellTok{1}(2:end));end
+	end
+	
+	%encode
+	cellMergeMagic = encodeMagic(intFieldSize,vecS,vecX,vecY,vecZ,vecC);
 end
 function UCI_Accept(hMain,eventdata)
 	%get data
