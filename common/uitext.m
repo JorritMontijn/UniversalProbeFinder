@@ -10,14 +10,12 @@ function h=uitext(varargin)
 	%
 	% ignored:
 	%   Style
-	%   VerticalAlignment
-	%   HorizontalAlignment
 	% redirected to axes:
 	%   Position
 	%   Units
 	%   Parent
-	%Deal with the uicontrol(parent,___) syntax.
 	
+	%Deal with the uicontrol(parent,___) syntax.
 	if mod(nargin,2)==1
 		varargin=[{'Parent'},varargin];
 	end

@@ -6,8 +6,7 @@ function sMeta = SH_UnpackCZI(strSlicePath,strFileName,dblReqResolution)
 	%download, extract, and add to path: https://downloads.openmicroscopy.org/bio-formats/7.1.0/artifacts/bfmatlab.zip
 	
 	%% assert bioformats
-	intOutFlag = assertBioFormats();
-	boolUseCzi = intOutFlag == 0;
+	assertBioFormats();
 	if ~exist('dblReqResolution','var') || isempty(dblReqResolution)
 		dblReqResolution = 1000;
 	end

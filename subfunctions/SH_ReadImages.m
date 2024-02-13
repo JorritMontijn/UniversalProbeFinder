@@ -83,9 +83,6 @@ function sSliceData = SH_ReadImages(sSliceData,vecMaxResolution)
 				end
 			end
 			
-			%future feature: image adjustment in slice prepper
-			%J = imadjust(I,[low_in high_in],[low_out high_out],gamma)
-			
 			%transform to uint8 [X by Y by 3]
 			imSlice = uint8(imSlice*double(intmax('uint8')));
 			if size(imSlice,3) == 1
