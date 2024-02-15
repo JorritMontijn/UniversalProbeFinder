@@ -25,9 +25,17 @@ function SH_PlotPrepIms(hMain,varargin)
 		end
 	end
 	
+	%get channel data
+	intSelectCh = sGUI.handles.ptrListChannels.Value;
+	if intSelectCh == 1
+		vecShowCh = 1:3;
+	else
+		vecShowCh = intSelectCh-1;
+	end
+	
 	%show main image
 	cla(sGUI.handles.hAxSlice);
-	sGUI.handles.hIm = imshow(sSliceData.Slice(sGUI.intCurrIm).ImTransformed,'Parent',sGUI.handles.hAxSlice);
+	sGUI.handles.hIm = imshow(sSliceData.Slice(sGUI.intCurrIm).ImTransformed(:,:,vecShowCh),'Parent',sGUI.handles.hAxSlice);
 	sGUI.handles.hIm.ButtonDownFcn = @SH_SliceClick;
 	
 	%create dummy plots

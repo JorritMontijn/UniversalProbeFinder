@@ -42,10 +42,13 @@ function SH_GenSlicePrepperGUI(sSliceData)
 		'Position',[0.94 0.69 0.06 0.03],'Callback',@SH_SaveSlicePrepperFile);
 	
 	%set up image control buttons
-	hImagePanel = uipanel(hMain,'FontSize',11,'Title','Image control','BackgroundColor','white','Position',[0.88 0.4 0.12 0.1]);
+	hImagePanel = uipanel(hMain,'FontSize',11,'Title','Image control','BackgroundColor','white','Position',[0.88 0.4 0.12 0.12]);
 	
-	ptrButtonFlipHorz = uicontrol(hImagePanel,'Style','pushbutton','FontSize',12,'string','Flip horizontally','Units','normalized',...
-		'Position',[0.1 0.3 0.8 0.5],'Callback',@SH_FlipHorz);
+	ptrListChannels = uicontrol(hImagePanel,'Style','popupmenu','FontSize',11,'string',{'RGB','Red','Green','Blue'},'Value',1,'Units','normalized',...
+		'Position',[0.1 0.5 0.8 0.25],'Callback',@SH_SelectChannel);
+	
+	ptrButtonFlipHorz = uicontrol(hImagePanel,'Style','pushbutton','FontSize',12,'string','Flip Image','Units','normalized',...
+		'Position',[0.1 0.15 0.8 0.25],'Callback',@SH_FlipHorz);
 	
 	
 	%set up track selector
@@ -111,7 +114,8 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	
 	%image control handles
 	sGUI.handles.hImagePanel = hImagePanel;
-	sGUI.handles.ptrButtonFlipHorz  = ptrButtonFlipHorz;
+	sGUI.handles.ptrButtonFlipHorz = ptrButtonFlipHorz;
+	sGUI.handles.ptrListChannels = ptrListChannels;
 	
 	%other buttons
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;

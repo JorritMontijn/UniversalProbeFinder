@@ -21,4 +21,9 @@ function SH_FlipHorz(hMain,eventdata)
 	sGUI = guidata(hMain);
 	sGUI.IsBusy = false;
 	guidata(hMain, sGUI);
+	
+	%reset focus
+	set(sGUI.handles.ptrButtonFlipHorz, 'enable', 'off');
+	drawnow;
+	set(sGUI.handles.ptrButtonFlipHorz, 'enable', 'on');
 end
