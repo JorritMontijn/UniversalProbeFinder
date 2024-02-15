@@ -54,7 +54,11 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	vecZeta = norminv(1-(cellfun(@min,{sSynthData.sCluster.ZetaP})/2));
 	strZetaTit = 'Responsiveness ZETA (z-score)';
 	vecClustQual = val2idx(cell2vec({sSynthData.sCluster.KilosortGood}));
-	cellClustQualLabel = cellLabels(vecClustQual);
+	if isfield(sSynthData.sCluster,'KilosortLabel')
+		cellClustQualLabel = {sSynthData.sCluster.KilosortLabel};
+	else
+		cellClustQualLabel = cellLabels(vecClustQual);
+	end
 	vecContamination = cell2vec({sSynthData.sCluster.Contamination});
 	
 	%check whether to use left/right or spiking rate
@@ -79,6 +83,20 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	sClusters.ClustQual =  vecClustQual;
 	sClusters.ClustQualLabel = cellClustQualLabel;
 	sClusters.ContamP = vecContamination;
+	%add aditional cluster data
+	cellAllFields = sSynthData.sCluster;
+	cellUsedFields = {'KilosortGood','KilosortLabel','Contamination','ZetaP','Depth','SpikeTimes'};
+	for intField=1:numel(cellAllFields)
+		strField = cellAllFields{intField};
+		if ~ismember(strField,cellUsedFields)
+			cellData = {sSynthData.sCluster.(strField)};
+			if isnumeric(cellData{1})
+				cellData = cell2vec(cellData);
+			end
+			sClusters.(strField) = cellData;
+		end
+	end
+	
 	%get channel mapping
 	if isfield(sSynthData,'ChanIdx') && isfield(sSynthData,'ChanPos')
 		sClusters.ChanIdx = sSynthData.ChanIdx;

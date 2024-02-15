@@ -8,15 +8,7 @@ function sRegExpAssignment = SH_MagicAssignment()
 	hMagicGui.Units = 'normalized';
 	
 	%default
-	sRegExpAssignment = struct;
-	sRegExpAssignment.File = '\w*_S';
-	sRegExpAssignment.Image = 'S\d*';
-	sRegExpAssignment.Ch1 = 'C0*1';
-	sRegExpAssignment.Ch2 = 'C0*2';
-	sRegExpAssignment.Ch3 = 'C0*3';
-	sRegExpAssignment.X = 'X\d*';
-	sRegExpAssignment.Y = 'Y\d*';
-	sRegExpAssignment.Z = 'Z\d*';
+	sRegExpAssignment = SH_getRegexpIni();
 	
 	%File:
 	%Image:
@@ -124,6 +116,9 @@ function sRegExpAssignment = SH_MagicAssignment()
 	
 		%close
 		close(hMagicGui);
+		
+		%save ini
+		SH_getRegexpIni(sRegExpAssignment);
 	else
 		%do nothing
 		sRegExpAssignment = [];

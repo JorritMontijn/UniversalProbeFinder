@@ -34,23 +34,12 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sEphysData.waveforms = waveforms;
 	
 	%load labels
-	[dummy1, dummy2,cellGroup]=tsvread(fullpath(strPathEphys, 'cluster_group.tsv'));
-	vecClustIdx_KSG = cellfun(@str2double,cellGroup(2:end,1));
-	vecKilosortGood = contains(cellGroup(2:end,2),'good');
-	
-	%load contam
-	[dummy, dummy,cellDataContam]=tsvread(fullpath(strPathEphys, 'cluster_ContamPct.tsv'));
-	vecClustIdx_KSC = cellfun(@str2double,cellDataContam(2:end,1));
-	vecKilosortContaminationSource = cellfun(@str2double,cellDataContam(2:end,2));
-	%fill array
-	vecKilosortContamination = nan(size(vecKilosortGood));
-	for intCluster=1:numel(vecClustIdx_KSG)
-		intClustIdx = vecClustIdx_KSG(intCluster);
-		intContamEntry = find(vecClustIdx_KSC==intClustIdx);
-		if ~isempty(intContamEntry)
-			vecKilosortContamination(intCluster) = vecKilosortContaminationSource(intContamEntry);
-		end
-	end
+	sClustTsv = loadClusterTsvs(strPathEphys);
+	vecClustIdx = sClustTsv.cluster_id;
+	cellKilosortLabel = {sClustTsv.KSLabel};
+	vecKilosortGood = contains(cellKilosortLabel,'good');
+	vecKilosortContamination = cellfun(@str2double,{sClustTsv.ContamPct});
+	cellUsedFields = {'cluster_id','KSLabel','ContamPct'};
 	
 	%get clusters with spikes
 	vecAllSpikeTimes = sEphysData.st;
@@ -69,7 +58,6 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	end
 	
 	%assign data
-	vecLabels = [0 1 2 3 4];
 	cellLabels = {'noise','mua','good','unsorted'};
 	vecNormSpikeCounts = mat2gray(log10(accumarray(spike_templates_reidx,1)+1));
 	vecContamination = nan(1,numel(vecTemplateIdx));
@@ -78,7 +66,7 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	cellSpikes = cell(1,numel(vecTemplateIdx));
 	for intCluster=1:numel(vecTemplateIdx)
 		intClustIdx = vecTemplateIdx(intCluster);
-		intContamEntry = find(vecClustIdx_KSG==intClustIdx);
+		intContamEntry = find(vecClustIdx==intClustIdx);
 		if isempty(intContamEntry)
 			dblContamP = nan;
 			dblGood = 0;
@@ -91,7 +79,6 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 		vecTemplateDepths(intCluster) = dblProbeLength - sEphysData.templateDepths(vecTemplateIdx==intClustIdx);
 		cellSpikes{intCluster} = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 	end
-	cellClustQualLabel = cellLabels(vecClusterQuality+1);
 	
 	%get channel mapping
 	try
@@ -128,9 +115,23 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sClusters.strZetaTit = strZetaTit;
 	sClusters.cellSpikes = cellSpikes;
 	sClusters.ClustQual = vecClusterQuality;
-	sClusters.ClustQualLabel = cellClustQualLabel;
+	sClusters.ClustQualLabel = cellKilosortLabel;
 	sClusters.ContamP = vecContamination;
 	sClusters.OrigIdx = vecTemplateIdx;
+	
+	%add aditional cluster data
+	cellAllFields = sClustTsv.sCluster;
+	for intField=1:numel(cellAllFields)
+		strField = cellAllFields{intField};
+		if ~ismember(strField,cellUsedFields)
+			cellData = {sSynthData.sCluster.(strField)};
+			if isnumeric(cellData{1})
+				cellData = cell2vec(cellData);
+			end
+			sClusters.(strField) = cellData;
+		end
+	end
+	
 	%get channel mapping
 	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
 		sClusters.ChanIdx = sEphysData.ChanIdx;

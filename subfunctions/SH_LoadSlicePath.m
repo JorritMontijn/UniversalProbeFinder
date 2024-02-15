@@ -445,16 +445,21 @@ function cellMergeMagic = UCI_AssignRegexp(cellLoadImages,sRegExpAssignment,intF
 		if ~isempty(cellTok),vecS(intIm) = str2double(cellTok{1}(2:end));end
 		
 		%ch1
-		cellTok = regexp(strIm,sRegExpAssignment.Ch1,'match');
-		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		cellTokC1 = regexp(strIm,sRegExpAssignment.Ch1,'match');
+		if ~isempty(cellTokC1),vecC(intIm) = 1;end
 		
 		%ch2
-		cellTok = regexp(strIm,sRegExpAssignment.Ch2,'match');
-		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		cellTokC2 = regexp(strIm,sRegExpAssignment.Ch2,'match');
+		if ~isempty(cellTokC2),vecC(intIm) = 2;end
 		
 		%ch3
-		cellTok = regexp(strIm,sRegExpAssignment.Ch3,'match');
-		if ~isempty(cellTok),vecC(intIm) = str2double(cellTok{1}(2:end));end
+		cellTokC3 = regexp(strIm,sRegExpAssignment.Ch3,'match');
+		if ~isempty(cellTokC3),vecC(intIm) = 3;end
+		
+		%assign 0 if no channel is detected
+		if isempty(cellTokC1) && isempty(cellTokC2) && isempty(cellTokC3)
+			vecC(intIm) = 0;
+		end
 		
 		%x
 		cellTok = regexp(strIm,sRegExpAssignment.X,'match');

@@ -38,7 +38,7 @@ function sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 	if exist('dblProbeLength','var') && ~isempty(dblProbeLength)
 		sClusters.dblProbeLength = dblProbeLength;
 	end
-	%check all fields actually exist
+	%check required fields actually exist
 	sClusters.dblProbeLength = sClusters.dblProbeLength;
 	sClusters.vecUseClusters = sClusters.vecUseClusters;
 	sClusters.vecNormSpikeCounts = sClusters.vecNormSpikeCounts;
