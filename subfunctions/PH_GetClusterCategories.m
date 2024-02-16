@@ -1,17 +1,18 @@
-function cellCategories = PH_GetClusterCategories(hMain,eventdata)
+function cellCategories = PH_GetClusterCategories(hObject,eventdata)
 	%PH_GetClusterCategories Retrieve cluster categories
 	%   cellCategories = PH_GetClusterCategories(hMain,eventdata)
 	
 	% Get guidata
 	sGUI = guidata(hObject);
 	sGUI = guidata(sGUI.handles.hMain);
-	hMain=sGUI.handles.hMain;
 	
 	%get selected property
-	hShowClustProp = sGUI.handles.ptrButtonClustProp;
-	strProperty = hShowClustProp.String{hShowClustProp.Value};
+	hShowCategProp = sGUI.handles.ptrButtonCategProp;
+	strProperty = hShowCategProp.String{hShowCategProp.Value};
 	
 	%find property categories
+	cellFields = fieldnames(sGUI.sClusters);
+	strProperty = cellFields{contains(cellFields,strProperty)};
 	cellPropertyData = sGUI.sClusters.(strProperty);
 	cellCategories = {'all'};
 	cellUnique = unique(cellPropertyData);

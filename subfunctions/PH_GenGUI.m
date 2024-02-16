@@ -29,7 +29,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sProbeCoords = PH_ExtractProbeCoords(sProbeCoords);
 	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
 	if isfield(sProbeCoords,'sProbeAdjusted') && strcmpi(sProbeCoords.Type,'native')
-		dblProbeLength = sProbeCoords.sProbeAdjusted.ProbeLength;
+		dblProbeLength = sProbeCoords.ProbeLength;
 	else
 		if isfield(sClusters,'dblProbeLength')
 			dblProbeLength = sClusters.dblProbeLength;
@@ -201,26 +201,32 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Position',[ptrButtonLoadEphys.Position(1)+ptrButtonLoadEphys.Position(3)+0.01 0.97 0.06 0.03],...
 		'Callback',@PH_LoadZetaFcn);
 	
-	%select property to show (from tsv files)
-	cellProps = PH_GetClusterPropertyList(hMain);
-	ptrButtonClustProp = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
-		'String',cellProps,...
+	%load tsv
+	ptrButtonLoadTsv = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
+		'String',sprintf('Load .tsv'),...
 		'Units','normalized',...
 		'Position',[ptrButtonLoadZeta.Position(1)+ptrButtonLoadZeta.Position(3)+0.01 0.97 0.06 0.03],...
-		'Callback',@PH_SelectClustProp);
-	%set default selection to cluster quality
-	intSelect = find(strcmpi(ptrButtonClustProp.String,'ClustQual'));
-	if isempty(intSelect) || isnan(intSelect)
-		intSelect = 1;
-	end
-	ptrButtonClustProp.Value=intSelect;
+		'Callback',@PH_LoadTsvFcn);
 	
-	%show cluster type
-	cellCategories = PH_GetClusterCategories(hMain);
-	ptrButtonShowClusters = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
-		'String',cellCategories,...
+	%select property to plot (from tsv files)
+	ptrButtonPlotProp = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',{''},...
 		'Units','normalized',...
-		'Position',[ptrButtonClustProp.Position(1)+ptrButtonClustProp.Position(3)+0.01 0.97 0.06 0.03],...
+		'Position',[ptrButtonLoadTsv.Position(1)+ptrButtonLoadTsv.Position(3)+0.01 0.97 0.06 0.03],...
+		'Callback',@PH_SelectPlotProp);
+	
+	%select property to categorize (from tsv files)
+	ptrButtonCategProp = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',{''},...
+		'Units','normalized',...
+		'Position',[ptrButtonPlotProp.Position(1)+ptrButtonPlotProp.Position(3)+0.01 0.97 0.06 0.03],...
+		'Callback',@PH_SelectCategProp);
+	
+	%show category
+	ptrButtonShowCateg = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',{''},...
+		'Units','normalized',...
+		'Position',[ptrButtonCategProp.Position(1) 0.97-ptrButtonCategProp.Position(4)-0.001 0.06 0.03],...
 		'Callback',@PH_PlotProbeEphys);
 	
 	%help
@@ -257,8 +263,10 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.ptrButtonSave = ptrButtonSave;
 	sGUI.handles.ptrButtonLoadEphys = ptrButtonLoadEphys;
 	sGUI.handles.ptrButtonLoadZeta = ptrButtonLoadZeta;
-	sGUI.handles.ptrButtonClustProp = ptrButtonClustProp;
-	sGUI.handles.ptrButtonShowClusters = ptrButtonShowClusters;
+	sGUI.handles.ptrButtonLoadTsv = ptrButtonLoadTsv;
+	sGUI.handles.ptrButtonPlotProp = ptrButtonPlotProp;
+	sGUI.handles.ptrButtonCategProp = ptrButtonCategProp;
+	sGUI.handles.ptrButtonShowCateg = ptrButtonShowCateg;
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
 	sGUI.handles.hDispHelp = [];
 	
@@ -307,6 +315,26 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%% run initial functions
 	%make full screen
 	maxfig(hMain);
+	
+	%set default plotting property selection to zeta, or otherwise spike number
+	ptrButtonPlotProp.String = PH_GetClusterPropertyList(hMain);
+	intSelect = find(strcmpi(ptrButtonPlotProp.String,'Zeta'));
+	if isempty(intSelect) || isnan(intSelect)
+		intSelect = find(strcmpi(ptrButtonPlotProp.String,'NormSpikeCounts'));
+		if isempty(intSelect) || isnan(intSelect)
+			intSelect = 1;
+		end
+	end
+	ptrButtonPlotProp.Value=intSelect;
+	
+	%set default category selection to cluster quality
+	ptrButtonCategProp.String = PH_GetClusterPropertyList(hMain);
+	intSelect = find(strcmpi(ptrButtonCategProp.String,'ClustQualLabel'));
+	if isempty(intSelect) || isnan(intSelect)
+		intSelect = 1;
+	end
+	ptrButtonCategProp.Value=intSelect;
+	ptrButtonShowCateg.String = PH_GetClusterCategories(hMain);
 	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);

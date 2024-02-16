@@ -7,7 +7,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	hAxMuaIm = sGUI.handles.probe_xcorr_im;
 	hAxZeta = sGUI.handles.probe_zeta;
 	hAxClust = sGUI.handles.probe_clust;
-	hShowClustProp = sGUI.handles.ptrListClustProp; %which property to show?
+	hShowClustProp = sGUI.handles.ptrButtonClustProp; %which property to show?
 	hShowClustCateg = sGUI.handles.ptrButtonShowClusters; %which category?
 	if isempty(sClusters) || ~isfield(sClusters,'vecDepth') || isempty(sClusters.vecDepth)
 		title(sGUI.handles.probe_zeta ,'No Ephys data loaded');
@@ -33,14 +33,14 @@ function PH_PlotProbeEphys(hMain,varargin)
 	end
 	
 	%% show cluster data
-	hShowClustProp = sGUI.handles.ptrListClustProp; %which property to show?
-	
 	strListClustProp = hShowClustProp.String{hShowClustProp.Value};
 	strShowClust = hShowClustCateg.String{hShowClustCateg.Value};
-	strZetaTit = sClusters.strZetaTit;
+	strTopTitle = sClusters.strTopTitle;
 	dblProbeLength = sClusters.dblProbeLength;
-	indShowCells = true(size(sClusters.vecZeta));
-	if isfield(sClusters,'ClustQualLabel')
+	indShowCells = true(size(sClusters.vecDepth));
+	if isfield(sClusters,strListClustProp)
+		
+	elseif isfield(sClusters,'ClustQualLabel')
 		cellUniqueClustQ = unique(sClusters.ClustQualLabel);
 		%update list
 		hShowClustCateg.String = cat(1,'all',cellUniqueClustQ(:));
@@ -67,7 +67,7 @@ function PH_PlotProbeEphys(hMain,varargin)
 	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecZeta,vecDepth,15,vecClustQual,'filled');
 	hAxZeta.CLim = [min(vecUniqueQ)-eps max(vecUniqueQ)+eps];
 	colormap(hAxZeta,mapCol);
-	title(hAxZeta,strZetaTit);
+	title(hAxZeta,strTopTitle);
 	set(hAxZeta,'FontSize',12);
 	ylabel(hAxZeta,'Depth (\mum)');
 	set(hAxZeta,'XAxisLocation','top','YColor','k','YDir','reverse');

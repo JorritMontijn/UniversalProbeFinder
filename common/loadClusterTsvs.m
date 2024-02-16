@@ -3,6 +3,8 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	%   sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	%
 	%Assigns data sClustTsv structure, indexing entries by the 'cluster_id' entry in the tsv file
+	%strFolder can be a folder, or a structure output from dir()
+	%strSearchKey can be a search key string
 	
 	%default search key
 	if ~exist('strSearchKey','var') || isempty(strSearchKey)
@@ -11,7 +13,19 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	
 	%find all tsvs
 	%strFolder='D:\Data\Raw\NoraUPF\RecIv2a1_2022-08-30R01_g0\RecIv2a1_2022-08-30R01_g0_imec0\kilosort';
-	sTsvs = dir(fullpath(strFolder,strSearchKey));
+	if ischar(strSearchKey)
+		if ischar(strFolder) && exist(strFolder,'dir')
+			sTsvs = dir(fullpath(strFolder,strSearchKey));
+		elseif isstruct(strFolder)
+			sTsvs = strFolder;
+		else
+			error([mfilename ':InputError'],'First input is not a folder and not a file structure');
+		end
+	else
+		error([mfilename ':InputError'],'strSearchKey input is not search key');
+	end
+	
+	%load
 	sClustTsv = struct;
 	for intTsv=1:numel(sTsvs)
 		[cellHeader,cellData]=tsvread(fullpath(strFolder,sTsvs(intTsv).name));
