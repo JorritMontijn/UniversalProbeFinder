@@ -201,11 +201,26 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Position',[ptrButtonLoadEphys.Position(1)+ptrButtonLoadEphys.Position(3)+0.01 0.97 0.06 0.03],...
 		'Callback',@PH_LoadZetaFcn);
 	
-	%show cluster type; good, bad, all
-	ptrButtonShowClusters = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
-		'String',{'all'},...
+	%select property to show (from tsv files)
+	cellProps = PH_GetClusterPropertyList(hMain);
+	ptrButtonClustProp = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',cellProps,...
 		'Units','normalized',...
 		'Position',[ptrButtonLoadZeta.Position(1)+ptrButtonLoadZeta.Position(3)+0.01 0.97 0.06 0.03],...
+		'Callback',@PH_SelectClustProp);
+	%set default selection to cluster quality
+	intSelect = find(strcmpi(ptrButtonClustProp.String,'ClustQual'));
+	if isempty(intSelect) || isnan(intSelect)
+		intSelect = 1;
+	end
+	ptrButtonClustProp.Value=intSelect;
+	
+	%show cluster type
+	cellCategories = PH_GetClusterCategories(hMain);
+	ptrButtonShowClusters = uicontrol(hMain,'Style','popupmenu','FontSize',11,...
+		'String',cellCategories,...
+		'Units','normalized',...
+		'Position',[ptrButtonClustProp.Position(1)+ptrButtonClustProp.Position(3)+0.01 0.97 0.06 0.03],...
 		'Callback',@PH_PlotProbeEphys);
 	
 	%help
@@ -242,6 +257,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.ptrButtonSave = ptrButtonSave;
 	sGUI.handles.ptrButtonLoadEphys = ptrButtonLoadEphys;
 	sGUI.handles.ptrButtonLoadZeta = ptrButtonLoadZeta;
+	sGUI.handles.ptrButtonClustProp = ptrButtonClustProp;
 	sGUI.handles.ptrButtonShowClusters = ptrButtonShowClusters;
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
 	sGUI.handles.hDispHelp = [];

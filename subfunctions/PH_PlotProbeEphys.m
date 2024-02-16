@@ -7,7 +7,8 @@ function PH_PlotProbeEphys(hMain,varargin)
 	hAxMuaIm = sGUI.handles.probe_xcorr_im;
 	hAxZeta = sGUI.handles.probe_zeta;
 	hAxClust = sGUI.handles.probe_clust;
-	hShowClust = sGUI.handles.ptrButtonShowClusters;
+	hShowClustProp = sGUI.handles.ptrListClustProp; %which property to show?
+	hShowClustCateg = sGUI.handles.ptrButtonShowClusters; %which category?
 	if isempty(sClusters) || ~isfield(sClusters,'vecDepth') || isempty(sClusters.vecDepth)
 		title(sGUI.handles.probe_zeta ,'No Ephys data loaded');
 		%hide
@@ -31,15 +32,18 @@ function PH_PlotProbeEphys(hMain,varargin)
 		end
 	end
 	
-	%get data
-	strShowClust = hShowClust.String{hShowClust.Value};
+	%% show cluster data
+	hShowClustProp = sGUI.handles.ptrListClustProp; %which property to show?
+	
+	strListClustProp = hShowClustProp.String{hShowClustProp.Value};
+	strShowClust = hShowClustCateg.String{hShowClustCateg.Value};
 	strZetaTit = sClusters.strZetaTit;
 	dblProbeLength = sClusters.dblProbeLength;
 	indShowCells = true(size(sClusters.vecZeta));
 	if isfield(sClusters,'ClustQualLabel')
 		cellUniqueClustQ = unique(sClusters.ClustQualLabel);
 		%update list
-		hShowClust.String = cat(1,'all',cellUniqueClustQ(:));
+		hShowClustCateg.String = cat(1,'all',cellUniqueClustQ(:));
 		
 		%determine which cells to show
 		if ~strcmpi(strShowClust,'all')
