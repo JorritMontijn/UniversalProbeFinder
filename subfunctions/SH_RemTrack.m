@@ -54,8 +54,10 @@ function SH_RemTrack(hObject,varargin)
 			end
 		end
 		
-		%update data
-		guidata(hObject,sGUI);
+		%reset saving switch
+		sGUI.boolAskSave = true;
+		guidata(hObject, sGUI);
+		
 	else
 		return;
 	end

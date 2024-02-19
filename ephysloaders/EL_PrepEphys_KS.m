@@ -36,10 +36,17 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	%load labels
 	sClustTsv = loadClusterTsvs(strPathEphys);
 	vecClustIdx = sClustTsv.cluster_id;
-	cellKilosortLabel = {sClustTsv.KSLabel};
-	vecKilosortGood = contains(cellKilosortLabel,'good');
-	vecKilosortContamination = cellfun(@str2double,{sClustTsv.ContamPct});
 	cellUsedFields = {'cluster_id','KSLabel','ContamPct'};
+	%for backward compatibility
+	if isfield(sClustTsv,'KSLabel') && isfield(sClustTsv,'ContamPct')
+		cellKilosortLabel = {sClustTsv.KSLabel};
+		vecKilosortGood = contains(cellKilosortLabel,'good');
+		vecKilosortContamination = cellfun(@str2double,{sClustTsv.ContamPct});
+	else
+		cellKilosortLabel = {};
+		vecKilosortGood = [];
+		vecKilosortContamination = [];
+	end
 	
 	%get clusters with spikes
 	vecAllSpikeTimes = sEphysData.st;
@@ -58,7 +65,33 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	end
 	
 	%assign data
-	cellLabels = {'noise','mua','good','unsorted'};
+	error merge tsvs too! maybe better to mofidy sClusters and add sClust substructure to ensure same # of entries?
+	
+	%add extra data
+	sClusters = struct;
+	sClusters.dblProbeLength = dblProbeLength;
+	sClusters.vecUseClusters = 1:numel(cellSpikes);
+	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
+	sClusters.vecDepth = vecTemplateDepths;
+	sClusters.cellSpikes = cellSpikes;
+	sClusters.OrigIdx = vecTemplateIdx;
+	
+	%add aditional cluster data
+	sClusters = PH_MergeClusterData(sClusters,sClustTsv); %make sure assignment is to correct id!
+	
+	cellAllFields = fieldnames(sClustTsv);
+	for intField=1:numel(cellAllFields)
+		strField = cellAllFields{intField};
+		if ~ismember(strField,cellUsedFields)
+			cellData = {sClustTsv.(strField)};
+			if isnumeric(cellData{1})
+				cellData = cell2vec(cellData);
+			end
+			sClusters.(strField) = cellData;
+		end
+	end
+	
+	%assign ks data
 	vecNormSpikeCounts = mat2gray(log10(accumarray(spike_templates_reidx,1)+1));
 	vecContamination = nan(1,numel(vecTemplateIdx));
 	vecClusterQuality = nan(1,numel(vecTemplateIdx));
@@ -66,13 +99,13 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	cellSpikes = cell(1,numel(vecTemplateIdx));
 	for intCluster=1:numel(vecTemplateIdx)
 		intClustIdx = vecTemplateIdx(intCluster);
-		intContamEntry = find(vecClustIdx==intClustIdx);
-		if isempty(intContamEntry)
+		intTsvEntry = find(vecClustIdx==intClustIdx);
+		if isempty(intTsvEntry)
 			dblContamP = nan;
 			dblGood = 0;
 		else
-			dblContamP = vecKilosortContamination(intContamEntry);
-			dblGood = vecKilosortGood(intContamEntry);
+			dblContamP = vecKilosortContamination(intTsvEntry);
+			dblGood = vecKilosortGood(intTsvEntry);
 		end
 		vecContamination(intCluster) = dblContamP;
 		vecClusterQuality(intCluster) = dblGood;
@@ -84,56 +117,6 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	try
 		sEphysData.ChanIdx = readNPY(fullpath(strPathEphys,'channel_map.npy'));
 		sEphysData.ChanPos = readNPY(fullpath(strPathEphys,'channel_positions.npy'));
-	catch
-	end
-	
-	%% prep ephys
-	%check inputs
-	sClusters = [];
-	if isempty(sEphysData),return;end
-	
-	%add depth/contam
-	vecDepth = vecTemplateDepths;
-	vecZeta = vecContamination;
-	strZetaTit = 'Contamination (%)';
-	
-	%check if depth is the same
-	dblDepthR = corr(vecDepth(:),vecTemplateDepths(:));
-	if dblDepthR > -0.95 && dblDepthR < 0.95
-		error([mfilename ':DepthInconsistency'],'Depth information from templates and synthesis data do not match! Pearson r=%.3f',dblDepthR);
-	elseif dblDepthR < -0.95
-		warndlg('Depth information from templates and synthesis data are mirrored, please check the source data','Depths mirrored');
-	end
-	
-	%add extra data
-	sClusters = struct;
-	sClusters.dblProbeLength = dblProbeLength;
-	sClusters.vecUseClusters = 1:numel(cellSpikes);
-	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
-	sClusters.vecDepth = vecDepth;
-	sClusters.vecZeta = vecZeta;
-	sClusters.strZetaTit = strZetaTit;
-	sClusters.cellSpikes = cellSpikes;
-	sClusters.ClustQual = vecClusterQuality;
-	sClusters.ClustQualLabel = cellKilosortLabel;
-	sClusters.ContamP = vecContamination;
-	sClusters.OrigIdx = vecTemplateIdx;
-	
-	%add aditional cluster data
-	cellAllFields = sClustTsv.sCluster;
-	for intField=1:numel(cellAllFields)
-		strField = cellAllFields{intField};
-		if ~ismember(strField,cellUsedFields)
-			cellData = {sSynthData.sCluster.(strField)};
-			if isnumeric(cellData{1})
-				cellData = cell2vec(cellData);
-			end
-			sClusters.(strField) = cellData;
-		end
-	end
-	
-	%get channel mapping
-	if isfield(sEphysData,'ChanIdx') && isfield(sEphysData,'ChanPos')
 		sClusters.ChanIdx = sEphysData.ChanIdx;
 		sClusters.ChanPos = sEphysData.ChanPos;
 	end

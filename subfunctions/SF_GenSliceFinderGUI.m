@@ -170,6 +170,7 @@ function SF_GenSliceFinderGUI(sAtlas,sSliceData)
 	sGUI.handles.ptrButtonExport = [];%ptrButtonExport; %removed
 
 	%other
+	sGUI.boolAskSave = false;
 	sGUI.boolReadyForExit = false;
 	sGUI.output = [];
 	

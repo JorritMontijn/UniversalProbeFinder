@@ -37,8 +37,9 @@ function SF_LoadSliceData(hObject,varargin)
 	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track(:).name};
 	sGUI.handles.ptrListSelectTrack.Value = 1;
 	
-	%update data
-	guidata(hMain,sGUI);
+	%reset switch
+	sGUI.boolAskSave = false;
+	guidata(sGUI.handles.hMain,sGUI);
 	
 	%plot header+current slice and update slice in atlas + redraw atlas on slice
 	SF_PlotIms(hMain);

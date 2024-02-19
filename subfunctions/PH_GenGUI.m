@@ -132,7 +132,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	set(hAxClusters,'XLim',[0,dblProbeLengthMicrons],'YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
 	
 	hAxMua = subplot(2,4,7);
-	hAxMuaIm=imagesc(hAxMua,magic(3));
+	hAxMuaIm=imagesc(hAxMua,[1 1 1]);
 	xlabel(hAxMua,'Depth (\mum)');
 	axis(hAxMua,'equal');
 	set(hAxMua,'YTickLabel','','XLim',[0,dblProbeLengthMicrons],'YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
@@ -316,31 +316,11 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%make full screen
 	maxfig(hMain);
 	
-	%set default plotting property selection to zeta, or otherwise spike number
-	ptrButtonPlotProp.String = PH_GetClusterPropertyList(hMain);
-	intSelect = find(strcmpi(ptrButtonPlotProp.String,'Zeta'));
-	if isempty(intSelect) || isnan(intSelect)
-		intSelect = find(strcmpi(ptrButtonPlotProp.String,'NormSpikeCounts'));
-		if isempty(intSelect) || isnan(intSelect)
-			intSelect = 1;
-		end
-	end
-	ptrButtonPlotProp.Value=intSelect;
-	
-	%set default category selection to cluster quality
-	ptrButtonCategProp.String = PH_GetClusterPropertyList(hMain);
-	intSelect = find(strcmpi(ptrButtonCategProp.String,'ClustQualLabel'));
-	if isempty(intSelect) || isnan(intSelect)
-		intSelect = 1;
-	end
-	ptrButtonCategProp.Value=intSelect;
-	ptrButtonShowCateg.String = PH_GetClusterCategories(hMain);
-	
 	%set initial position
 	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
 	
 	%plot ephys
-	PH_PlotProbeEphys(hMain,sClusters);
+	PH_PlotProbeEphys(hMain);
 	
 	% Display controls
 	PH_DisplayControls(hMain);

@@ -7,11 +7,7 @@ function PH_SelectPlotProp(hObject,eventdata)
 	sGUI = guidata(sGUI.handles.hMain);
 	hMain=sGUI.handles.hMain;
 	
-	%update list
-	cellCategories = PH_GetClusterCategories(hMain);
-	set(sGUI.handles.ptrButtonPlotProp,'Value',1,'String',cellCategories);
-	
 	%trigger redraw
-	PH_PlotProbeEphys(hMain);
+	PH_PlotProbeEphys(hMain,sGUI.handles.ptrButtonPlotProp);
 end
 

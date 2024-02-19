@@ -60,7 +60,7 @@ function sAtlas = AL_PrepABA(strAllenCCFPath)
 	
 	%% get variables
 	%define misc variables
-	vecBregma_accf = [540,0,570];% bregma in accf; [AP,DV,ML]
+	vecBregma_accf = [540,30,570];% bregma in accf; [AP,DV,ML]
 	vecVoxelSize_accf = [10 10 10];% bregma in accf; [AP,DV,ML]
 	
 	%brain grid

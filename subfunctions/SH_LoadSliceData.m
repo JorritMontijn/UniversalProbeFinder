@@ -32,6 +32,9 @@ function SH_LoadSliceData(hObject,varargin)
 	sGUI.handles.ptrListSelectTrack.Value = 0;
 	sGUI.handles.ptrTextActiveTrack.String = '';
 	
+	%reset saving switch
+	sGUI.boolAskSave = false;
+	
 	%update data
 	guidata(hMain,sGUI);
 	

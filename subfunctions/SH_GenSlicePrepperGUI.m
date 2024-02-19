@@ -125,6 +125,7 @@ function SH_GenSlicePrepperGUI(sSliceData)
 	%other
 	sGUI.lastPress = tic;
 	sGUI.boolReadyForExit = false;
+	sGUI.boolAskSave = false;
 	sGUI.output = [];
 	
 	% Set functions for key presses

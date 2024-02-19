@@ -16,6 +16,10 @@ function SF_SaveSliceFinderFile(hMain,varargin)
 	%message
 	sGUI.handles.ptrTextMessages.String = sprintf('Saved to %s',sSliceData.path);drawnow;
 	
+	%reset switch
+	sGUI.boolAskSave = false;
+	guidata(sGUI.handles.hMain,sGUI);
+	
 	%reset focus
 	figure(sGUI.handles.hMain);
 	set(sGUI.handles.ptrButtonSave, 'enable', 'off');

@@ -146,6 +146,7 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(1) = sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(1) + dblMoveML;
 		end
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'h') || strcmp(eventdata.Key,'n')
@@ -155,6 +156,7 @@ function SF_KeyPress(hMain,eventdata)
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(2) = sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(2) + dblMoveAP;
 		
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'i') || strcmp(eventdata.Key,'k')
@@ -171,6 +173,7 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(3) = sGUI.sSliceData.Slice(sGUI.intCurrIm).Center(3) + dblMoveDV;
 		end
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'c') && ~isempty(eventdata.Modifier) && strcmpi(eventdata.Modifier,'control')
@@ -203,6 +206,7 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).ResizeLeftRight = sGUI.sSliceData.Slice(sGUI.CurrCopy).ResizeLeftRight;
 			
 			%update data
+			sGUI.boolAskSave = true;
 			guidata(hMain,sGUI);
 			
 			%redraw
@@ -283,6 +287,7 @@ function SF_KeyPress(hMain,eventdata)
 			end
 			
 			%update data
+			sGUI.boolAskSave = true;
 			guidata(hMain,sGUI);
 			
 			%redraw
@@ -329,6 +334,7 @@ function SF_KeyPress(hMain,eventdata)
 			sGUI.CopyIms = [];
 			
 			%update data
+			sGUI.boolAskSave = true;
 			guidata(hMain,sGUI);
 			
 			%redraw
@@ -344,6 +350,7 @@ function SF_KeyPress(hMain,eventdata)
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundML = mod(sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundML + dblPitchML,360);
 		
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'q') || strcmp(eventdata.Key,'e')
@@ -353,6 +360,7 @@ function SF_KeyPress(hMain,eventdata)
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundAP = mod(sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundAP + dblRollAP,360);
 		
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'a') || strcmp(eventdata.Key,'d')
@@ -362,6 +370,7 @@ function SF_KeyPress(hMain,eventdata)
 		sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundDV = mod(sGUI.sSliceData.Slice(sGUI.intCurrIm).RotateAroundDV + dblYawDV,360);
 		
 		%update data & redraw
+		sGUI.boolAskSave = true;
 		guidata(hMain,sGUI);
 		SF_PlotSliceInAtlas(hMain);
 	elseif strcmp(eventdata.Key,'equal') || strcmp(eventdata.Key,'add')

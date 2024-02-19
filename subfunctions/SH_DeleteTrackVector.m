@@ -12,6 +12,7 @@ function SH_DeleteTrackVector(hObject,eventdata,hLine)
 		end
 	end
 	
-	%update data
+	%reset saving switch
+	sGUI.boolAskSave = true;
 	guidata(hObject,sGUI);
 end

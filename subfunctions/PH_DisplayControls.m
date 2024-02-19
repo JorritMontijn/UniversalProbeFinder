@@ -7,6 +7,13 @@ function PH_DisplayControls(hObject,varargin)
 		figure(sGUI.handles.hDispHelp);return;
 	end
 	
+	%enable buttons
+	set(sGUI.handles.ptrButtonLoadZeta,'Enable','on');
+	set(sGUI.handles.ptrButtonLoadTsv,'Enable','on');
+	set(sGUI.handles.ptrButtonPlotProp,'Enable','on');
+	set(sGUI.handles.ptrButtonCategProp,'Enable','on');
+	set(sGUI.handles.ptrButtonShowCateg,'Enable','on');
+	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';
 	CreateStruct.WindowStyle = 'non-modal';

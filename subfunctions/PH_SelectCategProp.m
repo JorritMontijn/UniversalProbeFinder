@@ -9,9 +9,9 @@ function PH_SelectCategProp(hObject,eventdata)
 	
 	%update list
 	cellCategories = PH_GetClusterCategories(hMain);
-	set(sGUI.handles.ptrButtonCategProp,'Value',1,'String',cellCategories);
+	set(sGUI.handles.ptrButtonShowCateg,'Value',1,'String',cellCategories);
 	
 	%trigger redraw
-	PH_PlotProbeEphys(hMain);
+	PH_PlotProbeEphys(hMain,sGUI.handles.ptrButtonShowCateg);
 end
 

@@ -8,12 +8,15 @@ function cellCategories = PH_GetClusterCategories(hObject,eventdata)
 	
 	%get selected property
 	hShowCategProp = sGUI.handles.ptrButtonCategProp;
-	strProperty = hShowCategProp.String{hShowCategProp.Value};
+	if isempty(hShowCategProp.String)
+		cellCategories = {};
+		return;
+	end
 	
 	%find property categories
-	cellFields = fieldnames(sGUI.sClusters);
-	strProperty = cellFields{contains(cellFields,strProperty)};
-	cellPropertyData = sGUI.sClusters.(strProperty);
+	strFindField = hShowCategProp.String{hShowCategProp.Value};
+	strFullField = PH_GetClusterField(sGUI.sClusters,strFindField);
+	cellPropertyData = sGUI.sClusters.(strFullField);
 	cellCategories = {'all'};
 	cellUnique = unique(cellPropertyData);
 	if numel(cellUnique) <= 10

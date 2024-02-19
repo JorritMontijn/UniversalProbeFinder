@@ -3,8 +3,11 @@ function SH_NewTrack(hObject,varargin)
 	sGUI = guidata(hObject);
 	
 	%get details
-	intNewTrack = numel(sGUI.sSliceData.Track)+1;
-	strDefName = sprintf('Track %d',intNewTrack);
+	cellTrackNames = {sGUI.sSliceData.Track.name};
+	for intNewTrack=1:(numel(cellTrackNames)+1)
+		strDefName = sprintf('Track %d',intNewTrack);
+		if ~ismember(strDefName,cellTrackNames),break;end
+	end
 	strTitle = 'New track';
 	[strName,strMarker,vecColor] = SH_TrackUI(strDefName,intNewTrack,intNewTrack,strTitle);
 	if isempty(strName) || isempty(strMarker) || isempty(vecColor)
@@ -12,16 +15,18 @@ function SH_NewTrack(hObject,varargin)
 	end
 	
 	%add track
-	sGUI.sSliceData.Track(intNewTrack).name = strName;
-	sGUI.sSliceData.Track(intNewTrack).marker = strMarker;
-	sGUI.sSliceData.Track(intNewTrack).color = vecColor;
+	intNewTrackIdx = numel(sGUI.sSliceData.Track)+1;
+	sGUI.sSliceData.Track(intNewTrackIdx).name = strName;
+	sGUI.sSliceData.Track(intNewTrackIdx).marker = strMarker;
+	sGUI.sSliceData.Track(intNewTrackIdx).color = vecColor;
 	
-	%add guidata
-	guidata(hObject,sGUI);
+	%reset saving switch
+	sGUI.boolAskSave = true;
+	guidata(hObject, sGUI);
 	
 	%set new track active
 	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track.name};
-	sGUI.handles.ptrListSelectTrack.Value = intNewTrack;
+	sGUI.handles.ptrListSelectTrack.Value = intNewTrackIdx;
 	
 	%update list/text
 	SH_SelectTrack(hObject);

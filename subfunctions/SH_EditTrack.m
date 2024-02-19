@@ -19,8 +19,13 @@ function SH_EditTrack(hObject,varargin)
 	sGUI.sSliceData.Track(intTrack).marker = strMarker;
 	sGUI.sSliceData.Track(intTrack).color = vecColor;
 	
-	%add guidata
-	guidata(hObject,sGUI);
+	%regenerate list
+	sGUI.handles.ptrListSelectTrack.String = {sGUI.sSliceData.Track.name};
+	sGUI.handles.ptrListSelectTrack.Value = intTrack;
+	
+	%reset saving switch
+	sGUI.boolAskSave = true;
+	guidata(hObject, sGUI);
 	
 	%redraw
 	SH_PlotPrepIms(hObject);

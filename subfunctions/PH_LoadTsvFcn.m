@@ -6,8 +6,9 @@ function PH_LoadTsvFcn(hObject,varargin)
 	%select folder
 	strText = 'Select .tsv file(s)';
 	if ismac; msgbox(strText,'OK');end
-	[cellTsvFiles,strTsvPath] = uigetfile(cd(),strText,'MultiSelect','on');
+	[cellTsvFiles,strTsvPath] = uigetfile(fullpath(cd(),'*.tsv'),strText,'MultiSelect','on');
 	if isempty(cellTsvFiles) || cellTsvFiles(1) == 0,return;end
+	if ischar(cellTsvFiles),cellTsvFiles={cellTsvFiles};end
 	
 	%transform to struct
 	sTsvs = struct;
@@ -17,15 +18,17 @@ function PH_LoadTsvFcn(hObject,varargin)
 	end
 	
 	%loads tsvs
-	sClustTsv = loadClusterTsvs(sTsvs);
+	sClustTsv = loadClusterTsvs(sTsvs,false);
 	vecClustIdx = sClustTsv.cluster_id;
 	
 	%add aditional cluster data
-	cellAllFields = sClustTsv.sCluster;
+	sClusters = sGUI.sClusters;
+	cellUsedFields = {'cluster_id','KSLabel','ContamPct'};
+	cellAllFields = fieldnames(sClustTsv);
 	for intField=1:numel(cellAllFields)
 		strField = cellAllFields{intField};
 		if ~ismember(strField,cellUsedFields)
-			cellData = {sSynthData.sCluster.(strField)};
+			cellData = {sClustTsv.(strField)};
 			if isnumeric(cellData{1})
 				cellData = cell2vec(cellData);
 			end
@@ -33,23 +36,10 @@ function PH_LoadTsvFcn(hObject,varargin)
 		end
 	end
 	
-	%assign eligible properties to list
+	%update gui data
+	sGUI.sClusters = sClusters;
+	guidata(hObject,sGUI);
 	
-	if ~isempty(sZetaResp) && isfield(sZetaResp,'vecDepth')
-		%save
-		sClusters = sGUI.sClusters;
-		sClusters.vecDepth = sZetaResp.vecDepth;
-		sClusters.vecZeta = norminv(1-(sZetaResp.vecZetaP/2));
-		sClusters.strZetaTit = 'Responsiveness ZETA (z-score)';
-		
-		%update gui data
-		sGUI.sClusters = sClusters;
-		guidata(hObject,sGUI);
-		
-		%plot new data
-		PH_PlotProbeEphys(hObject,sClusters);
-		
-		%update plots
-		PH_UpdateProbeCoordinates(hObject,PH_CartVec2SphVec(PH_GetProbeVector(hObject)));
-	end
+	%plot new data
+	PH_PlotProbeEphys(hObject,sClusters);
 end

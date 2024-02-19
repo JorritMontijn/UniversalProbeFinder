@@ -45,8 +45,9 @@ function SH_SliceClick(hObject,eventdata)
 		sGUI.handles.hLastClick.Visible = 'off';
 		sGUI.handles.hTempLine.Visible = 'off';
 		
-		%update guidata
-		guidata(sGUI.handles.hMain,sGUI);
+		%reset saving switch
+		sGUI.boolAskSave = true;
+		guidata(sGUI.handles.hMain, sGUI);
 		
 		if strcmp(strLastClickType,'control')
 			%calculate angle
@@ -81,8 +82,8 @@ function SH_SliceClick(hObject,eventdata)
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).MidlineX = dblMidX;
 			sGUI.sSliceData.Slice(sGUI.intCurrIm).ImTransformed = imNew;%(intMinY:intMaxY,intMinX:intMaxX,:);
 			
-			%update guidata
-			guidata(sGUI.handles.hMain,sGUI);
+			%update
+			guidata(sGUI.handles.hMain, sGUI);
 			
 			%redraw
 			SH_PlotPrepIms(sGUI.handles.hMain);
@@ -102,8 +103,8 @@ function SH_SliceClick(hObject,eventdata)
 				matVec = [vecLastClickLoc; vecNewPoint];
 				sGUI = SH_AddTrajectory(sGUI,intIm,intClick,intTrack,matVec);
 				
-				%update guidata
-				guidata(sGUI.handles.hMain,sGUI);
+				%update
+				guidata(sGUI.handles.hMain, sGUI);
 			end
 		end
 	elseif ismember('control',cellCurrModifiers)

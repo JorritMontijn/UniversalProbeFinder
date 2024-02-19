@@ -13,11 +13,12 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	
 	%find all tsvs
 	%strFolder='D:\Data\Raw\NoraUPF\RecIv2a1_2022-08-30R01_g0\RecIv2a1_2022-08-30R01_g0_imec0\kilosort';
-	if ischar(strSearchKey)
+	if ischar(strSearchKey) || islogical(strSearchKey)
 		if ischar(strFolder) && exist(strFolder,'dir')
 			sTsvs = dir(fullpath(strFolder,strSearchKey));
-		elseif isstruct(strFolder)
+		elseif isstruct(strFolder) && isfield(strFolder,'folder')
 			sTsvs = strFolder;
+			strFolder = sTsvs(1).folder;
 		else
 			error([mfilename ':InputError'],'First input is not a folder and not a file structure');
 		end
@@ -25,9 +26,25 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 		error([mfilename ':InputError'],'strSearchKey input is not search key');
 	end
 	
+	%ask which ones to load
+	if islogical(strSearchKey) && ~strSearchKey
+		boolAccept = true;
+		vecSelectIdx = 1:numel(sTsvs);
+	else
+		cellTsvs = {sTsvs.name};
+		[vecSelectIdx,boolAccept] = listdlg('ListString',cellTsvs,'Name','Tsv selection','PromptString','Select .tsv files to load',...
+			'OKString','Load','InitialValue',1:numel(cellTsvs));
+	end
+	if ~boolAccept || isempty(vecSelectIdx)
+		vecSelectIdx = [];
+		sClustTsv = struct;
+		return
+	end
+	
 	%load
 	sClustTsv = struct;
-	for intTsv=1:numel(sTsvs)
+	for intTsvIdx=1:numel(vecSelectIdx)
+		intTsv = vecSelectIdx(intTsvIdx);
 		[cellHeader,cellData]=tsvread(fullpath(strFolder,sTsvs(intTsv).name));
 		
 		%find cluster_id header column
@@ -60,10 +77,12 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 			strField = cellHeader{intCol};
 			
 			%check if column is numeric
+			boolIsNumeric = false;
 			cellColData = cellData(:,intCol);
 			cellNumeric=regexp(cellColData,'^\d*[.]?\d*$');
 			if ~any(cellfun(@isempty,cellNumeric))
 				cellColData = cellfun(@str2double,cellColData,'uniformoutput',false);
+				boolIsNumeric = true;
 			end
 			
 			%loop through entries
@@ -76,9 +95,16 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 					intTarget = numel(sClustTsv)+1;
 					sClustTsv(intTarget).cluster_id = vecClustId(i);
 				end
-				sClustTsv(intTarget).(strField) = cellColData{i};
+				if isempty(cellColData{i})
+					if boolIsNumeric
+						sClustTsv(intTarget).(strField) = nan;
+					else
+						sClustTsv(intTarget).(strField) = '';
+					end
+				else
+					sClustTsv(intTarget).(strField) = cellColData{i};
+				end
 			end
 		end
 	end
 end
-

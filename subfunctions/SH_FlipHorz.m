@@ -12,6 +12,9 @@ function SH_FlipHorz(hMain,eventdata)
 	%flip image
 	intCurrIm = sGUI.intCurrIm;
 	sGUI.sSliceData.Slice(intCurrIm).ImTransformed = fliplr(sGUI.sSliceData.Slice(intCurrIm).ImTransformed);
+	
+	%reset saving switch
+	sGUI.boolAskSave = true;
 	guidata(hMain, sGUI);
 	
 	%redraw

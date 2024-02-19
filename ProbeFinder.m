@@ -130,7 +130,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	end
 	
 	% load or compute zeta if ephys file is not an Acquipix format
-	if isempty(sClusters) || contains(sClusters.strZetaTit,'Contamination')
+	if isempty(sClusters) || ~isfield(sClusters,'vecZeta')
 		%select
 		sZetaResp = PH_OpenZeta(sClusters,strNewPath);
 		
