@@ -4,15 +4,9 @@ function PH_LoadZetaFcn(hObject,varargin)
 	sGUI = guidata(hObject);
 	
 	%select
-	sZetaResp = PH_OpenZeta(sGUI.sClusters,cd());
+	[sClusters,boolSuccess] = PH_OpenZeta(sGUI.sClusters,cd());
 	
-	if ~isempty(sZetaResp) && isfield(sZetaResp,'vecDepth')
-		%save
-		sClusters = sGUI.sClusters;
-		sClusters.vecDepth = sZetaResp.vecDepth;
-		sClusters.vecZeta = norminv(1-(sZetaResp.vecZetaP/2));
-		sClusters.strZetaTit = 'Responsiveness ZETA (z-score)';
-		
+	if boolSuccess
 		%update gui data
 		sGUI.sClusters = sClusters;
 		guidata(hObject,sGUI);

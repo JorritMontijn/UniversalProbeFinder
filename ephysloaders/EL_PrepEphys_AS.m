@@ -3,15 +3,20 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	%   sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	%
 	%ProbeFinder output format for structure sClusters is:
-	%sClusters.dblProbeLength: length of probe in microns;
-	%sClusters.vecNormSpikeCounts: log10(spikeCount)
-	%sClusters.vecDepth: depth of cluster in microns from top recording channel
-	%sClusters.vecZeta: responsiveness z-score
-	%sClusters.strZetaTit: title for responsiveness plot
-	%sClusters.cellSpikes: cell array with spike times per cluster
-	%sClusters.ClustQual: vector of cluster quality values
-	%sClusters.ClustQualLabel: cell array of cluster quality names
-	%sClusters.ContamP: estimated cluster contamination
+	%sClusters.ProbeLength: length of probe in microns;
+	%sClusters.UseClusters: vector of entries to use
+	%sClusters.CoordsX: channel positions
+	%sClusters.CoordsY: channel positions
+	%sClusters.CoordsZ: channel positions
+	%sClusters.ChanIdx: channel indices;
+	%sClusters.ChanPos: channel positions
+	%sClusters.Clust(i).cluster_id: cluster ID (origin: .tsv)
+	%sClusters.Clust(i).OrigIdx: copy of cluster_id (origin: ephys)
+	%sClusters.Clust(i).NormSpikeCount: log10(SpikeCount)
+	%sClusters.Clust(i).Depth: depth
+	%sClusters.Clust(i).Zeta: responsiveness
+	%sClusters.Clust(i).SpikeTimes: spike times
+	%sClusters.Clust(i).x: any other variable present in a .tsv file
 	
 	%% load ephys
 	%get location
@@ -35,7 +40,6 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 	
 	%% prep ephys
 	%check inputs
-	sClusters = [];
 	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
 		dblProbeLength = 3840;
 	end
@@ -46,60 +50,44 @@ function sClusters = EL_PrepEphys_AS(strPathEphys,dblProbeLength)
 		dblProbeLength = gForceProbeLength_PH_PrepEphys;
 	end
 	
-	
-	%set variables
-	cellLabels = {'mua','good'};
-	cellSpikes = {sSynthData.sCluster.SpikeTimes};
-	vecDepth = cell2vec({sSynthData.sCluster.Depth});
-	vecZeta = norminv(1-(cellfun(@min,{sSynthData.sCluster.ZetaP})/2));
-	strZetaTit = 'Responsiveness ZETA (z-score)';
-	vecClustQual = val2idx(cell2vec({sSynthData.sCluster.KilosortGood}));
-	if isfield(sSynthData.sCluster,'KilosortLabel')
-		cellClustQualLabel = {sSynthData.sCluster.KilosortLabel};
-	else
-		cellClustQualLabel = cellLabels(vecClustQual);
-	end
-	vecContamination = cell2vec({sSynthData.sCluster.Contamination});
-	
-	%check whether to use left/right or spiking rate
-	if isfield(sSynthData.sCluster,'dPrimeLR') && ~all(cellfun(@(x) all(isnan(x)),{sSynthData.sCluster.dPrimeLR}))
-		vecNormSpikeCounts = cellfun(@nanmean,{sSynthData.sCluster.dPrimeLR});
-		strRateTit = 'dprime LR';
-	else
-		vecNormSpikeCounts = mat2gray(log10(cellfun(@numel,cellSpikes)+1));
-		strRateTit = 'Norm. log(N+1) spikes';
-	end
-	
-	%add extra data
+	%general data
 	sClusters = struct;
-	sClusters.dblProbeLength = dblProbeLength;
-	sClusters.vecUseClusters = 1:numel(sSynthData.sCluster);
-	sClusters.vecNormSpikeCounts = vecNormSpikeCounts;
-	sClusters.strRateTit = strRateTit;
-	sClusters.vecDepth = vecDepth;
-	sClusters.vecZeta = vecZeta;
-	sClusters.strZetaTit = strZetaTit;
-	sClusters.cellSpikes = cellSpikes;
-	sClusters.ClustQual =  vecClustQual;
-	sClusters.ClustQualLabel = cellClustQualLabel;
-	sClusters.ContamP = vecContamination;
-	%add aditional cluster data
-	cellAllFields = sSynthData.sCluster;
-	cellUsedFields = {'KilosortGood','KilosortLabel','Contamination','ZetaP','Depth','SpikeTimes'};
-	for intField=1:numel(cellAllFields)
-		strField = cellAllFields{intField};
-		if ~ismember(strField,cellUsedFields)
-			cellData = {sSynthData.sCluster.(strField)};
-			if isnumeric(cellData{1})
-				cellData = cell2vec(cellData);
-			end
-			sClusters.(strField) = cellData;
+	sClusters.ProbeLength = dblProbeLength;%length of probe in microns;
+	sClusters.UseClusters = 1:numel(sSynthData.sCluster);%vector of entries to use
+	sClusters.CoordsX = [];%channel positions
+	sClusters.CoordsY = [];%channel positions
+	sClusters.CoordsZ = [];%channel positions
+	sClusters.ChanIdx = [];%channel indices;
+	sClusters.ChanPos = [];%channel positions
+
+	%add cluster data
+	sClusters.Clust = sSynthData.sCluster;
+	for i=1:numel(sClusters.Clust)
+		sClusters.Clust(i).cluster_id = sClusters.Clust(i).IdxClust;
+		sClusters.Clust(i).OrigIdx = sClusters.Clust(i).IdxClust;
+		sClusters.Clust(i).NormSpikeCount = log10(numel(sClusters.Clust(i).SpikeTimes));
+		%transform p to z
+		if isfield(sClusters.Clust,'ZetaP')
+			sClusters.Clust(i).Zeta = -norminv(min(sClusters.Clust(i).ZetaP)/2);
+		end
+		if isfield(sClusters.Clust,'MeanP')
+			sClusters.Clust(i).Mean = -norminv(min(sClusters.Clust(i).MeanP)/2);
 		end
 	end
+	
+	%remove fields
+	cellRemFields = {'Exp','Rec','SubjectType','Subject', 'Date','Cluster','IdxClust','Waveform','ZetaP','MeanP'};
+	sClusters.Clust = rmfield(sClusters.Clust,cellRemFields);
 	
 	%get channel mapping
 	if isfield(sSynthData,'ChanIdx') && isfield(sSynthData,'ChanPos')
 		sClusters.ChanIdx = sSynthData.ChanIdx;
 		sClusters.ChanPos = sSynthData.ChanPos;
 	end
+	
+	%merge cluster data
+	ClustDummy = struct;
+	ClustDummy.cluster_id = nan;
+	ClustDummy(:) = [];
+	sClusters.Clust = PH_MergeClusterData(sClusters.Clust,ClustDummy,true);
 end

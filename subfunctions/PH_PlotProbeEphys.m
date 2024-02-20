@@ -6,11 +6,14 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	
 	%check if source was list selector
 	boolListSource = false;
+	boolKeepMuaMatrix = false;
 	try
 		boolListSource = strcmp(eventdata.Source.Style,'popupmenu');
+		boolKeepMuaMatrix = isequal(eventdata.Source.Callback,@PH_SelectPlotProp);
 	catch
 		try %#ok<TRYNC>
 			boolListSource = strcmp(eventdata.Style,'popupmenu');
+			boolKeepMuaMatrix = isequal(eventdata.Callback,@PH_SelectPlotProp);
 		end
 	end
 	
@@ -43,7 +46,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	drawnow;
 	
 	%cancel if no data
-	if isempty(sClusters) || ~isfield(sClusters,'vecDepth') || isempty(sClusters.vecDepth)
+	if ~isfield(sClusters,'Clust') || ~isfield(sClusters.Clust,'Depth')
 		title(sGUI.handles.probe_zeta ,'No Ephys data loaded');
 		return
 	end
@@ -54,7 +57,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		ptrButtonPlotProp.String = PH_GetClusterPropertyList(hMain);
 		intSelect = find(strcmpi(ptrButtonPlotProp.String,'Zeta')); %default
 		if isempty(intSelect) || isnan(intSelect)
-			intSelect = find(strcmpi(ptrButtonPlotProp.String,'NormSpikeCounts')); %2nd default
+			intSelect = find(strcmpi(ptrButtonPlotProp.String,'NormSpikeCount')); %2nd default
 			if isempty(intSelect) || isnan(intSelect)
 				intSelect = 1;
 			end
@@ -63,9 +66,12 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		
 		%set default category selection to cluster quality
 		ptrButtonCategProp.String = PH_GetClusterPropertyList(hMain);
-		intSelect = find(strcmpi(ptrButtonCategProp.String,'ClustQualLabel')); %default
+		intSelect = find(strcmpi(ptrButtonCategProp.String,'KSLabel')); %default
 		if isempty(intSelect) || isnan(intSelect)
-			intSelect = 1;
+			intSelect = find(strcmpi(ptrButtonPlotProp.String,'NormSpikeCount')); %2nd default
+			if isempty(intSelect) || isnan(intSelect)
+				intSelect = 1;
+			end
 		end
 		ptrButtonCategProp.Value=intSelect;
 		ptrButtonShowCateg.String = PH_GetClusterCategories(hMain);
@@ -75,16 +81,36 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	strCategProp = ptrButtonCategProp.String{ptrButtonCategProp.Value};
 	strShowCateg = ptrButtonShowCateg.String{ptrButtonShowCateg.Value};
 	strLabelX = ptrButtonPlotProp.String{ptrButtonPlotProp.Value};
-	dblProbeLength = sClusters.dblProbeLength;
-	strCategField = PH_GetClusterField(sClusters,strCategProp);
-	strXField = PH_GetClusterField(sClusters,strLabelX);
-	vecDepth = sClusters.vecDepth;
-	if isfield(sClusters,strCategField) && isfield(sClusters,strXField)
-		vecPlotProperty = sClusters.(strXField);
-		varColorProperty = sClusters.(strCategField);
+	dblProbeLength = sClusters.ProbeLength;
+	strCategField = PH_GetClusterField(sClusters.Clust,strCategProp);
+	strXField = PH_GetClusterField(sClusters.Clust,strLabelX);
+	vecDepth = [sClusters.Clust.Depth];
+	if isfield(sClusters.Clust,strCategField) && isfield(sClusters.Clust,strXField)
+		varPlotProperty = {sClusters.Clust.(strXField)};
+		varColorProperty = {sClusters.Clust.(strCategField)};
 	else
-		vecPlotProperty = ones(size(vecDepth));
+		varPlotProperty = ones(size(vecDepth));
 		varColorProperty = ones(size(vecDepth));
+	end
+	
+	%transform plot property to numeric
+	indIsnumeric = cellfun(@isnumeric,varPlotProperty);
+	if all(indIsnumeric)
+		vecPlotProperty = cell2vec(varPlotProperty);
+	else
+		varPlotProperty(indIsnumeric) = cellfun(@num2str,varPlotProperty(indIsnumeric),'uniformoutput',false);
+		vecPlotProperty = val2idx(varPlotProperty);
+	end
+	
+	%transform color property to numeric
+	indIsnumeric = cellfun(@isnumeric,varColorProperty);
+	if all(indIsnumeric)
+		boolColorIsNumeric = true;
+		vecColorProperty = cell2vec(varColorProperty);
+	else
+		boolColorIsNumeric = false;
+		varColorProperty(indIsnumeric) = cellfun(@num2str,varColorProperty(indIsnumeric),'uniformoutput',false);
+		[vecColorProperty,cellCategories] = val2idx(varColorProperty);
 	end
 	
 	%find cells to plot
@@ -98,18 +124,37 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	if isempty(indShowCells)
 		indShowCells = true(size(vecDepth));
 	end
-	vecColorProperty = val2idx(varColorProperty);
-
+	%skip replotting of mua matrix if we've already plotted all cells
+	boolCurrIsAll = all(indShowCells);
+	if isfield(sClusters,'PrevWasAll')
+		boolPrevWasAll = sClusters.PrevWasAll;
+	else
+		boolPrevWasAll = false;
+		boolKeepMuaMatrix = false;
+	end
+	sGUI.sClusters.PrevWasAll = boolCurrIsAll;
+	if boolCurrIsAll && boolPrevWasAll
+		boolKeepMuaMatrix = true;
+	end
+	
+	%ensure variables are not all nan
+	if ~iscell(vecDepth) && all(isnan(vecDepth)),vecDepth = zeros(size(vecDepth));end
+	if ~iscell(vecPlotProperty) && all(isnan(vecPlotProperty)),vecPlotProperty = zeros(size(vecPlotProperty));end
+	if ~iscell(vecColorProperty) && all(isnan(vecColorProperty)),vecColorProperty = zeros(size(vecColorProperty));end
+	
 	%get plotting variables
 	vecY = vecDepth(indShowCells);
 	vecX = vecPlotProperty(indShowCells);
 	vecC = vecColorProperty(indShowCells);
 	
 	%% plot zeta
-	mapCol = redbluepurple(min(numel(unique(vecC)),255));
-	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecX,vecY,15,vecC,'filled');
-	if min(vecC) ~= max(vecC)
-		hAxZeta.CLim = [min(vecC)-eps max(vecC)+eps];
+	[vecSteps,ia,vecIdxC]=unique(vecColorProperty);
+	mapCol = redblack(numel(vecSteps));
+	matC = mapCol(vecIdxC,:);
+	matC = matC(indShowCells,:);
+	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecX,vecY,15,matC,'filled');
+	if min(vecColorProperty) ~= max(vecColorProperty)
+		hAxZeta.CLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
 	end
 	colormap(hAxZeta,mapCol);
 	title(hAxZeta,strLabelX,'Interpreter','none');
@@ -122,57 +167,11 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	%update
 	guidata(hMain,sGUI);
 	
-	%% calc mua & spike rates
-	%get channel mapping
-	if isfield(sClusters,'ChanIdx') && isfield(sClusters,'ChanPos')
-		vecChanIdx = sClusters.ChanIdx;
-		matChanPos = sClusters.ChanPos;
-	end
-	
-	
-	%show ProbeMatrix if it exists
-	if isfield(sClusters,'ProbeMatrix') && isfield(sClusters,'ProbeMatrixDepths') && isfield(sClusters,'ProbeMatrixTitle')
-		error('to do');
-	end
-	
-	%generate mua from spikes
-	if isfield(sClusters,'cellSpikes')
-		cellSpikes = sClusters.cellSpikes(indShowCells);
-		vecAllSpikeT = cell2vec(cellSpikes);
-		
-		% Get multiunit correlation
-		n_corr_groups = 40;
-		depth_group_edges = linspace(0,dblProbeLength,n_corr_groups+1);
-		depth_group = discretize(vecY,depth_group_edges);
-		unique_depths = 1:length(depth_group_edges)-1;
-		
-		spike_binning = 0.01; % seconds
-		corr_edges = nanmin(vecAllSpikeT):spike_binning:nanmax(vecAllSpikeT);
-		corr_centers = corr_edges(1:end-1) + diff(corr_edges);
-		
-		binned_spikes_depth = zeros(length(unique_depths),length(corr_edges)-1);
-		for curr_depth = 1:length(unique_depths)
-			indUseClusters = depth_group == unique_depths(curr_depth);
-			vecSpikeTimes = cell2vec(cellSpikes(indUseClusters));
-			binned_spikes_depth(curr_depth,:) = histcounts(vecSpikeTimes, corr_edges);
-		end
-		
-		ProbeMatrix = corrcoef(binned_spikes_depth');
-		ProbeMatrix(diag(diag(true(size(ProbeMatrix)))))=0;
-		ProbeMatrix(ProbeMatrix<0)=0;
-		ProbeMatrix(isnan(ProbeMatrix))=0;
-		ProbeMatrixDepths = depth_group_edges(1:end-1)+(diff(depth_group_edges)/2);
-		ProbeMatrixTitle = 'MUA correlation';
-	else
-		ProbeMatrix = [];
-		ProbeMatrixDepths = [];
-		ProbeMatrixTitle = 'MUA correlation';
-	end
-	
 	%% Plot spike depth vs rate
-	sGUI.handles.probe_clust_points = scatter(hAxClust,vecC,vecY,15,vecC,'filled');
-	if min(vecC) ~= max(vecC)
-		hAxClust.CLim = [min(vecC)-eps max(vecC)+eps];
+	sGUI.handles.probe_clust_points = scatter(hAxClust,vecC,vecY,15,matC,'filled');
+	if min(vecColorProperty) ~= max(vecColorProperty)
+		hAxClust.CLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
+		hAxClust.XLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
 	end
 	colormap(hAxClust,mapCol);
 	%view(hAxClust,0,90);
@@ -182,14 +181,80 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	set(hAxClust,'FontSize',12)
 	ylabel(hAxClust,'Depth (\mum)');
 	
+	if ~boolColorIsNumeric && numel(cellCategories) < 10
+		set(hAxClust,'xtick',1:numel(cellCategories),'xticklabel',cellCategories,'XTickLabelRotation',45);
+	end
+	
+	%% calc mua corrs
+	%generate mua from spikes
+	if boolKeepMuaMatrix ...
+			&& isfield(sClusters,'ProbeMatrix') && ~isempty(sClusters.ProbeMatrix) ...
+			&& isfield(sClusters,'ProbeMatrixDepths') && ~isempty(sClusters.ProbeMatrixDepths) ...
+			&& isfield(sClusters,'ProbeMatrixTitle') && ~isempty(sClusters.ProbeMatrixTitle)
+		%load matrix
+		ProbeMatrix = sClusters.ProbeMatrix;
+		ProbeMatrixDepths = sClusters.ProbeMatrixDepths;
+		ProbeMatrixTitle = sClusters.ProbeMatrixTitle;
+	elseif isfield(sClusters.Clust,'SpikeTimes')
+		
+		%this will take a while, so draw the scatter plots already
+		set(hAxZeta,'Visible','on');
+		set(hAxClust,'Visible','on');
+		drawnow;
+		
+		%get spikes
+		cellSpikes = {sClusters.Clust(indShowCells).SpikeTimes};
+		vecAllSpikeT = cell2vec(cellSpikes);
+		vecAllSpikeT(isnan(vecAllSpikeT))=[];
+		
+		% Get multiunit correlation
+		n_corr_groups = 40;
+		depth_group_edges = linspace(0,dblProbeLength,n_corr_groups+1);
+		depth_group = discretize(vecY,depth_group_edges);
+		unique_depths = 1:length(depth_group_edges)-1;
+		
+		spike_binning = 0.01; % seconds
+		corr_edges = nanmin(vecAllSpikeT):spike_binning:nanmax(vecAllSpikeT);
+		if isempty(corr_edges)
+			corr_edges = 1:3;
+		end
+		corr_centers = corr_edges(1:end-1) + diff(corr_edges);
+		
+		binned_spikes_depth = zeros(length(unique_depths),length(corr_edges)-1);
+		for curr_depth = 1:length(unique_depths)
+			indUseClusters = depth_group == unique_depths(curr_depth);
+			vecSpikeTimes = cell2vec(cellSpikes(indUseClusters));
+			vecSpikeTimes(isnan(vecSpikeTimes))=[];
+			binned_spikes_depth(curr_depth,:) = histcounts(vecSpikeTimes, corr_edges);
+		end
+		
+		ProbeMatrix = corrcoef(binned_spikes_depth');
+		ProbeMatrix(diag(diag(true(size(ProbeMatrix)))))=0;
+		ProbeMatrix(ProbeMatrix<0)=0;
+		ProbeMatrix(isnan(ProbeMatrix))=0;
+		ProbeMatrixDepths = depth_group_edges(1:end-1)+(diff(depth_group_edges)/2);
+		ProbeMatrixTitle = 'MUA correlation';
+		
+		%save matrix
+		sGUI.sClusters.ProbeMatrix = ProbeMatrix;
+		sGUI.sClusters.ProbeMatrixDepths = ProbeMatrixDepths;
+		sGUI.sClusters.ProbeMatrixTitle = ProbeMatrixTitle;
+	else
+		ProbeMatrix = [];
+		ProbeMatrixDepths = [];
+		ProbeMatrixTitle = 'MUA correlation';
+	end
+	
 	%% Plot multiunit correlation
-	ProbeMatrix = ProbeMatrix./max(ProbeMatrix(:));
-	hAxMuaIm.XData = ProbeMatrixDepths;
-	hAxMuaIm.YData = ProbeMatrixDepths;
-	hAxMuaIm.CData = cat(3,ones(size(ProbeMatrix)),1-ProbeMatrix,1-ProbeMatrix);
-	title(hAxMua,ProbeMatrixTitle,'Interpreter','none');
-	set(hAxMua,'FontSize',12)
-	setAllowAxesRotate(rotate3d(hAxMua),hAxMua,0);
+	if ~isempty(ProbeMatrix) && ~isempty(ProbeMatrixDepths) && ~isempty(ProbeMatrixTitle)
+		ProbeMatrix = ProbeMatrix./max(ProbeMatrix(:));
+		hAxMuaIm.XData = ProbeMatrixDepths;
+		hAxMuaIm.YData = ProbeMatrixDepths;
+		hAxMuaIm.CData = cat(3,ones(size(ProbeMatrix)),1-ProbeMatrix,1-ProbeMatrix);
+		title(hAxMua,ProbeMatrixTitle,'Interpreter','none');
+		set(hAxMua,'FontSize',12)
+		setAllowAxesRotate(rotate3d(hAxMua),hAxMua,0);
+	end
 	
 	%% enable gui
 	set(hAxZeta,'Visible','on');

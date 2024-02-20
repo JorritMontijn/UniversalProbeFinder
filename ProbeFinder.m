@@ -130,18 +130,20 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	end
 	
 	% load or compute zeta if ephys file is not an Acquipix format
-	if isempty(sClusters) || ~isfield(sClusters,'vecZeta')
+	if isempty(sClusters) ...
+			|| (~isempty(sClusters) && isfield(sClusters,'Clust') && (~isfield(sClusters.Clust,'Zeta') || (~isfield(sClusters.Clust,'ZetaP'))))
 		%select
-		sZetaResp = PH_OpenZeta(sClusters,strNewPath);
-		
-		%save
-		if ~isempty(sZetaResp) && isfield(sZetaResp,'vecZetaP') && ~isempty(sZetaResp.vecZetaP)
-			sClusters.vecDepth = sZetaResp.vecDepth;
-			sClusters.vecZeta = norminv(1-(sZetaResp.vecZetaP/2));
-			sClusters.strZetaTit = 'ZETA (z-score)';
-		end
+		sClusters = PH_OpenZeta(sClusters,strNewPath);
 	end
 	
+	%transform p-value to z-score if ZetaP is present
+	if isfield(sClusters,'Clust') && isfield(sClusters.Clust,'ZetaP')
+		for i=1:numel(sClusters.Clust)
+			sClusters.Clust(i).Zeta = -norminv(min(sClusters.Clust(i).ZetaP)/2);
+		end
+		sClusters.Clust(i) = rmfield(sClusters.Clust,'ZetaP');
+	end
+
 	% close message
 	cd(strOldPath);
 	

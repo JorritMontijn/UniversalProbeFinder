@@ -31,8 +31,8 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	if isfield(sProbeCoords,'sProbeAdjusted') && strcmpi(sProbeCoords.Type,'native')
 		dblProbeLength = sProbeCoords.ProbeLength;
 	else
-		if isfield(sClusters,'dblProbeLength')
-			dblProbeLength = sClusters.dblProbeLength;
+		if isfield(sClusters,'ProbeLength')
+			dblProbeLength = sClusters.ProbeLength;
 		else
 			dblProbeLength = sProbeCoords.ProbeLength;
 		end

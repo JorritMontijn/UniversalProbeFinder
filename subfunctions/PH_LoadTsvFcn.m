@@ -7,7 +7,7 @@ function PH_LoadTsvFcn(hObject,varargin)
 	strText = 'Select .tsv file(s)';
 	if ismac; msgbox(strText,'OK');end
 	[cellTsvFiles,strTsvPath] = uigetfile(fullpath(cd(),'*.tsv'),strText,'MultiSelect','on');
-	if isempty(cellTsvFiles) || cellTsvFiles(1) == 0,return;end
+	if isempty(cellTsvFiles) || (~iscell(cellTsvFiles) && cellTsvFiles(1) == 0),return;end
 	if ischar(cellTsvFiles),cellTsvFiles={cellTsvFiles};end
 	
 	%transform to struct
@@ -19,22 +19,13 @@ function PH_LoadTsvFcn(hObject,varargin)
 	
 	%loads tsvs
 	sClustTsv = loadClusterTsvs(sTsvs,false);
-	vecClustIdx = sClustTsv.cluster_id;
+	
 	
 	%add aditional cluster data
 	sClusters = sGUI.sClusters;
-	cellUsedFields = {'cluster_id','KSLabel','ContamPct'};
-	cellAllFields = fieldnames(sClustTsv);
-	for intField=1:numel(cellAllFields)
-		strField = cellAllFields{intField};
-		if ~ismember(strField,cellUsedFields)
-			cellData = {sClustTsv.(strField)};
-			if isnumeric(cellData{1})
-				cellData = cell2vec(cellData);
-			end
-			sClusters.(strField) = cellData;
-		end
-	end
+	
+	%merge cluster data
+	sClusters.Clust = PH_MergeClusterData(sClusters.Clust,sClustTsv);
 	
 	%update gui data
 	sGUI.sClusters = sClusters;

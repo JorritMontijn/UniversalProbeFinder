@@ -42,32 +42,30 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	end
 	
 	%load
+	cellFileName = cell(numel(vecSelectIdx),1);
+	matEntryPresent = false(numel(vecSelectIdx),0);
 	sClustTsv = struct;
 	for intTsvIdx=1:numel(vecSelectIdx)
 		intTsv = vecSelectIdx(intTsvIdx);
 		[cellHeader,cellData]=tsvread(fullpath(strFolder,sTsvs(intTsv).name));
+		cellFileName{intTsvIdx} = sTsvs(intTsv).name;
 		
 		%find cluster_id header column
 		indClustIdCol = strcmpi(cellHeader,'cluster_id');
 		intClustIdCol = find(indClustIdCol);
 		intEntries = size(cellData,1);
 		if isempty(intClustIdCol)
-			vecClustId = 1:intEntries;
+			warning([mfilename ':MissingId'],sprintf('Ignoring %s: it has no cluster_id column',sTsvs(intTsv).name));
+			continue;
 		else
 			vecClustId = cellfun(@str2double,cellData(:,intClustIdCol));
 		end
 		
 		%assign cluster ids
-		if intTsv==1
+		if intTsvIdx==1
 			for i=1:numel(vecClustId)
 				sClustTsv(i).cluster_id = vecClustId(i);
 			end
-		end
-		
-		%check if entries exist for all clusters
-		if intEntries < numel(sClustTsv)
-			warning([mfilename ':MissingEntries'],sprintf('File %s has %d clusters, while previous file(s) had %d',...
-				sTsvs(intTsv).name,intEntries,numel(sClustTsv)));
 		end
 		
 		%assign all data
@@ -104,7 +102,25 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 				else
 					sClustTsv(intTarget).(strField) = cellColData{i};
 				end
+				matEntryPresent(intTsvIdx,intTarget) = true;
 			end
+		end
+	end
+	
+	%check missing entries
+	vecEntries = sum(matEntryPresent,2);
+	[vecEntryNumbers,ia,vecFileC]=unique(vecEntries);
+	if numel(vecEntryNumbers) > 1
+		warning([mfilename ':EntryNumberInconsistency'],'Number of clusters varies per file');
+		for intEntryCount = 1:numel(vecEntryNumbers)
+			intCount = vecEntryNumbers(intEntryCount);
+			strWarn = sprintf('   Files with %d entries: ',intCount);
+			vecFiles = find(vecFileC==intEntryCount);
+			for intFile=1:numel(vecFiles)
+				strWarn = [strWarn cellFileName{vecFiles(intFile)} ', '];
+			end
+			strWarn((end-1):end) = sprintf(' \n');
+			fprintf(strWarn);
 		end
 	end
 end

@@ -1,16 +1,12 @@
-function sZetaResp = PH_OpenZeta(sClusters,strPath)
-	%pre-allocate
-	sZetaResp = struct;
+function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 	
 	%ask what to load
+	boolSuccess = false;
 	strText = 'Select event time, ZETA or Acquipix file';
-	if ismac; msgbox(strText,'OK');
-		[strZetaFile,strZetaPath] = uigetfile(strPath,strText);
-	end
-	
-	[strZetaFile,strZetaPath] = uigetfile(strPath,'Select event time, ZETA or Acquipix file');
+	if ismac; msgbox(strText,'OK');end
+	[strZetaFile,strZetaPath] = uigetfile(strPath,strText);
 	if isempty(strZetaFile) || strZetaFile(1) == 0,return;end
-		
+	
 	%load
 	sLoad = load(fullpath(strZetaPath,strZetaFile));
 	
@@ -40,21 +36,18 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 		
 		%calculate zeta
 		if exist('zetatest','file')
-			if isempty(sClusters) || ~isfield(sClusters,'vecDepth')
+			if isempty(sClusters) || ~isfield(sClusters,'Clust') || ~isfield(sClusters.Clust,'SpikeTimes') || ~isfield(sClusters.Clust,'Depth')
 				%save
-				sZetaResp.name = [];
-				sZetaResp.folder = [];
-				sZetaResp.vecDepth = [];
-				sZetaResp.vecZetaP = [];
+				msgbox('Cannot compute ZETA without spiking data', 'Error','error');
 				return;
 			end
-			vecDepth = sClusters.vecDepth;
+			vecDepth = sClusters.Clust.Depth;
 			intNumN = numel(vecDepth);
 			vecZetaP = nan(1,intNumN);
 			hWaitbar = waitbar(0,'Preparing to calculate zeta responsiveness...','Name','ZETA progress');
 			try
 				for intN = 1:intNumN
-					vecZetaP(intN) = zetatest(sClusters.cellSpikes{intN},vecEventOn);
+					vecZetaP(intN) = zetatest(sClusters.Clust(intN).SpikeTimes,vecEventOn);
 					waitbar((intN-1)/intNumN,hWaitbar,sprintf('Calculating zeta-responsiveness for %d/%d',intN,intNumN));
 				end
 				delete(hWaitbar);
@@ -70,8 +63,15 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 			errordlg('Your repository is corrupt: cannot find zetatest. Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
 		end
 	else
+		%check data
+		if isempty(sClusters) || ~isfield(sClusters,'Clust') || ~isfield(sClusters.Clust,'SpikeTimes') || ~isfield(sClusters.Clust,'Depth')
+			%save
+			msgbox('Cannot compute ZETA without spiking data', 'Error','error');
+			return;
+		end
+		
 		%file not recognized
-		vecDepth = sClusters.vecDepth;
+		vecDepth = sClusters.Clust.Depth;
 		vecZetaP = [];
 		cellFields = fieldnames(sLoad);
 		if numel(cellFields) == 1
@@ -95,7 +95,7 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 				hWaitbar = waitbar(0,'Preparing to calculate zeta...','Name','ZETA progress');
 				try
 					for intN = 1:intNumN
-						vecZetaP(intN) = zetatest(sClusters.cellSpikes{intN},vecEventOn);
+						vecZetaP(intN) = zetatest(sClusters.Clust(intN).SpikeTimes,vecEventOn);
 						waitbar((intN-1)/intNumN,hWaitbar,sprintf('Calculating zeta-responsiveness for %d/%d',intN,intNumN));
 					end
 					delete(hWaitbar);
@@ -111,13 +111,14 @@ function sZetaResp = PH_OpenZeta(sClusters,strPath)
 	end
 	
 	%check output
-	if isempty(vecZetaP)
+	boolSuccess = ~isempty(vecZetaP);
+	if ~boolSuccess
 		errordlg('Could not load or calculate ZETA responsiveness, please try again.','ZETA values missing');
+	else
+		%save output
+		for i=1:numel(vecZetaP)
+			if ~isnan(vecDepth(i)),sClusters.Clust(i).Depth = vecDepth(i);end
+			sClusters.Clust(i).ZetaP = vecZetaP(i);
+		end
 	end
-	
-	%save
-	sZetaResp.name = strZetaFile;
-	sZetaResp.folder = strZetaPath;
-	sZetaResp.vecDepth = vecDepth;
-	sZetaResp.vecZetaP = vecZetaP;
 end

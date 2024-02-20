@@ -15,10 +15,13 @@ function cellCategories = PH_GetClusterCategories(hObject,eventdata)
 	
 	%find property categories
 	strFindField = hShowCategProp.String{hShowCategProp.Value};
-	strFullField = PH_GetClusterField(sGUI.sClusters,strFindField);
-	cellPropertyData = sGUI.sClusters.(strFullField);
+	strFullField = PH_GetClusterField(sGUI.sClusters.Clust,strFindField);
+	cellPropertyData = {sGUI.sClusters.Clust.(strFullField)};
+	indIsnumeric = cellfun(@isnumeric,cellPropertyData);
+	cellStrData = cellPropertyData;
+	cellStrData(indIsnumeric) = cellfun(@num2str,cellPropertyData(indIsnumeric),'UniformOutput',false);
 	cellCategories = {'all'};
-	cellUnique = unique(cellPropertyData);
+	cellUnique = unique(cellStrData);
 	if numel(cellUnique) <= 10
 		cellCategories = cat(1,cellCategories,cellUnique(:));
 	end
