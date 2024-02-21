@@ -37,7 +37,8 @@ function sClustTsv = loadClusterTsvs(strFolder,strSearchKey)
 	end
 	if ~boolAccept || isempty(vecSelectIdx)
 		vecSelectIdx = [];
-		sClustTsv = struct;
+		sClustTsv.cluster_id = [];
+		sClustTsv(:) = [];
 		return
 	end
 	

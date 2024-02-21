@@ -3,15 +3,22 @@ function sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 	%   sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 	%
 	%ProbeFinder output format for structure sClusters is:
-	%sClusters.dblProbeLength: length of probe in microns;
-	%sClusters.vecNormSpikeCounts: log10(spikeCount)
-	%sClusters.vecDepth: depth of cluster in microns from top recording channel
-	%sClusters.vecZeta: responsiveness z-score
-	%sClusters.strZetaTit: title for responsiveness plot
-	%sClusters.cellSpikes: cell array with spike times per cluster
-	%sClusters.ClustQual: vector of cluster quality values
-	%sClusters.ClustQualLabel: cell array of cluster quality names
-	%sClusters.ContamP: estimated cluster contamination
+	%sClusters.ProbeLength: length of probe in microns;
+	%sClusters.UseClusters: vector of entries to use
+	%sClusters.CoordsS: shank #
+	%sClusters.CoordsX: position along width
+	%sClusters.CoordsD: depth
+	%sClusters.ChanIdx: channel indices;
+	%sClusters.ChanPos: channel positions
+	%sClusters.ChanMap: full channel map structure
+	%sClusters.Clust(i).cluster_id: cluster ID (origin: .tsv)
+	%sClusters.Clust(i).OrigIdx: copy of cluster_id (origin: ephys)
+	%sClusters.Clust(i).NormSpikeCount: log10(SpikeCount)
+	%sClusters.Clust(i).Shank: shank #
+	%sClusters.Clust(i).Depth: depth
+	%sClusters.Clust(i).Zeta: responsiveness
+	%sClusters.Clust(i).SpikeTimes: spike times
+	%sClusters.Clust(i).x: any other variable present in a .tsv file
 	
 	%% load ephys
 	%get location
@@ -36,25 +43,18 @@ function sClusters = EL_PrepEphys_NC(strPathEphys,dblProbeLength)
 		
 	%% prep ephys
 	if exist('dblProbeLength','var') && ~isempty(dblProbeLength)
-		sClusters.dblProbeLength = dblProbeLength;
+		sClusters.ProbeLength = dblProbeLength;
 	end
-	%check required fields actually exist
-	sClusters.dblProbeLength = sClusters.dblProbeLength;
-	sClusters.vecUseClusters = sClusters.vecUseClusters;
-	sClusters.vecNormSpikeCounts = sClusters.vecNormSpikeCounts;
-	sClusters.vecDepth = sClusters.vecDepth;
-	sClusters.vecZeta = sClusters.vecZeta;
-	sClusters.strZetaTit = sClusters.strZetaTit;
-	sClusters.cellSpikes = sClusters.cellSpikes;
-	sClusters.ClustQual = sClusters.ClustQual;
-	sClusters.ClustQualLabel = sClusters.ClustQualLabel;
-	if numel(sClusters.ClustQualLabel) == 1
-		sClusters.ClustQualLabel = cellfill(sClusters.ClustQualLabel{1},size(sClusters.vecDepth));
-	end
-	sClusters.ContamP = sClusters.ContamP;
-	%get channel mapping
-	if isfield(sClusters,'ChanIdx') && isfield(sClusters,'ChanPos')
-		sClusters.ChanIdx = sClusters.ChanIdx;
-		sClusters.ChanPos = sClusters.ChanPos;
+	
+	%check which version
+	cellOldFields = {'dblProbeLength','vecUseClusters','vecNormSpikeCounts','vecDepth','cellSpikes'};
+	cellNewFields = {'Clust','ProbeLength'};
+	cellLoadFields = fieldnames(sClusters);
+	if all(ismember(cellNewFields,cellLoadFields))
+		%perfect
+	elseif all(ismember(cellOldFields,cellLoadFields))
+		error([mfilename ':FileTypeOsolete'],'Input is an obsolete UPF data file of version < 1.1');
+	else
+		error([mfilename ':FileTypeNotRecognized'],'Input is not a UPF data file');
 	end
 end

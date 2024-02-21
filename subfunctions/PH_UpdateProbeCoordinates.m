@@ -56,21 +56,26 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector,boolForceYupdate)
 	sGUI.sProbeCoords.sProbeAdjusted.stereo_coordinates = table(ML,AP,AngleML,AngleAP,Depth,ProbeLength);
 	
 	%area per cluster
-	if isfield(sGUI.sClusters,'vecDepth') && ~isempty(sGUI.sClusters.vecDepth)
-		[vecClustAreaId,cellClustAreaLabel,cellClustAreaFull] = PF_GetAreaPerCluster(sGUI.sProbeCoords,sGUI.sClusters.vecDepth);
-		
+	if isfield(sGUI.sClusters,'Clust') && isfield(sGUI.sClusters.Clust,'Depth')
+		vecDepth = [sGUI.sClusters.Clust.Depth];
+		if numel(vecDepth) ~= numel(sGUI.sClusters.Clust)
+			errordlg('Empty cluster entries found');
+			error([mfilename ':EmptyEntries'],'Empty cluster entries found');
+		end
+	else
+		vecDepth = [];
+	end
+	if ~isempty(vecDepth)
+		[vecClustAreaId,cellClustAreaLabel,cellClustAreaFull] = PF_GetAreaPerCluster(sGUI.sProbeCoords,vecDepth);
+		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = sGUI.sClusters.Clust.cluster_id;
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = vecClustAreaId;
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = cellClustAreaLabel;
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = cellClustAreaFull;
 	else
+		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = [];
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = [];
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = {};
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = {};
-	end
-	if isfield(sGUI.sClusters,'vecUseClusters') && ~isempty(sGUI.sClusters.vecUseClusters)
-		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = sGUI.sClusters.vecUseClusters;
-	else
-		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = [];
 	end
 	
 	% update gui

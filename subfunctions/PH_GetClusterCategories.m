@@ -8,8 +8,8 @@ function cellCategories = PH_GetClusterCategories(hObject,eventdata)
 	
 	%get selected property
 	hShowCategProp = sGUI.handles.ptrButtonCategProp;
-	if isempty(hShowCategProp.String)
-		cellCategories = {};
+	if isempty(hShowCategProp.String) || isempty(sGUI.sClusters)
+		cellCategories = {''};
 		return;
 	end
 	

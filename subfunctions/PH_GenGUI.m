@@ -27,14 +27,20 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%   862   -20   732;...AP depth ML (wrt atlas at (0,0,0))
 	%   815   359   690];
 	sProbeCoords = PH_ExtractProbeCoords(sProbeCoords);
-	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
-	if isfield(sProbeCoords,'sProbeAdjusted') && strcmpi(sProbeCoords.Type,'native')
-		dblProbeLength = sProbeCoords.ProbeLength;
+	
+	%update probe size using ephys metadata
+	dblVoxelSize = mean(sProbeCoords.VoxelSize);
+	if isfield(sClusters,'ProbeLength')
+		sProbeCoords.ProbeLengthMicrons = sClusters.ProbeLength; %original length in microns
+		sProbeCoords.ProbeLengthOriginal = sClusters.ProbeLength / dblVoxelSize; %original length in atlas voxels
+		%sProbeCoords.ProbeLength = sClusters.ProbeLengthOriginal; %current length
 	else
-		if isfield(sClusters,'ProbeLength')
-			dblProbeLength = sClusters.ProbeLength;
-		else
-			dblProbeLength = sProbeCoords.ProbeLength;
+		%add default length
+		if ~isfield(sProbeCoords,'ProbeLengthMicrons')
+			sProbeCoords.ProbeLengthMicrons = 3840;
+		end
+		if ~isfield(sProbeCoords,'ProbeLengthOriginal')
+			sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength;
 		end
 	end
 	
@@ -98,6 +104,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	h.ActionPostCallback = @PH_UpdateSlice;
 	
 	% Set up the probe area axes
+	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
 	hAxAreas = subplot(2,3,3);
 	hAxAreas.ActivePositionProperty = 'position';
 	set(hAxAreas,'FontSize',11);
@@ -187,6 +194,13 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Position',[0.185 0.94 0.065 0.03],...
 		'Callback',@PH_SaveProbeFile);
 	
+	%export with ephys file
+	ptrButtonExportEphys = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
+		'String',sprintf('Export ephys'),...
+		'Units','normalized',...
+		'Position',[0.255 0.94 0.065 0.03],...
+		'Callback',@PH_ExportClusters);
+	
 	% load zeta
 	ptrButtonLoadEphys = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
 		'String',sprintf('Load ephys'),...
@@ -237,6 +251,13 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Callback',@PH_DisplayControls);
 	
 	
+	%disable buttons until ephys data is loaded
+	set(ptrButtonLoadZeta,'Enable','off');
+	set(ptrButtonLoadTsv,'Enable','off');
+	set(ptrButtonPlotProp,'Enable','off');
+	set(ptrButtonCategProp,'Enable','off');
+	set(ptrButtonShowCateg,'Enable','off');
+	
 	%% assign values to structure
 	% Set the current axes to the atlas (dirty, but some gca requirements)
 	axes(hAxAtlas);
@@ -247,8 +268,8 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.sClusters = sClusters;
 	sGUI.sAtlas = sAtlas;
 	sGUI.cmap = colormap(hAxAreas); % Atlas colormap
-	sGUI.bregma = vecBregma; % Bregma in atlas voxels for external referencing
-	sGUI.probe_length = dblProbeLength; % Length of probe in atlas voxels
+	%sGUI.bregma = vecBregma; % Bregma in atlas voxels for external referencing
+	%sGUI.probe_length = dblProbeLength; % Length of probe in atlas voxels
 	sGUI.structure_plot_idx = []; % Plotted structures
 	sGUI.step_size = 1;
 	sGUI.transparency = 0;
@@ -261,6 +282,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.ptrButtonReset = ptrButtonReset;
 	sGUI.handles.ptrButtonLoadProbe = ptrButtonLoadProbe;
 	sGUI.handles.ptrButtonSave = ptrButtonSave;
+	sGUI.handles.ptrButtonExportEphys = ptrButtonExportEphys;
 	sGUI.handles.ptrButtonLoadEphys = ptrButtonLoadEphys;
 	sGUI.handles.ptrButtonLoadZeta = ptrButtonLoadZeta;
 	sGUI.handles.ptrButtonLoadTsv = ptrButtonLoadTsv;
@@ -323,5 +345,5 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	PH_PlotProbeEphys(hMain);
 	
 	% Display controls
-	PH_DisplayControls(hMain);
+	PH_DisplayControls(hMain,false);
 	

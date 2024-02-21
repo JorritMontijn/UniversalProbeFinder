@@ -5,19 +5,19 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	%ProbeFinder output format for structure sClusters is:
 	%sClusters.ProbeLength: length of probe in microns;
 	%sClusters.UseClusters: vector of entries to use
-	%sClusters.CoordsX: channel positions
-	%sClusters.CoordsY: channel positions
-	%sClusters.CoordsZ: channel positions
+	%sClusters.CoordsS: shank #
+	%sClusters.CoordsX: position along width
+	%sClusters.CoordsD: depth
 	%sClusters.ChanIdx: channel indices;
 	%sClusters.ChanPos: channel positions
-	%sClusters.Clust(i).cluster_id: cluster ID
-	%sClusters.Clust(i).OrigIdx: copy of cluster_id
+	%sClusters.ChanMap: full channel map structure
+	%sClusters.Clust(i).cluster_id: cluster ID (origin: .tsv)
+	%sClusters.Clust(i).OrigIdx: copy of cluster_id (origin: ephys)
 	%sClusters.Clust(i).NormSpikeCount: log10(SpikeCount)
+	%sClusters.Clust(i).Shank: shank #
 	%sClusters.Clust(i).Depth: depth
 	%sClusters.Clust(i).Zeta: responsiveness
 	%sClusters.Clust(i).SpikeTimes: spike times
-	%sClusters.Clust(i).QualLabel: cluster quality name
-	%sClusters.Clust(i).ContamP: estimated cluster contamination
 	%sClusters.Clust(i).x: any other variable present in a .tsv file
 	
 	%% load ephys
@@ -44,8 +44,32 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	sEphysData.waveforms = waveforms;
 	
 	%get probe length
+	sChanMap = [];
 	if ~exist('dblProbeLength','var') || isempty(dblProbeLength)
-		dblProbeLength = max(sEphysData.ycoords); %should work, but kilosort might drop channels
+		%try to find the imec meta file
+		dblProbeLength = [];
+		sMetaFiles = dir(fullpath(strPathEphys,'*ap.meta'));
+		if isempty(sMetaFiles)
+			cellPath = strsplit(strPathEphys,filesep);
+			if numel(cellPath) > 1
+				strRoot = strjoin(cellPath(1:(end-1)),filesep);
+				sMetaFiles = dir(fullpath(strRoot,'*ap.meta'));
+			end
+		end
+		if numel(sMetaFiles) > 0
+			[intFile,boolContinue] = listdlg('ListSize',[300 100],'Name','Select file',...
+				'PromptString','Select meta file belonging to this recording (or cancel if none)',...
+				'SelectionMode','single','ListString',{sMetaFiles.name});
+			
+			if boolContinue && ~isempty(intFile)
+				strMetaFile = fullpath(sMetaFiles(intFile).folder,sMetaFiles(intFile).name);
+				sChanMap = DP_GetChanMap(strMetaFile);
+				dblProbeLength = range(sChanMap.D);
+			end
+		end
+		if isempty(dblProbeLength)
+			dblProbeLength = range(sEphysData.ycoords); %should work, but kilosort might drop channels
+		end
 	end
 	
 	%work-around using global in case the probe length is wrong
@@ -71,28 +95,29 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 	if isfield(sEphysData,'xcoords')
 		xcoords = sEphysData.xcoords;
 	else
-		xcoords = zeros(1,intClustNum);
+		xcoords = [];
 	end
 	if isfield(sEphysData,'ycoords')
 		ycoords = sEphysData.ycoords;
 	else
-		ycoords = zeros(1,intClustNum);
+		ycoords = [];
 	end
-	if isfield(sEphysData,'zcoords')
-		zcoords = sEphysData.zcoords;
+	if isfield(sChanMap,'S')
+		scoords = sChanMap.S(sChanMap.U==1);
 	else
-		zcoords = zeros(1,intClustNum);
+		scoords = [];
 	end
 	
 	%add non-cluster based data
 	sClusters = struct;
 	sClusters.ProbeLength = dblProbeLength;
 	sClusters.UseClusters = 1:numel(vecTemplateIdx);
+	sClusters.CoordsS = scoords;
 	sClusters.CoordsX = xcoords;
-	sClusters.CoordsY = ycoords;
-	sClusters.CoordsZ = zcoords;
+	sClusters.CoordsD = ycoords;
 	sClusters.ChanIdx = sEphysData.ChanIdx;
 	sClusters.ChanPos = sEphysData.ChanPos;
+	sClusters.ChanMap = sChanMap;
 	
 	%assign KS data
 	sClustKS = struct;
@@ -105,6 +130,7 @@ function sClusters = EL_PrepEphys_KS(strPathEphys,dblProbeLength)
 		
 		%assign
 		sClustKS(intCluster).OrigIdx = intClustIdx;
+		sClustKS(intCluster).Shank = 0; %kilosort throws away shank info
 		sClustKS(intCluster).Depth = dblProbeLength - sEphysData.templateDepths(vecTemplateIdx==intClustIdx);
 		sClustKS(intCluster).SpikeTimes = vecAllSpikeTimes(vecAllSpikeClust==intClustIdx);
 		sClustKS(intCluster).NormSpikeCount = log10(numel(sClustKS(intCluster).SpikeTimes));

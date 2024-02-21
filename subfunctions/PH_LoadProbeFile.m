@@ -30,7 +30,7 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 		end
 	end
 	sProbeCoords.ProbeLength = dblProbeLength ./ sAtlas.VoxelSize(end); %in native atlas size
-	sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength; %in native atlas size
+	sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength; %initial size
 	sProbeCoords.ProbeLengthMicrons = dblProbeLength; %in microns
 end
 

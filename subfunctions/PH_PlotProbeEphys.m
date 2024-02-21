@@ -27,7 +27,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	ptrButtonPlotProp = sGUI.handles.ptrButtonPlotProp; %which property to plot?
 	ptrButtonCategProp = sGUI.handles.ptrButtonCategProp; %which property to categorize?
 	ptrButtonShowCateg = sGUI.handles.ptrButtonShowCateg; %which category of property to show?
-	
+	ptrButtonExportEphys = sGUI.handles.ptrButtonExportEphys;
 	%hide while drawing
 	cla(hAxZeta);
 	cla(hAxClust);
@@ -39,6 +39,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	set(ptrButtonPlotProp,'Enable','off');
 	set(ptrButtonCategProp,'Enable','off');
 	set(ptrButtonShowCateg,'Enable','off');
+	set(ptrButtonExportEphys,'Enable','off');
 	set(hAxMua,'Visible','off');
 	try,set(sGUI.handles.probe_zeta_bounds,'Visible','off');end
 	try,set(sGUI.handles.probe_xcorr_bounds,'Visible','off');end
@@ -116,8 +117,8 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	%find cells to plot
 	if strcmp(strShowCateg,'all')
 		indShowCells = true(size(vecDepth));
-	elseif isnumeric(varColorProperty)
-		indShowCells = varColorProperty==strShowCateg;
+	elseif boolColorIsNumeric
+		indShowCells = vecColorProperty==str2double(strShowCateg);
 	else
 		indShowCells = strcmpi(varColorProperty,strShowCateg);
 	end
@@ -264,6 +265,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	set(ptrButtonPlotProp,'Enable','on');
 	set(ptrButtonCategProp,'Enable','on');
 	set(ptrButtonShowCateg,'Enable','on');
+	set(ptrButtonExportEphys,'Enable','on');
 	set(hAxMua,'Visible','on');
 	try
 		set(sGUI.handles.probe_zeta_bounds,'Visible','on');

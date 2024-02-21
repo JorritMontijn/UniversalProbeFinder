@@ -1,5 +1,5 @@
 function sClustMerged = PH_MergeClusterData(sClustKS,sClustTsv,boolSuppressWarning)
-	%PH_MergeClusterData Merge cluster data entries by OrigIdx (sClustKS) and cluster_id (sClustTsv)
+	%PH_MergeClusterData Merge entries by OrigIdx or cluster_id (sClustKS) and cluster_id (sClustTsv)
 	%   sClustMerged = PH_MergeClusterData(sClustKS,sClustTsv,boolSuppressWarning)
 	
 	%check input
@@ -19,21 +19,17 @@ function sClustMerged = PH_MergeClusterData(sClustKS,sClustTsv,boolSuppressWarni
 	end
 	
 	%replace all empty Ks ids with nan
-	cellIdsKs = {sClustKS.(strFieldKsId)};
-	vecEmptyKs = find(cellfun(@isempty,cellIdsKs));
-	%cellIdsKs(vecEmptyKs) = cellfill(nan,size(vecEmptyKs));
+	vecEmptyKs = find(cellfun(@isempty,{sClustKS.(strFieldKsId)}));
 	for i=vecEmptyKs(:)',sClustKS(i).(strFieldKsId) = nan;end
 	vecIdsKs = [sClustKS.(strFieldKsId)];
 	
 	%replace all empty Tsv ids with nan
-	cellIdsTsv = {sClustTsv.cluster_id};
-	vecEmptyTsv = find(cellfun(@isempty,cellIdsTsv));
-	%cellIdsTsv(vecEmptyTsv) = cellfill(nan,size(vecEmptyTsv));
+	vecEmptyTsv = find(cellfun(@isempty,{sClustTsv.cluster_id}));
 	for i=vecEmptyTsv(:)',sClustTsv(i).cluster_id = nan;end
 	vecIdsTsv = [sClustTsv.cluster_id];
-	cellFields = fieldnames(sClustTsv);
 	
 	%merge cluster entries
+	cellFields = fieldnames(sClustTsv);
 	indAssignedKsEntries = false(size(sClustKS));
 	sClustMerged = sClustKS;
 	for intTsvEntry=1:numel(sClustTsv)

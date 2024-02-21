@@ -1,4 +1,4 @@
-function PH_DisplayControls(hObject,varargin)
+function PH_DisplayControls(hObject,boolEnableButtons,varargin)
 	
 	%check if help is already open
 	sGUI = guidata(hObject);
@@ -6,13 +6,19 @@ function PH_DisplayControls(hObject,varargin)
 	if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp)
 		figure(sGUI.handles.hDispHelp);return;
 	end
+	if ~exist('boolEnableButtons','var') || isempty(boolEnableButtons) || ~islogical(boolEnableButtons)
+		boolEnableButtons = true;
+	end
 	
 	%enable buttons
-	set(sGUI.handles.ptrButtonLoadZeta,'Enable','on');
-	set(sGUI.handles.ptrButtonLoadTsv,'Enable','on');
-	set(sGUI.handles.ptrButtonPlotProp,'Enable','on');
-	set(sGUI.handles.ptrButtonCategProp,'Enable','on');
-	set(sGUI.handles.ptrButtonShowCateg,'Enable','on');
+	if boolEnableButtons
+		set(sGUI.handles.ptrButtonLoadZeta,'Enable','on');
+		set(sGUI.handles.ptrButtonLoadTsv,'Enable','on');
+		set(sGUI.handles.ptrButtonPlotProp,'Enable','on');
+		set(sGUI.handles.ptrButtonCategProp,'Enable','on');
+		set(sGUI.handles.ptrButtonShowCateg,'Enable','on');
+		set(sGUI.handles.ptrButtonExportEphys,'Enable','on');
+	end
 	
 	% Print controls
 	CreateStruct.Interpreter = 'tex';

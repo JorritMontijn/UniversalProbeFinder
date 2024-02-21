@@ -21,7 +21,6 @@ function PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas,boolReset)
 	if isfield(sProbeCoords,'sProbeAdjusted') && isfield(sProbeCoords.sProbeAdjusted,'probe_vector_sph') && ~boolReset
 		vecSphereVector = sProbeCoords.sProbeAdjusted.probe_vector_sph;
 	else
-		sProbeCoords.ProbeLength = sProbeCoords.ProbeLengthOriginal; %in native atlas size
 		[vecSphereVector,vecLocBrainIntersect,matRefVector] = PH_Points2vec(sProbeCoords,sAtlas);
 	end
 	

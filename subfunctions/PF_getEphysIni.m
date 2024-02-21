@@ -33,12 +33,12 @@ function sEphysParams = PF_getEphysIni()
 		%Acquipix synthesis
 		sEphysParams(3).name = 'Acquipix Synthesis';
 		sEphysParams(3).loader = 'EL_PrepEphys_AS';
-		sEphysParams(3).reqfiles = '.*Synthesis[.]ma+t';
+		sEphysParams(3).reqfiles = '.*Synthesis[.]ma+t$';
 		sEphysParams(3).reqisregexp = 1;
 		%native cluster data
 		sEphysParams(4).name = 'Native cluster data';
 		sEphysParams(4).loader = 'EL_PrepEphys_NC';
-		sEphysParams(4).reqfiles = '.*UPF_Cluster[.]ma+t';
+		sEphysParams(4).reqfiles = '.*UPF_Cluster[.]ma+t$';
 		sEphysParams(4).reqisregexp = 1;
 		
 		%write ini

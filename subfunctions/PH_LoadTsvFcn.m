@@ -3,6 +3,19 @@ function PH_LoadTsvFcn(hObject,varargin)
 	%get data
 	sGUI = guidata(hObject);
 	
+	%add aditional cluster data
+	sClusters = sGUI.sClusters;
+	if isempty(sClusters)
+		%disable buttons
+		set(sGUI.handles.ptrButtonLoadZeta,'Enable','off');
+		set(sGUI.handles.ptrButtonLoadTsv,'Enable','off');
+		set(sGUI.handles.ptrButtonPlotProp,'Enable','off');
+		set(sGUI.handles.ptrButtonCategProp,'Enable','off');
+		set(sGUI.handles.ptrButtonShowCateg,'Enable','off');
+		set(sGUI.handles.ptrButtonExportEphys,'Enable','off');
+		return;
+	end
+	
 	%select folder
 	strText = 'Select .tsv file(s)';
 	if ismac; msgbox(strText,'OK');end
@@ -20,9 +33,6 @@ function PH_LoadTsvFcn(hObject,varargin)
 	%loads tsvs
 	sClustTsv = loadClusterTsvs(sTsvs,false);
 	
-	
-	%add aditional cluster data
-	sClusters = sGUI.sClusters;
 	
 	%merge cluster data
 	sClusters.Clust = PH_MergeClusterData(sClusters.Clust,sClustTsv);
