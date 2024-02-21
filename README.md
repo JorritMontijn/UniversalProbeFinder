@@ -9,7 +9,7 @@ in the matlab prompt.\
 Please read the manual for more information: https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder.pdf \
 \
 **Note on submodules:** If you get the message "Unrecognized function or variable", then you are probably missing the zetatest submodule, which contains some dependencies. Submodules are not always automatically installed. It will *not* include the zetatest submodule if:
-- you click "Code" and then download the code as a .zip,
+- you click "Code" and then download the code as a .zip. You can add the zetatest submodule manually from here: https://github.com/JorritMontijn/zetatest
 - you clone the repository using git and do not add the recurse-submodule flag. Instead use: "git clone --recurse-submodules https://github.com/JorritMontijn/UniversalProbeFinder"
 
 If you clone this repository with the desktop app, it will automatically include the submodule. If you download a zip-packaged release or the MCR version, it also includes the submodule.
