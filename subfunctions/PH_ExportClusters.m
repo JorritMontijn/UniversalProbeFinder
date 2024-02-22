@@ -24,7 +24,7 @@ function PH_ExportClusters(hMain,varargin)
 	[strFile,strPath,boolAccept] = uiputfile(strClusterOut,'Save ephys data as');
 	if ~isempty(strFile) && ~isempty(strPath) && boolAccept ~= 0
 		hMsg=msgbox('Exporting ephys data...','Saving');
-		save(strClusterOut,'sClusters','sProbeCoords');
+		save(fullpath(strPath,strFile),'sClusters','sProbeCoords');
 		delete(hMsg);
 	end
 end
