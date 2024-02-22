@@ -141,7 +141,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		for i=1:numel(sClusters.Clust)
 			sClusters.Clust(i).Zeta = -norminv(min(sClusters.Clust(i).ZetaP)/2);
 		end
-		sClusters.Clust(i) = rmfield(sClusters.Clust,'ZetaP');
+		sClusters.Clust = rmfield(sClusters.Clust,'ZetaP');
 	end
 
 	% close message

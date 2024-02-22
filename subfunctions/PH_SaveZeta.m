@@ -1,4 +1,4 @@
-function [strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strPath)
+function [strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,vecClusterId,strPath)
 	%pre-allocate
 	if ~exist('strZetaPath','var') || isempty(strPath) || strPath(1) == 0
 		strPath = cd();
@@ -11,5 +11,5 @@ function [strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strPath)
 	if isempty(strZetaFile) || strZetaFile(1) == 0,return;end
 	
 	%save
-	save(fullpath(strZetaPath,strZetaFile),'vecDepth','vecZetaP')
+	save(fullpath(strZetaPath,strZetaFile),'vecDepth','vecZetaP','vecClusterId')
 end

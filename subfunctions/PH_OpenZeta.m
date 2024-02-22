@@ -16,16 +16,19 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 		%native
 		vecDepth = sLoad.vecDepth;
 		vecZetaP = sLoad.vecZetaP;
+		vecClusterId = sLoad.vecClusterId;
 	elseif isfield(sLoad,'sSynthData')
 		%acquipix synthesis
 		sSynthData = sLoad.sSynthData;
-		vecDepth = cell2vec({sSynthData.sCluster.Depth});
+		vecDepth = [sSynthData.sCluster.Depth];
 		vecZetaP = cellfun(@min,{sSynthData.sCluster.ZetaP});
+		vecClusterId = [sSynthData.sCluster.IdxClust];
 	elseif isfield(sLoad,'sAP') && isfield(sLoad.sAP,'sCluster')
 		%acquipix aggregate
 		sCluster = sLoad.sAP.sCluster;
 		vecDepth = cell2vec({sCluster.Depth});
 		vecZetaP = cellfun(@min,{sCluster.ZetaP});
+		vecClusterId = [sSynthData.sCluster.IdxClust];
 	elseif isfield(sLoad,'structEP') && (isfield(sLoad.structEP,'ActOnNI') || isfield(sLoad.structEP,'ActOnSecs'))
 		%acquipix stimulus file
 		if isfield(sLoad.structEP,'ActOnNI')
@@ -41,7 +44,8 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 				msgbox('Cannot compute ZETA without spiking data', 'Error','error');
 				return;
 			end
-			vecDepth = sClusters.Clust.Depth;
+			vecDepth = [sClusters.Clust.Depth];
+			vecClusterId = [sClusters.Clust.cluster_id];
 			intNumN = numel(vecDepth);
 			vecZetaP = nan(1,intNumN);
 			hWaitbar = waitbar(0,'Preparing to calculate zeta responsiveness...','Name','ZETA progress');
@@ -57,7 +61,7 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 				rethrow(ME);
 			end
 			%save file
-			[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strZetaPath);
+			[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,vecClusterId,strZetaPath);
 			
 		else
 			errordlg('Your repository is corrupt: cannot find zetatest. Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','ZETA repository not found');
@@ -72,6 +76,7 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 		
 		%file not recognized
 		vecDepth = sClusters.Clust.Depth;
+		vecClusterId = sClusters.Clust.cluster_id;
 		vecZetaP = [];
 		cellFields = fieldnames(sLoad);
 		if numel(cellFields) == 1
@@ -101,7 +106,7 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 					delete(hWaitbar);
 					
 					%save file
-					[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,strZetaPath);
+					[strZetaFile,strZetaPath] = PH_SaveZeta(vecDepth,vecZetaP,vecClusterId,strZetaPath);
 				catch ME
 					waitbar((intN-1)/intNumN,hWaitbar,sprintf('Error: %s',ME.message));
 					rethrow(ME);
@@ -115,10 +120,28 @@ function [sClusters,boolSuccess] = PH_OpenZeta(sClusters,strPath)
 	if ~boolSuccess
 		errordlg('Could not load or calculate ZETA responsiveness, please try again.','ZETA values missing');
 	else
-		%save output
+		%pre-allocate
+		sClustZeta = struct;
+		sClustZeta(numel(vecZetaP)).cluster_id = 0;
+		sClustZeta(numel(vecZetaP)).ZetaP = 0;
+		sClustZeta(numel(vecZetaP)).Depth = 0;
+		
+		%fill
 		for i=1:numel(vecZetaP)
-			if ~isnan(vecDepth(i)),sClusters.Clust(i).Depth = vecDepth(i);end
-			sClusters.Clust(i).ZetaP = vecZetaP(i);
+			sClustZeta(i).cluster_id = vecClusterId(i);
+			sClustZeta(i).ZetaP = vecZetaP(i);
+			sClustZeta(i).Depth = vecDepth(i);
 		end
+		
+		%merge
+		sClusters.Clust = PH_MergeClusterData(sClusters.Clust,sClustZeta);
+	end
+	
+	%transform p-value to z-score if ZetaP is present
+	if isfield(sClusters,'Clust') && isfield(sClusters.Clust,'ZetaP')
+		for i=1:numel(sClusters.Clust)
+			sClusters.Clust(i).Zeta = -norminv(min(sClusters.Clust(i).ZetaP)/2);
+		end
+		sClusters.Clust = rmfield(sClusters.Clust,'ZetaP');
 	end
 end

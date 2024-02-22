@@ -104,7 +104,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	end
 	
 	%transform color property to numeric
-	indIsnumeric = cellfun(@isnumeric,varColorProperty);
+	indIsnumeric = cellfun(@(x) isnumeric(x) | islogical(x),varColorProperty);
 	if all(indIsnumeric)
 		boolColorIsNumeric = true;
 		vecColorProperty = cell2vec(varColorProperty);
