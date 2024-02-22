@@ -1,5 +1,8 @@
 function PH_PlotProbeEphys(hObject,eventdata)
 	%% get data
+	%#ok<*TRYNC>
+	%#ok<*ASGLU>
+	
 	sGUI = guidata(hObject);
 	hMain = sGUI.handles.hMain;
 	sClusters = sGUI.sClusters;
@@ -11,7 +14,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		boolListSource = strcmp(eventdata.Source.Style,'popupmenu');
 		boolKeepMuaMatrix = isequal(eventdata.Source.Callback,@PH_SelectPlotProp);
 	catch
-		try %#ok<TRYNC>
+		try
 			boolListSource = strcmp(eventdata.Style,'popupmenu');
 			boolKeepMuaMatrix = isequal(eventdata.Callback,@PH_SelectPlotProp);
 		end
@@ -149,11 +152,31 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	vecC = vecColorProperty(indShowCells);
 	
 	%% plot zeta
-	[vecSteps,ia,vecIdxC]=unique(vecColorProperty);
+	[vecSteps,ia,vecIdxC]=unique(vecColorProperty); 
 	mapCol = redblack(numel(vecSteps));
 	matC = mapCol(vecIdxC,:);
 	matC = matC(indShowCells,:);
+	try,delete(sGUI.handles.probe_zeta_points);end
 	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecX,vecY,15,matC,'filled');
+	%add data tips
+	try
+		%add click callback
+		%sGUI.handles.probe_zeta_points.ButtonDownFcn = @PH_ScatterClickCallback;
+		
+		%disable tex
+		sGUI.handles.probe_zeta_points.DataTipTemplate.Interpreter = 'none';
+		
+		%add all properties
+		cellFields = fieldnames(rmfield(sClusters.Clust,'SpikeTimes'));
+		for intField=1:numel(cellFields)
+			strField = cellFields{intField};
+			cellVals = {sClusters.Clust(indShowCells).(strField)};
+			if all(cellfun(@(x) isnumeric(x) | islogical(x),cellVals)),cellVals = double(cell2vec(cellVals));end
+			dtRow = dataTipTextRow(strField,cellVals);
+			sGUI.handles.probe_zeta_points.DataTipTemplate.DataTipRows(intField) = dtRow;
+		end
+	end
+	%graph props
 	if min(vecColorProperty) ~= max(vecColorProperty)
 		hAxZeta.CLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
 	end
@@ -163,13 +186,32 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	ylabel(hAxZeta,'Depth (\mum)');
 	set(hAxZeta,'XAxisLocation','top','YColor','k','YDir','reverse');
 	set(hAxZeta,'YLim',[0,dblProbeLength]);
-	setAllowAxesRotate(rotate3d(hAxZeta),hAxZeta,0);
 	
 	%update
 	guidata(hMain,sGUI);
 	
 	%% Plot spike depth vs rate
+	try,delete(sGUI.handles.probe_clust_points);end
 	sGUI.handles.probe_clust_points = scatter(hAxClust,vecC,vecY,15,matC,'filled');
+	%add data tips
+	try
+		%add click callback
+		%sGUI.handles.probe_clust_points.ButtonDownFcn = @PH_ScatterClickCallback;
+		
+		%disable tex
+		sGUI.handles.probe_clust_points.DataTipTemplate.Interpreter = 'none';
+		
+		%add all properties
+		cellFields = fieldnames(rmfield(sClusters.Clust,'SpikeTimes'));
+		for intField=1:numel(cellFields)
+			strField = cellFields{intField};
+			cellVals = {sClusters.Clust(indShowCells).(strField)};
+			if all(cellfun(@(x) isnumeric(x) | islogical(x),cellVals)),cellVals = double(cell2vec(cellVals));end
+			dtRow = dataTipTextRow(strField,cellVals);
+			sGUI.handles.probe_clust_points.DataTipTemplate.DataTipRows(intField) = dtRow;
+		end
+	end
+	%graph props
 	if min(vecColorProperty) ~= max(vecColorProperty)
 		hAxClust.CLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
 		hAxClust.XLim = [min(vecColorProperty)-eps max(vecColorProperty)+eps];
@@ -219,7 +261,6 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		if isempty(corr_edges)
 			corr_edges = 1:3;
 		end
-		corr_centers = corr_edges(1:end-1) + diff(corr_edges);
 		
 		binned_spikes_depth = zeros(length(unique_depths),length(corr_edges)-1);
 		for curr_depth = 1:length(unique_depths)
@@ -273,6 +314,15 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		set(sGUI.handles.probe_clust_bounds,'Visible','on');
 	catch
 	end
+	
+	%rotate3d(hAxZeta,'off');
+	setAllowAxesRotate(rotate3d(hAxZeta),hAxZeta,0);
+	enableDefaultInteractivity(hAxZeta);
+	hAxZeta.Interactions = dataTipInteraction;
+	
+	setAllowAxesRotate(rotate3d(hAxClust),hAxClust,0);
+	enableDefaultInteractivity(hAxClust);
+	hAxClust.Interactions = dataTipInteraction;
 	
 	%% update probe length
 	%set new probe size

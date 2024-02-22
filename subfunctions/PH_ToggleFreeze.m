@@ -6,17 +6,13 @@ function PH_ToggleFreeze(hButton,varargin)
 	
 	%get toggle
 	h = rotate3d(sGUI.handles.axes_atlas);
-	if strcmp(h.Enable,'off')
-		h.Enable = 'on';
+	if sGUI.handles.ptrButtonFreeze.Value == 0
+		%enable redrawing
 		h.ActionPostCallback = @PH_UpdateSlice;
-		%(need to restore key-press functionality with rotation)
-		hManager = uigetmodemanager(hMain);
-		[hManager.WindowListenerHandles.Enabled] = deal(false);
-		set(hMain,'KeyPressFcn',@PH_KeyPress);
-		sGUI.handles.ptrButtonFreeze.Value = 0;
-	elseif strcmp(h.Enable,'on')
-		h.Enable = 'off';
-		sGUI.handles.ptrButtonFreeze.Value = 1;
+		%trigger redraw
+		PH_UpdateSlice(hMain);
+	elseif sGUI.handles.ptrButtonFreeze.Value == 1
+		%disable redrawing
+		h.ActionPostCallback = [];
 	end
-	
 end

@@ -88,7 +88,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	% Set up the atlas axes
 	figure(hMain);
-	hAxAtlas = subplot(2,3,1);
+	hAxAtlas = subplot(4,4,1);
 	vecGridColor = [0.7 0.7 0.7];
 	hMesh = plot3(hAxAtlas, matBrainMesh(:,1), matBrainMesh(:,2), matBrainMesh(:,3), 'Color', vecGridColor);
 	hold(hAxAtlas,'on');
@@ -105,7 +105,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	% Set up the probe area axes
 	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
-	hAxAreas = subplot(2,3,3);
+	hAxAreas = axes(hMain,'Position',[0.93,0.5,0.02,0.4]);
 	hAxAreas.ActivePositionProperty = 'position';
 	set(hAxAreas,'FontSize',11);
 	yyaxis(hAxAreas,'left');
@@ -117,7 +117,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	set(hAxAreas,'XAxisLocation','top','XTick','','YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
 	
 	% Set up the probe area axes
-	hAxAreas2 = subplot(2,4,8);
+	hAxAreas2 = axes(hMain,'Position',[0.93,0.065,0.02,0.4]);
 	hAxAreas2.ActivePositionProperty = 'position';
 	set(hAxAreas2,'FontSize',11);
 	yyaxis(hAxAreas2,'left');
@@ -129,9 +129,12 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	set(hAxAreas2,'XAxisLocation','top','XTick','','YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
 	
 	%% ZETA
-	hAxZeta = subplot(2,3,2);
-	set(hAxZeta,'XAxisLocation','top','YLim',[0,dblProbeLengthMicrons],'YColor','k','YDir','reverse');
+	hAxZeta = axes(hMain,'Position',[0.6,0.5,0.3,0.4]);
+	h = rotate3d(hAxZeta);
+	h.Enable = 'off';
+	set(hAxZeta,'XAxisLocation','top','YLim',[0,dblProbeLengthMicrons],'YDir','reverse');
 	ylabel(hAxZeta,'Depth (\mum)');
+	hold(hAxZeta,'on');
 	
 	%% xcorr & clusters
 	hAxClusters = subplot(2,4,6);
@@ -162,15 +165,24 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	% Set up the text to display coordinates
 	probe_coordinates_text = uicontrol('Style','text','String','', ...
-		'Units','normalized','Position',[0,0.95,1,0.05], ...
+		'Units','normalized','Position',[0.01,0.95,1,0.05], ...
 		'BackgroundColor','w','HorizontalAlignment','left','FontSize',12);
 	
 	%% make buttons
+	% rotate/data tip mode
+	ptrButtonRotate = uicontrol(hMain,'Style','togglebutton','FontSize',11,...
+		'String',sprintf('Rotate'),...
+		'Value',0,...
+		'Units','normalized',...
+		'Position',[0.01 0.94 0.04 0.03],...
+		'Callback',@PH_ToggleControl);
+	
 	% freeze/unfreeze
 	ptrButtonFreeze = uicontrol(hMain,'Style','togglebutton','FontSize',11,...
 		'String',sprintf('Freeze'),...
+		'Value',0,...
 		'Units','normalized',...
-		'Position',[0.01 0.94 0.04 0.03],...
+		'Position',[0.01 0.905 0.04 0.03],...
 		'Callback',@PH_ToggleFreeze);
 	
 	%reset location
@@ -250,6 +262,22 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Position',[0.93 0.95 0.03 0.03],...
 		'Callback',@PH_DisplayControls);
 	
+	%try adding tooltips
+	try
+		ptrButtonRotate.Tooltip = 'Switch between (1) rotating the brain and (2) showing data tip popups';
+		ptrButtonFreeze.Tooltip = 'Toggle slice updating in brain view when rotating';
+		ptrButtonReset.Tooltip = 'Reset probe position to track points';
+		ptrButtonLoadProbe.Tooltip = 'Load SliceFinder or probe coordinate file';
+		ptrButtonSave.Tooltip = 'Save probe coordinate file';
+		ptrButtonExportEphys.Tooltip = 'Export UPF file including probe coordinates and all electrophysiology data';
+		ptrButtonLoadEphys.Tooltip = 'Load SpikeGLX, Kilosort, Acquipix, or UPF file';
+		ptrButtonLoadZeta.Tooltip = 'Load tuning property file, or stimulus onset file to compute stimulus responsiveness';
+		ptrButtonLoadTsv.Tooltip = 'Load .tsv file(s) with cluster properties';
+		ptrButtonPlotProp.Tooltip = 'Select variable to plot in top graph';
+		ptrButtonCategProp.Tooltip = 'Select variable to plot in bottom graph and use for category selection';
+		ptrButtonShowCateg.Tooltip = 'Select category to plot';
+		ptrButtonHelp.Tooltip = 'Display commands and re-enable all buttons';
+	end
 	
 	%disable buttons until ephys data is loaded
 	set(ptrButtonLoadZeta,'Enable','off');
@@ -278,6 +306,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	% user interface handles
 	sGUI.handles.hMain = hMain;
+	sGUI.handles.ptrButtonRotate = ptrButtonRotate;
 	sGUI.handles.ptrButtonFreeze = ptrButtonFreeze;
 	sGUI.handles.ptrButtonReset = ptrButtonReset;
 	sGUI.handles.ptrButtonLoadProbe = ptrButtonLoadProbe;
@@ -330,6 +359,10 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	hManager = uigetmodemanager(hMain);
 	[hManager.WindowListenerHandles.Enabled] = deal(false);
 	set(hMain,'KeyPressFcn',@PH_KeyPress);
+	
+	%enable rotation
+	h = rotate3d(hAxAtlas);
+	h.Enable = 'on';
 	
 	% Upload gui_data
 	guidata(hMain, sGUI);
