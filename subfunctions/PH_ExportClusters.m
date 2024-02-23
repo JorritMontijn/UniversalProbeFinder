@@ -7,6 +7,18 @@ function PH_ExportClusters(hMain,varargin)
 	
 	% Export the probe coordinates to the workspace & save to file
 	sProbeCoords = sGUI.sProbeCoords;
+	
+	%add depth
+	dblCurrentProbeLength = sProbeCoords.sProbeAdjusted.probe_vector_sph(end);
+	if isfield(sGUI.sClusters,'Clust')
+		dblRescaling = (dblCurrentProbeLength / sGUI.sProbeCoords.ProbeLengthOriginal);
+		sProbeCoords.sProbeAdjusted.cluster_id = [sGUI.sClusters.Clust.cluster_id];
+		sProbeCoords.sProbeAdjusted.depth_per_cluster = [sGUI.sClusters.Clust.Depth] .* dblRescaling;
+	else
+		sProbeCoords.sProbeAdjusted.cluster_id = [];
+		sProbeCoords.sProbeAdjusted.depth_per_cluster = [];
+	end
+	
 	sClusters = sGUI.sClusters;
 	if isempty(sClusters)
 		%disable buttons
