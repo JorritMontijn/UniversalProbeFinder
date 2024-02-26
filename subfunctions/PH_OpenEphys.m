@@ -66,10 +66,22 @@ function sClusters = PH_OpenEphys(strPath)
 	hMsg = msgbox(['Loading ' strName ' data, please wait...'],'Loading ephys');
 	
 	%run
-	sClusters = feval(fLoader,strEphysPath);
+	try
+		sClusters = feval(fLoader,strEphysPath);
+	catch
+		sClusters = [];
+	end
 	try	
 		%close msg
 		close(hMsg);
+	catch
+	end
+	
+	%set show mask to all true
+	try
+		for i=1:numel(sClusters.Clust)
+			sClusters.Clust(i).ShowMaskPF = true;
+		end
 	catch
 	end
 end

@@ -255,11 +255,34 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		'Position',[ptrButtonCategProp.Position(1) 0.97-ptrButtonCategProp.Position(4)-0.001 0.06 0.03],...
 		'Callback',@PH_PlotProbeEphys);
 	
+	%discard other categories
+	ptrButtonDiscardOtherCateg = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
+		'String','Discard others',...
+		'Units','normalized',...
+		'Position',[ptrButtonPlotProp.Position(1) ptrButtonShowCateg.Position(2) 0.06 0.03],...
+		'Callback',@PH_DiscardOtherCategs);
+	
+	%reset discard
+	ptrButtonUndoDiscard = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
+		'String','Undo',...
+		'Units','normalized',...
+		'Position',[ptrButtonShowCateg.Position(1)+ptrButtonShowCateg.Position(3)+0.01 ptrButtonShowCateg.Position(2) 0.04 0.03],...
+		'Callback',@PH_UndoDiscardCategs);
+	
+	
+	%set show mask to all true
+	try
+		for i=1:numel(sClusters.Clust)
+			sClusters.Clust(i).ShowMaskPF = true;
+		end
+	catch
+	end
+	
 	%help
 	ptrButtonHelp = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
 		'String',sprintf('Help'),...
 		'Units','normalized',...
-		'Position',[0.93 0.95 0.03 0.03],...
+		'Position',[0.97 0.97 0.03 0.03],...
 		'Callback',@PH_DisplayControls);
 	
 	%try adding tooltips
@@ -276,15 +299,19 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		ptrButtonPlotProp.Tooltip = 'Select variable to plot in top graph';
 		ptrButtonCategProp.Tooltip = 'Select variable to plot in bottom graph and use for category selection';
 		ptrButtonShowCateg.Tooltip = 'Select category to plot';
+		ptrButtonDiscardOtherCateg.Tooltip = 'Discard clusters not in selected category';
 		ptrButtonHelp.Tooltip = 'Display commands and re-enable all buttons';
 	end
 	
-	%disable buttons until ephys data is loaded
+	%disable buttons
 	set(ptrButtonLoadZeta,'Enable','off');
 	set(ptrButtonLoadTsv,'Enable','off');
 	set(ptrButtonPlotProp,'Enable','off');
 	set(ptrButtonCategProp,'Enable','off');
 	set(ptrButtonShowCateg,'Enable','off');
+	set(ptrButtonExportEphys,'Enable','off');
+	set(ptrButtonDiscardOtherCateg,'Enable','off');
+	set(ptrButtonUndoDiscard,'Enable','off');
 	
 	%% assign values to structure
 	% Set the current axes to the atlas (dirty, but some gca requirements)
@@ -318,6 +345,8 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.handles.ptrButtonPlotProp = ptrButtonPlotProp;
 	sGUI.handles.ptrButtonCategProp = ptrButtonCategProp;
 	sGUI.handles.ptrButtonShowCateg = ptrButtonShowCateg;
+	sGUI.handles.ptrButtonDiscardOtherCateg = ptrButtonDiscardOtherCateg;
+	sGUI.handles.ptrButtonUndoDiscard = ptrButtonUndoDiscard;
 	sGUI.handles.ptrButtonHelp = ptrButtonHelp;
 	sGUI.handles.hDispHelp = [];
 	
@@ -355,14 +384,14 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	sGUI.boolReadyForExit = false;
 	sGUI.output = [];
 	
+	%enable rotation
+	h = rotate3d(hAxAtlas);
+	h.Enable = 'on';
+	
 	% Set functions for key presses
 	hManager = uigetmodemanager(hMain);
 	[hManager.WindowListenerHandles.Enabled] = deal(false);
 	set(hMain,'KeyPressFcn',@PH_KeyPress);
-	
-	%enable rotation
-	h = rotate3d(hAxAtlas);
-	h.Enable = 'on';
 	
 	% Upload gui_data
 	guidata(hMain, sGUI);

@@ -7,12 +7,7 @@ function PH_LoadTsvFcn(hObject,varargin)
 	sClusters = sGUI.sClusters;
 	if isempty(sClusters)
 		%disable buttons
-		set(sGUI.handles.ptrButtonLoadZeta,'Enable','off');
-		set(sGUI.handles.ptrButtonLoadTsv,'Enable','off');
-		set(sGUI.handles.ptrButtonPlotProp,'Enable','off');
-		set(sGUI.handles.ptrButtonCategProp,'Enable','off');
-		set(sGUI.handles.ptrButtonShowCateg,'Enable','off');
-		set(sGUI.handles.ptrButtonExportEphys,'Enable','off');
+		PH_DisableButtons(hObject);
 		return;
 	end
 	

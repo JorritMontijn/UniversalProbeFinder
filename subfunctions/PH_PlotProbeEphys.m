@@ -31,18 +31,15 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	ptrButtonCategProp = sGUI.handles.ptrButtonCategProp; %which property to categorize?
 	ptrButtonShowCateg = sGUI.handles.ptrButtonShowCateg; %which category of property to show?
 	ptrButtonExportEphys = sGUI.handles.ptrButtonExportEphys;
+	ptrButtonDiscardOtherCateg = sGUI.handles.ptrButtonDiscardOtherCateg;
+	
 	%hide while drawing
 	cla(hAxZeta);
 	cla(hAxClust);
 	hAxMuaIm.CData = 255*ones(size(hAxMuaIm.CData));
 	set(hAxZeta,'Visible','off');
 	set(hAxClust,'Visible','off');
-	set(ptrButtonLoadZeta,'Enable','off');
-	set(ptrButtonLoadTsv,'Enable','off');
-	set(ptrButtonPlotProp,'Enable','off');
-	set(ptrButtonCategProp,'Enable','off');
-	set(ptrButtonShowCateg,'Enable','off');
-	set(ptrButtonExportEphys,'Enable','off');
+	PH_DisableButtons(hObject);
 	set(hAxMua,'Visible','off');
 	try,set(sGUI.handles.probe_zeta_bounds,'Visible','off');end
 	try,set(sGUI.handles.probe_xcorr_bounds,'Visible','off');end
@@ -117,6 +114,16 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		[vecColorProperty,cellCategories] = val2idx(varColorProperty);
 	end
 	
+	%check if hide mask is present
+	if isfield(sClusters.Clust,'ShowMaskPF')
+		indShowMask = [sClusters.Clust.ShowMaskPF] ~= 0;
+	else
+		indShowMask = true(size(vecDepth));
+	end
+	if isempty(indShowMask)
+		indShowMask = true(size(indShowMask));
+	end
+	
 	%find cells to plot
 	if strcmp(strShowCateg,'all')
 		indShowCells = true(size(vecDepth));
@@ -128,8 +135,9 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	if isempty(indShowCells)
 		indShowCells = true(size(vecDepth));
 	end
+	
 	%skip replotting of mua matrix if we've already plotted all cells
-	boolCurrIsAll = all(indShowCells);
+	boolCurrIsAll = all(indShowCells(indShowMask));
 	if isfield(sClusters,'PrevWasAll')
 		boolPrevWasAll = sClusters.PrevWasAll;
 	else
@@ -147,15 +155,16 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	if ~iscell(vecColorProperty) && all(isnan(vecColorProperty)),vecColorProperty = zeros(size(vecColorProperty));end
 	
 	%get plotting variables
-	vecY = vecDepth(indShowCells);
-	vecX = vecPlotProperty(indShowCells);
-	vecC = vecColorProperty(indShowCells);
+	indSubShowCells = indShowMask(:) & indShowCells(:);
+	vecY = vecDepth(indSubShowCells);
+	vecX = vecPlotProperty(indSubShowCells);
+	vecC = vecColorProperty(indSubShowCells);
 	
 	%% plot zeta
 	[vecSteps,ia,vecIdxC]=unique(vecColorProperty); 
 	mapCol = redblack(numel(vecSteps));
 	matC = mapCol(vecIdxC,:);
-	matC = matC(indShowCells,:);
+	matC = matC(indSubShowCells,:);
 	try,delete(sGUI.handles.probe_zeta_points);end
 	sGUI.handles.probe_zeta_points = scatter(hAxZeta,vecX,vecY,15,matC,'filled');
 	%add data tips
@@ -170,7 +179,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		cellFields = fieldnames(rmfield(sClusters.Clust,'SpikeTimes'));
 		for intField=1:numel(cellFields)
 			strField = cellFields{intField};
-			cellVals = {sClusters.Clust(indShowCells).(strField)};
+			cellVals = {sClusters.Clust(indSubShowCells).(strField)};
 			if all(cellfun(@(x) isnumeric(x) | islogical(x),cellVals)),cellVals = double(cell2vec(cellVals));end
 			dtRow = dataTipTextRow(strField,cellVals);
 			sGUI.handles.probe_zeta_points.DataTipTemplate.DataTipRows(intField) = dtRow;
@@ -205,7 +214,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		cellFields = fieldnames(rmfield(sClusters.Clust,'SpikeTimes'));
 		for intField=1:numel(cellFields)
 			strField = cellFields{intField};
-			cellVals = {sClusters.Clust(indShowCells).(strField)};
+			cellVals = {sClusters.Clust(indSubShowCells).(strField)};
 			if all(cellfun(@(x) isnumeric(x) | islogical(x),cellVals)),cellVals = double(cell2vec(cellVals));end
 			dtRow = dataTipTextRow(strField,cellVals);
 			sGUI.handles.probe_clust_points.DataTipTemplate.DataTipRows(intField) = dtRow;
@@ -246,7 +255,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 		drawnow;
 		
 		%get spikes
-		cellSpikes = {sClusters.Clust(indShowCells).SpikeTimes};
+		cellSpikes = {sClusters.Clust(indSubShowCells).SpikeTimes};
 		vecAllSpikeT = cell2vec(cellSpikes);
 		vecAllSpikeT(isnan(vecAllSpikeT))=[];
 		
@@ -301,12 +310,7 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	%% enable gui
 	set(hAxZeta,'Visible','on');
 	set(hAxClust,'Visible','on');
-	set(ptrButtonLoadZeta,'Enable','on');
-	set(ptrButtonLoadTsv,'Enable','on');
-	set(ptrButtonPlotProp,'Enable','on');
-	set(ptrButtonCategProp,'Enable','on');
-	set(ptrButtonShowCateg,'Enable','on');
-	set(ptrButtonExportEphys,'Enable','on');
+	PH_EnableButtons(hObject);
 	set(hAxMua,'Visible','on');
 	try
 		set(sGUI.handles.probe_zeta_bounds,'Visible','on');

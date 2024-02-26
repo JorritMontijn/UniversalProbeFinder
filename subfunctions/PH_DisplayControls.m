@@ -12,12 +12,7 @@ function PH_DisplayControls(hObject,boolEnableButtons,varargin)
 	
 	%enable buttons
 	if boolEnableButtons
-		set(sGUI.handles.ptrButtonLoadZeta,'Enable','on');
-		set(sGUI.handles.ptrButtonLoadTsv,'Enable','on');
-		set(sGUI.handles.ptrButtonPlotProp,'Enable','on');
-		set(sGUI.handles.ptrButtonCategProp,'Enable','on');
-		set(sGUI.handles.ptrButtonShowCateg,'Enable','on');
-		set(sGUI.handles.ptrButtonExportEphys,'Enable','on');
+		PH_EnableButtons(hObject);
 	end
 	
 	% Print controls

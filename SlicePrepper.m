@@ -11,6 +11,7 @@ function SlicePrepper(varargin)
 		strFullpath = mfilename('fullpath');
 		strPath = fileparts(strFullpath);
 		sDir=dir([strPath filesep '**' filesep]);
+		
 		%remove git folders
 		sDir(contains({sDir.folder},[filesep '.git'])) = [];
 		cellFolders = unique({sDir.folder});
