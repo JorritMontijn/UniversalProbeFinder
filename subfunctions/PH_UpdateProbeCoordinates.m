@@ -67,15 +67,17 @@ function PH_UpdateProbeCoordinates(hMain,vecSphereVector,boolForceYupdate)
 	end
 	if ~isempty(vecDepth)
 		[vecClustAreaId,cellClustAreaLabel,cellClustAreaFull] = PF_GetAreaPerCluster(sGUI.sProbeCoords,vecDepth);
-		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = sGUI.sClusters.Clust.cluster_id;
+		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = [sGUI.sClusters.Clust.cluster_id];
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = vecClustAreaId;
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = cellClustAreaLabel;
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = cellClustAreaFull;
+		sGUI.sProbeCoords.sProbeAdjusted.probe_depth_per_cluster = vecDepth;
 	else
 		sGUI.sProbeCoords.sProbeAdjusted.cluster_id = [];
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_ids_per_cluster = [];
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_labels_per_cluster = {};
 		sGUI.sProbeCoords.sProbeAdjusted.probe_area_full_per_cluster = {};
+		sGUI.sProbeCoords.sProbeAdjusted.probe_depth_per_cluster = [];
 	end
 	
 	% update gui
