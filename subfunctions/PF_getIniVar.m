@@ -1,9 +1,12 @@
-function varOut = PF_getIniVar(strVarName,boolSetValue)
+function varOut = PF_getIniVar(strVarName,boolSetValue,varValue)
 	%PF_populateStructure Prepares parameters by loading ini file, or creates one with default values
 	
 	%default
 	if ~exist('boolSetValue','var') || isempty(boolSetValue)
 		boolSetValue = false;
+	end
+	if ~exist('varValue','var') || isempty(varValue)
+		varValue = '';
 	end
 	
 	%check for ini file
@@ -35,6 +38,8 @@ function varOut = PF_getIniVar(strVarName,boolSetValue)
 		%default vars
 		sDefaultIni = struct;
 		sDefaultIni.IgnoreRender = 0;
+		sDefaultIni.NeverBioformats = 0;
+		sDefaultIni.BioformatsFolder = '';
 		
 		%path vars
 		if ~boolSetValue && isfield(sDefaultIni,strVarName)
@@ -71,12 +76,16 @@ function varOut = PF_getIniVar(strVarName,boolSetValue)
 			cellPrompt = {'Value:'};
 			strTitle = sprintf('Set %s',strVarName);
 			vecDims = [5 50];
-			varOut = inputdlg(cellPrompt,strTitle,vecDims,strDefInput);
-			if numel(varOut) == 1
-				varOut = varOut{1};
-			end
-			if ~iscell(varOut) && ~isnan(str2double(varOut))
-				varOut = str2double(varOut);
+			if isempty(varValue)
+				varOut = inputdlg(cellPrompt,strTitle,vecDims,strDefInput);
+				if numel(varOut) == 1
+					varOut = varOut{1};
+				end
+				if ~iscell(varOut) && ~isnan(str2double(varOut))
+					varOut = str2double(varOut);
+				end
+			else
+				varOut = varValue;
 			end
 			if isempty(varOut),return;end
 		end

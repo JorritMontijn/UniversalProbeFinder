@@ -28,7 +28,7 @@ function SF_DeleteFcn(hObject,varargin)
 		opts = struct;
 		opts.Default = 'Cancel';
 		opts.Interpreter = 'none';
-		strAns = questdlg('Are you sure you wish to exit?','Confirm exit','Save & Exit','Exit & Discard data','Cancel',opts);
+		strAns = questdlg('Are you sure you wish to exit?','Confirm exit','Save & Exit','Exit','Cancel',opts);
 		switch strAns
 			case 'Save & Exit'
 				%export probe coord file
@@ -38,7 +38,7 @@ function SF_DeleteFcn(hObject,varargin)
 				hObject.UserData = 'close';
 				SF_DeleteFcn(hObject);
 				if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end
-			case 'Exit & Discard data'
+			case 'Exit'
 				hObject.UserData = 'close';
 				SF_DeleteFcn(hObject);
 				if ~isempty(sGUI.handles.hDispHelp) && ishandle(sGUI.handles.hDispHelp),close(sGUI.handles.hDispHelp);end

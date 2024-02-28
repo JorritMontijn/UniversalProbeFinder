@@ -43,6 +43,9 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% add subfolders
 	if ~isdeployed
+		%check version
+		PF_AssertVersion();
+			
 		%disable buttons
 		global sUPF_ChooseGui %#ok<TLEV>
 		UPF_DisableButtons(sUPF_ChooseGui);

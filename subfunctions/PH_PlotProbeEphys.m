@@ -319,14 +319,17 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	catch
 	end
 	
-	%rotate3d(hAxZeta,'off');
-	setAllowAxesRotate(rotate3d(hAxZeta),hAxZeta,0);
-	enableDefaultInteractivity(hAxZeta);
-	hAxZeta.Interactions = dataTipInteraction;
-	
-	setAllowAxesRotate(rotate3d(hAxClust),hAxClust,0);
-	enableDefaultInteractivity(hAxClust);
-	hAxClust.Interactions = dataTipInteraction;
+	try
+		setAllowAxesRotate(rotate3d(hAxZeta),hAxZeta,0);
+		enableDefaultInteractivity(hAxZeta);
+		hAxZeta.Interactions = dataTipInteraction;
+		
+		setAllowAxesRotate(rotate3d(hAxClust),hAxClust,0);
+		enableDefaultInteractivity(hAxClust);
+		hAxClust.Interactions = dataTipInteraction;
+	catch
+		%versions < R2018b don't have enableDefaultInteractivity()
+	end
 	
 	%% update probe length
 	%set new probe size
