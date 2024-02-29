@@ -99,22 +99,24 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	end
 	
 	%transform plot property to numeric
-	indIsnumeric = cellfun(@isnumeric,varPlotProperty);
-	if all(indIsnumeric)
+	indIsNumeric = cellfun(@isnumeric,varPlotProperty);
+	indIsLogical = cellfun(@islogical,varPlotProperty);
+	if all(indIsNumeric) || all(indIsLogical)
 		vecPlotProperty = cell2vec(varPlotProperty);
 	else
-		varPlotProperty(indIsnumeric) = cellfun(@num2str,varPlotProperty(indIsnumeric),'uniformoutput',false);
+		varPlotProperty(indIsNumeric | indIsLogical) = cellfun(@num2str,varPlotProperty(indIsNumeric | indIsLogical),'uniformoutput',false);
 		vecPlotProperty = val2idx(varPlotProperty);
 	end
 	
 	%transform color property to numeric
-	indIsnumeric = cellfun(@(x) isnumeric(x) | islogical(x),varColorProperty);
-	if all(indIsnumeric)
+	indIsNumeric = cellfun(@isnumeric,varPlotProperty);
+	indIsLogical = cellfun(@islogical,varPlotProperty);
+	if all(indIsNumeric) || all(indIsLogical)
 		boolColorIsNumeric = true;
 		vecColorProperty = cell2vec(varColorProperty);
 	else
 		boolColorIsNumeric = false;
-		varColorProperty(indIsnumeric) = cellfun(@num2str,varColorProperty(indIsnumeric),'uniformoutput',false);
+		varColorProperty(indIsNumeric | indIsLogical) = cellfun(@num2str,varColorProperty(indIsNumeric | indIsLogical),'uniformoutput',false);
 		[vecColorProperty,cellCategories] = val2idx(varColorProperty);
 	end
 	
