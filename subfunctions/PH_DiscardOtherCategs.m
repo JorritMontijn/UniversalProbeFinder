@@ -1,6 +1,6 @@
-function PH_DiscardOtherCategs(hObject,varargin)
+function PH_DiscardOtherCategs(hObject,eventdata,varargin)
 	%PH_DiscardOtherCategs Summary of this function goes here
-	%   PH_DiscardOtherCategs(hObject,varargin)
+	%   PH_DiscardOtherCategs(hObject,eventdata,varargin)
 	
 	%get data
 	sGUI = guidata(hObject);
@@ -37,16 +37,16 @@ function PH_DiscardOtherCategs(hObject,varargin)
 			
 			%set mask
 			if strcmp(strShowCateg,'all')
-				indShowCells = true(size(vecDepth));
+				indHideCells = true(size(vecDepth));
 			elseif boolColorIsNumeric
-				indShowCells = vecColorProperty==str2double(strShowCateg);
+				indHideCells = vecColorProperty==str2double(strShowCateg);
 			else
-				indShowCells = strcmpi(varColorProperty,strShowCateg);
+				indHideCells = strcmpi(varColorProperty,strShowCateg);
 			end
-			if isempty(indShowCells)
-				indShowCells = true(size(vecDepth));
+			if isempty(indHideCells)
+				indHideCells = true(size(vecDepth));
 			end
-			indHideCells = indShowCells;
+			indShowCells = ~indHideCells;
 			
 			%get current mask
 			for i=1:numel(sClusters.Clust)
@@ -55,13 +55,16 @@ function PH_DiscardOtherCategs(hObject,varargin)
 					sClusters.Clust(i).ShowMaskPF = true;
 				end
 				boolOldMask = sClusters.Clust(i).ShowMaskPF;
-				boolNewMask = indHideCells(i);
+				boolNewMask = indShowCells(i);
 				sClusters.Clust(i).ShowMaskPF = boolOldMask & boolNewMask;
 			end
 			
 			%update data
 			sGUI.sClusters = sClusters;
 			guidata(sGUI.handles.hMain,sGUI);
+			
+			%redraw
+			PH_PlotProbeEphys(sGUI.handles.hMain,eventdata);
 		end
 	else
 		return; %do nothing

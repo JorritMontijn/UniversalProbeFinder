@@ -1,4 +1,4 @@
-function PH_UndoDiscardCategs(hObject,varargin)
+function PH_UndoDiscardCategs(hObject,eventdata,varargin)
 	%PH_UndoDiscardCategs Summary of this function goes here
 	%   PH_UndoDiscardCategs(hObject,varargin)
 	
@@ -22,7 +22,7 @@ function PH_UndoDiscardCategs(hObject,varargin)
 		guidata(sGUI.handles.hMain,sGUI);
 		
 		%redraw
-		PH_PlotProbeEphys(sGUI.handles.hMain);
+		PH_PlotProbeEphys(sGUI.handles.hMain,eventdata);
 	end
 end
 

@@ -11,11 +11,15 @@ function PH_PlotProbeEphys(hObject,eventdata)
 	boolListSource = false;
 	boolKeepMuaMatrix = false;
 	try
-		boolListSource = strcmp(eventdata.Source.Style,'popupmenu');
+		boolListSource = strcmp(eventdata.Source.Style,'popupmenu') ...
+			| isequal(eventdata.Source.Callback,@PH_DiscardOtherCategs)...
+			| isequal(eventdata.Source.Callback,@PH_UndoDiscardCategs);
 		boolKeepMuaMatrix = isequal(eventdata.Source.Callback,@PH_SelectPlotProp);
 	catch
 		try
-			boolListSource = strcmp(eventdata.Style,'popupmenu');
+			boolListSource = strcmp(eventdata.Style,'popupmenu') ...
+				| isequal(eventdata.Callback,@PH_DiscardOtherCategs) ...
+				| isequal(eventdata.Callback,@PH_UndoDiscardCategs);
 			boolKeepMuaMatrix = isequal(eventdata.Callback,@PH_SelectPlotProp);
 		end
 	end

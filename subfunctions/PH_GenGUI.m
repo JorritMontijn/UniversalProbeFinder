@@ -257,14 +257,14 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%discard other categories
 	ptrButtonDiscardOtherCateg = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
-		'String','Discard others',...
+		'String','Hide group',...
 		'Units','normalized',...
 		'Position',[ptrButtonPlotProp.Position(1) ptrButtonShowCateg.Position(2) 0.06 0.03],...
 		'Callback',@PH_DiscardOtherCategs);
 	
 	%reset discard
 	ptrButtonUndoDiscard = uicontrol(hMain,'Style','pushbutton','FontSize',11,...
-		'String','Undo',...
+		'String','Show all',...
 		'Units','normalized',...
 		'Position',[ptrButtonShowCateg.Position(1)+ptrButtonShowCateg.Position(3)+0.01 ptrButtonShowCateg.Position(2) 0.04 0.03],...
 		'Callback',@PH_UndoDiscardCategs);
@@ -299,7 +299,8 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 		ptrButtonPlotProp.Tooltip = 'Select variable to plot in top graph';
 		ptrButtonCategProp.Tooltip = 'Select variable to plot in bottom graph and use for category selection';
 		ptrButtonShowCateg.Tooltip = 'Select category to plot';
-		ptrButtonDiscardOtherCateg.Tooltip = 'Discard clusters not in selected category';
+		ptrButtonDiscardOtherCateg.Tooltip = 'Hide clusters in this category';
+		ptrButtonUndoDiscard.Tooltip = 'Show all clusters';
 		ptrButtonHelp.Tooltip = 'Display commands and re-enable all buttons';
 	end
 	
@@ -391,6 +392,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	% Set functions for key presses
 	hManager = uigetmodemanager(hMain);
 	[hManager.WindowListenerHandles.Enabled] = deal(false);
+	sGUI.handles.hManager = hManager;
 	set(hMain,'KeyPressFcn',@PH_KeyPress);
 	
 	% Upload gui_data
