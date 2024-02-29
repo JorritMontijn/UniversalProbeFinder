@@ -78,7 +78,9 @@ function sClustMerged = PH_MergeClusterData(sClustKS,sClustTsv,boolSuppressWarni
 		boolIsNumeric = all(indEmpty | indIsNumeric);
 		for intEmpty=1:numel(vecEmpty)
 			intTarget = vecEmpty(intEmpty);
-			if boolIsNumeric
+			if strcmp(strField,'ShowMaskPF')
+				sClustMerged(intTarget).(strField) = true;
+			elseif boolIsNumeric
 				sClustMerged(intTarget).(strField) = nan;
 			else
 				sClustMerged(intTarget).(strField) = '';

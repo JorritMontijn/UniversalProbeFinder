@@ -30,17 +30,19 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%update probe size using ephys metadata
 	dblVoxelSize = mean(sProbeCoords.VoxelSize);
-	if isfield(sClusters,'ProbeLength')
-		sProbeCoords.ProbeLengthMicrons = sClusters.ProbeLength; %original length in microns
-		sProbeCoords.ProbeLengthOriginal = sClusters.ProbeLength / dblVoxelSize; %original length in atlas voxels
-		%sProbeCoords.ProbeLength = sClusters.ProbeLengthOriginal; %current length
-	else
-		%add default length
-		if ~isfield(sProbeCoords,'ProbeLengthMicrons')
-			sProbeCoords.ProbeLengthMicrons = 3840;
-		end
-		if ~isfield(sProbeCoords,'ProbeLengthOriginal')
-			sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength;
+	if ~isfield(sProbeCoords,'ProbeLengthMicrons') || ~isfield(sProbeCoords,'ProbeLengthOriginal')
+		if isfield(sClusters,'ProbeLength')
+			sProbeCoords.ProbeLengthMicrons = sClusters.ProbeLength; %original length in microns
+			sProbeCoords.ProbeLengthOriginal = sClusters.ProbeLength / dblVoxelSize; %original length in atlas voxels
+			%sProbeCoords.ProbeLength = sClusters.ProbeLengthOriginal; %current length
+		else
+			%add default length
+			if ~isfield(sProbeCoords,'ProbeLengthMicrons')
+				sProbeCoords.ProbeLengthMicrons = 3840;
+			end
+			if ~isfield(sProbeCoords,'ProbeLengthOriginal')
+				sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength;
+			end
 		end
 	end
 	
@@ -104,7 +106,11 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	h.ActionPostCallback = @PH_UpdateSlice;
 	
 	% Set up the probe area axes
-	dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
+	if isfield(sProbeCoords,'sProbeAdjusted') && isfield(sProbeCoords.sProbeAdjusted,'probe_vector_bregma')
+		dblProbeLengthMicrons = sProbeCoords.sProbeAdjusted.probe_vector_bregma(6);
+	else
+		dblProbeLengthMicrons = sProbeCoords.ProbeLengthMicrons;
+	end
 	hAxAreas = axes(hMain,'Position',[0.93,0.5,0.02,0.4]);
 	hAxAreas.ActivePositionProperty = 'position';
 	set(hAxAreas,'FontSize',11);
@@ -402,11 +408,11 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	%make full screen
 	maxfig(hMain);
 	
-	%set initial position
-	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
-	
 	%plot ephys
 	PH_PlotProbeEphys(hMain);
+	
+	%set initial position
+	PH_LoadProbeLocation(hMain,sProbeCoords,sAtlas);
 	
 	% Display controls
 	PH_DisplayControls(hMain,false);

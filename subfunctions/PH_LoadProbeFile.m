@@ -11,13 +11,22 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 	
 	%open file
 	[sProbeCoords,strFile,strPath] = PH_OpenCoordsFile(strPath,strName,sAtlas);
-	dblProbeLength = 3840;%in microns (hardcode, sometimes kilosort2 drops channels)
+	if ~isfield(sProbeCoords,'ProbeLength')
+		%in microns (hardcode, sometimes kilosort2 drops channels)
+		sProbeCoords.ProbeLength = 3840 ./ sAtlas.VoxelSize(end); %in native atlas size
+	end
+	if ~isfield(sProbeCoords,'ProbeLengthOriginal')
+		sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength; %initial size
+	end
+	if ~isfield(sProbeCoords,'ProbeLengthMicrons')
+		sProbeCoords.ProbeLengthMicrons = sProbeCoords.ProbeLength * sAtlas.VoxelSize(end); %in microns
+	end
 	
 	%select probe nr
 	if isempty(sProbeCoords)
 		sProbeCoords.folder = '';
 		sProbeCoords.name = ['default'];
-		sProbeCoords.cellPoints{1} = [sAtlas.Bregma; sAtlas.Bregma - [0 0 dblProbeLength]./sAtlas.VoxelSize];
+		sProbeCoords.cellPoints{1} = [sAtlas.Bregma; sAtlas.Bregma - [0 0 sProbeCoords.ProbeLengthMicrons]./sAtlas.VoxelSize];
 		sProbeCoords.intProbeIdx = 1;
 		sProbeCoords.Type = ['native'];
 	else
@@ -29,8 +38,6 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 			sProbeCoords.intProbeIdx = PH_SelectProbeNr(sProbeCoords,sAtlas);
 		end
 	end
-	sProbeCoords.ProbeLength = dblProbeLength ./ sAtlas.VoxelSize(end); %in native atlas size
-	sProbeCoords.ProbeLengthOriginal = sProbeCoords.ProbeLength; %initial size
-	sProbeCoords.ProbeLengthMicrons = dblProbeLength; %in microns
+	
 end
 

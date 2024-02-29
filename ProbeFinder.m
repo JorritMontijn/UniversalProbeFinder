@@ -45,7 +45,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	if ~isdeployed
 		%check version
 		PF_AssertVersion();
-			
+		
 		%disable buttons
 		global sUPF_ChooseGui %#ok<TLEV>
 		UPF_DisableButtons(sUPF_ChooseGui);
@@ -70,7 +70,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	if ~exist('zetatest','file')
 		errordlg('Your repository is corrupt: cannot find zetatest and dependencies. Please download the zetatest repository from https://github.com/JorritMontijn/zetatest and ensure you add the folders to the matlab path','Missing dependencies');
 	end
-		
+	
 	%% load atlas
 	%check if input comes from gui
 	if exist('sAtlas','var') && isa(sAtlas,'matlab.ui.control.UIControl')
@@ -116,7 +116,31 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% load coords file
 	if ~exist('sProbeCoords','var') || isempty(sProbeCoords)
-		sProbeCoords = PH_LoadProbeFile(sAtlas,strDefaultPath);
+		%load coords
+		[sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strDefaultPath);
+		
+		% check if selected file is a native probe finder file with ephys data
+		strClusterFile = fullpath(strPath,strFile);
+		[strPath,strShortFile,strExt]=fileparts(strClusterFile);
+		if (~exist('sClusters','var') || isempty(sClusters))...
+				&& exist(strClusterFile,'file') == 2 && length(strExt) > 3 && strcmp(strExt,'.mat')
+			%load
+			sLoad = load(strClusterFile);
+			if isfield(sLoad,'sClusters')
+				% check if format is correct
+				sClusters = sLoad.sClusters;
+				cellNewFields = {'Clust','ProbeLength'};
+				cellLoadFields = fieldnames(sClusters);
+				if all(ismember(cellNewFields,cellLoadFields))
+					%perfect
+				else
+					%delete data
+					sClusters = [];
+				end
+			else
+				sClusters = [];
+			end
+		end
 	end
 	
 	%% load ephys
@@ -125,8 +149,14 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		strOldPath = cd(sRP.strEphysPath);
 		strNewPath = sRP.strEphysPath;
 	catch
-		strOldPath = cd();
-		strNewPath = strOldPath;
+		
+		if exist('strPath','var') && exist(strPath,'dir')
+			strOldPath = cd(strPath);
+			strNewPath = strPath;
+		else
+			strOldPath = cd();
+			strNewPath = strOldPath;
+		end
 	end
 	if ~exist('sClusters','var') || isempty(sClusters)
 		%open ephys data
@@ -135,7 +165,8 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	% load or compute zeta if ephys file is not an Acquipix format
 	if isempty(sClusters) ...
-			|| (~isempty(sClusters) && isfield(sClusters,'Clust') && (~isfield(sClusters.Clust,'Zeta') || (~isfield(sClusters.Clust,'ZetaP'))))
+			|| (~isempty(sClusters) && isfield(sClusters,'Clust') && ...
+			(~isfield(sClusters.Clust,'Zeta') && ~isfield(sClusters.Clust,'ZetaP')))
 		%select
 		sClusters = PH_OpenZeta(sClusters,strNewPath);
 	end
@@ -147,7 +178,7 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		end
 		sClusters.Clust = rmfield(sClusters.Clust,'ZetaP');
 	end
-
+	
 	% close message
 	cd(strOldPath);
 	
