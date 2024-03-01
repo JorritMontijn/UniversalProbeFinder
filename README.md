@@ -8,7 +8,7 @@ in the matlab prompt.\
 \
 Please read the manual for more information: https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder_v1.1.pdf \
 \
-**Note on cluster indexing in v1.1:** As of version 1.1 (March 2024) the ProbeFinder uses cluster_id indexing identical to that of Kilosort and any .tsv files in your ephys path. This makes more sense, but means you should double-check you are not adding a +1 somewhere in your pipeline to correct for 0 vs 1 indexing that was necessary in v1.0.
+**Note on cluster indexing in v1.1:** As of version 1.1 (March 2024) the ProbeFinder uses cluster_id indexing identical to that of Kilosort and any .tsv files in your ephys path. This makes more sense, but means you should double-check you are not adding a +1 somewhere in your pipeline to correct for 0 vs 1 indexing that was necessary in v1.0. \
 \
 **Note on submodules:** If you get the message "Unrecognized function or variable", then you are probably missing the zetatest submodule, which contains some dependencies. Submodules are not always automatically installed. It will *not* include the zetatest submodule if:
 - you click "Code" and then download the code as a .zip. You can add the zetatest submodule manually from here: https://github.com/JorritMontijn/zetatest
