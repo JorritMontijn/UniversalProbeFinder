@@ -3,6 +3,8 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%% get atlas variables
 	boolIgnoreProbeFinderRenderer = PF_getIniVar('IgnoreRender');
+	boolFirstRun = PF_getIniVar('FirstRun');
+	PF_getIniVar('FirstRun',true,0);
 	vecBregma = sAtlas.Bregma;% bregma in paxinos coordinates (x=ML,y=AP,z=DV)
 	vecVoxelSize= sAtlas.VoxelSize;% voxel size
 	matBrainMesh = sAtlas.BrainMesh;
@@ -417,3 +419,7 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	% Display controls
 	PH_DisplayControls(hMain,false);
 	
+	%welcome message
+	if boolFirstRun
+		PH_HelloWorld();
+	end

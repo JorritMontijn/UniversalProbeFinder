@@ -40,6 +40,7 @@ function varOut = PF_getIniVar(strVarName,boolSetValue,varValue)
 		sDefaultIni.IgnoreRender = 0;
 		sDefaultIni.NeverBioformats = 0;
 		sDefaultIni.BioformatsFolder = '';
+		sDefaultIni.FirstRun = 1;
 		
 		%path vars
 		if ~boolSetValue && isfield(sDefaultIni,strVarName)

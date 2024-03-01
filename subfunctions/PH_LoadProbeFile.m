@@ -23,7 +23,7 @@ function [sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strPath,strNam
 	end
 	
 	%select probe nr
-	if isempty(sProbeCoords)
+	if isempty(sProbeCoords) || ~isfield(sProbeCoords,'format')
 		sProbeCoords.folder = '';
 		sProbeCoords.name = ['default'];
 		sProbeCoords.cellPoints{1} = [sAtlas.Bregma; sAtlas.Bregma - [0 0 sProbeCoords.ProbeLengthMicrons]./sAtlas.VoxelSize];

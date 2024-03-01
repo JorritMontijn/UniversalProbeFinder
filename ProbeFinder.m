@@ -120,8 +120,13 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 		[sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strDefaultPath);
 		
 		% check if selected file is a native probe finder file with ephys data
-		strClusterFile = fullpath(strPath,strFile);
+		if isempty(strFile) || strFile(1) == 0
+			strClusterFile = '';
+		else
+			strClusterFile = fullpath(strPath,strFile);
+		end
 		[strPath,strShortFile,strExt]=fileparts(strClusterFile);
+		
 		if (~exist('sClusters','var') || isempty(sClusters))...
 				&& exist(strClusterFile,'file') == 2 && length(strExt) > 3 && strcmp(strExt,'.mat')
 			%load

@@ -35,7 +35,7 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 					2*sProbeCoords.cellPoints{intProbe}(1,1) - sProbeCoords.cellPoints{intProbe}(2,1);
 			end
 		end
-	elseif ~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')
+	elseif (~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')) && isfield(sProbeCoords,'Type')
 		if strcmpi(sProbeCoords.Type,'AP_histology')
 			%AP_histology output
 			vecSizeABA = [1140 1320 800]; %ML,AP,DV (post-transformed)

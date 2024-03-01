@@ -59,8 +59,8 @@ function PH_DisplayControls(hObject,boolEnableButtons,varargin)
 	hTxt = text(hAx,0.9,0.5,'$\mathrm{\underline{Manual}}$',...
 		'color',[0 0 .8],'FontSize',12,'Interpreter','latex',...
 		'HorizontalAlignment','right');
-	hTxt.ButtonDownFcn = @(~,~)web('https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder.pdf'); % this opens the website
-	
+	hTxt.ButtonDownFcn = @(~,~)web('https://github.com/JorritMontijn/UniversalProbeFinder/blob/main/UserGuide_UniversalProbeFinder_v1.1.pdf'); % this opens the website
+
 	%add handles & return to hMsgBox
 	hRealMain = sGUI.handles.hMain;
 	sMiniGUI = struct;
