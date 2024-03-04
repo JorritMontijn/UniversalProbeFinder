@@ -35,6 +35,9 @@ function [sProbeCoords] = PH_ExtractProbeCoords(sProbeCoords)
 					2*sProbeCoords.cellPoints{intProbe}(1,1) - sProbeCoords.cellPoints{intProbe}(2,1);
 			end
 		end
+	elseif isfield(sProbeCoords,'Type') && strcmpi(sProbeCoords.Type,'native')
+		%native UPF, but slice file
+		sProbeCoords.format = 'ML,AP,DV';
 	elseif (~isfield(sProbeCoords,'format') || ~strcmpi(sProbeCoords.format,'ML,AP,DV')) && isfield(sProbeCoords,'Type')
 		if strcmpi(sProbeCoords.Type,'AP_histology')
 			%AP_histology output

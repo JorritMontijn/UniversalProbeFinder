@@ -117,13 +117,13 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	%% load coords file
 	if ~exist('sProbeCoords','var') || isempty(sProbeCoords)
 		%load coords
-		[sProbeCoords,strFile,strPath] = PH_LoadProbeFile(sAtlas,strDefaultPath);
+		[sProbeCoords,strFile,strProbePath] = PH_LoadProbeFile(sAtlas,strDefaultPath);
 		
 		% check if selected file is a native probe finder file with ephys data
 		if isempty(strFile) || strFile(1) == 0
 			strClusterFile = '';
 		else
-			strClusterFile = fullpath(strPath,strFile);
+			strClusterFile = fullpath(strProbePath,strFile);
 		end
 		[strPath,strShortFile,strExt]=fileparts(strClusterFile);
 		
@@ -150,19 +150,20 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% load ephys
 	%select file
-	try
+	if exist('strProbePath','var') && exist(strProbePath,'dir')
+		strOldPath = cd(strProbePath);
+		strNewPath = strProbePath;
+	elseif exist('sRP','var') && isfield(sRP,'strEphysPath') && exist(sRP.strEphysPath,'dir')
 		strOldPath = cd(sRP.strEphysPath);
 		strNewPath = sRP.strEphysPath;
-	catch
-		
-		if exist('strPath','var') && exist(strPath,'dir')
-			strOldPath = cd(strPath);
-			strNewPath = strPath;
-		else
-			strOldPath = cd();
-			strNewPath = strOldPath;
-		end
+	elseif exist('strPath','var') && exist(strPath,'dir')
+		strOldPath = cd(strPath);
+		strNewPath = strPath;
+	else
+		strOldPath = cd();
+		strNewPath = strOldPath;
 	end
+	
 	if ~exist('sClusters','var') || isempty(sClusters)
 		%open ephys data
 		sClusters = PH_OpenEphys(strNewPath);

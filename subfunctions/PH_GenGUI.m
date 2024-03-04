@@ -32,11 +32,11 @@ function hMain = PH_GenGUI(sAtlas,sProbeCoords,sClusters)
 	
 	%update probe size using ephys metadata
 	dblVoxelSize = mean(sProbeCoords.VoxelSize);
-	if ~isfield(sProbeCoords,'ProbeLengthMicrons') || ~isfield(sProbeCoords,'ProbeLengthOriginal')
+	if ~isfield(sProbeCoords,'sProbeAdjusted') || ~isfield(sProbeCoords,'ProbeLengthMicrons') || ~isfield(sProbeCoords,'ProbeLengthOriginal')
 		if isfield(sClusters,'ProbeLength')
 			sProbeCoords.ProbeLengthMicrons = sClusters.ProbeLength; %original length in microns
 			sProbeCoords.ProbeLengthOriginal = sClusters.ProbeLength / dblVoxelSize; %original length in atlas voxels
-			%sProbeCoords.ProbeLength = sClusters.ProbeLengthOriginal; %current length
+			sProbeCoords.ProbeLength = sProbeCoords.ProbeLengthOriginal; %current length
 		else
 			%add default length
 			if ~isfield(sProbeCoords,'ProbeLengthMicrons')
