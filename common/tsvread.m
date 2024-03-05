@@ -10,8 +10,9 @@ function [cellHeader,cellData] = tsvread(strFile)
 	intLineNum = size(cellLines,1);
 	
 	%get header
-	cellSplit = strsplit(cellLines{1}, '\t');
-	indRem = isempty(cellSplit);
+	cellSplit = strsplit(cellLines{1}, '\t','CollapseDelimiters',false);
+	intOrigNum = numel(cellSplit);
+	indRem = cellfun(@isempty,cellSplit);
 	cellSplit(indRem)=[];
 	cellHeader = cellSplit;
 	intColumnNum = numel(cellHeader);
@@ -20,8 +21,15 @@ function [cellHeader,cellData] = tsvread(strFile)
 	cellData = cell(intLineNum-1,intColumnNum);
 	for i=2:intLineNum
 		cellSplitData = strsplit(cellLines{i}, '\t');
-		cellSplitData(indRem) = [];
-		cellData(i-1,:) = cellSplitData;
+		if numel(cellSplitData) ~= intOrigNum
+			warning([mfilename ':TsvCorrupt'],sprintf('Line %d in %s does not contain the correct # of entries',i,strFile));
+			%assign from left to right to avoid errors
+			intAssignNum = min(intColumnNum,numel(cellSplitData));
+			cellData(i-1,1:intAssignNum) = cellSplitData(1:intAssignNum);
+		else
+			cellSplitData(indRem) = [];
+			cellData(i-1,:) = cellSplitData;
+		end
 	end
 end
 

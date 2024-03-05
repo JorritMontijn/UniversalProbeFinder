@@ -27,17 +27,33 @@ function sClusters = EL_PrepEphys_SG(strPathEphys,dblProbeLength)
 		return;
 	end
 	
+	%check which files are actually in this folder
+	sDirAp = dir(fullpath(strPathEphys,'*.imec*.ap.meta'));
+	if numel(sDirAp) == 0
+		%is it nidq? then ap is in subfolders
+		sDirNidq = dir(fullpath(strPathEphys,'*.nidq*'));
+		if numel(sDirNidq) > 0
+			%check subfolders
+			sDirAp = dir(fullpath(strPathEphys,'**\*.imec*.ap.meta'));
+		end
+	end
+	
 	%load imec data
-	sDir = dir(fullpath(strPathEphys,'*.imec*.ap.meta'));
-	if numel(sDir) > 1
+	if numel(sDirAp) == 0
+		%none found
+		errordlg('Did not find any SpikeGLX AP files. Make sure you selected the correct folder and that it contains files named *.imec*.ap.meta and *.imec*.ap.bin','File not found');
+		sClusters = [];
+		return;
+	elseif numel(sDirAp) > 1
 		%ask which one
 		[intFile,boolContinue] = listdlg('ListSize',[200 100],'Name','Load SpikeGLX','PromptString','Select file to load:',...
-			'SelectionMode','single','ListString',{sDir.name});
+			'SelectionMode','single','ListString',{sDirAp.name});
 		if ~boolContinue,return;end
 	else
+		%there can be only one!
 		intFile=1;
 	end
-	strImecMeta = sDir(intFile).name;
+	strImecMeta = sDirAp(intFile).name;
 	strImecBin = [strImecMeta(1:(end-4)) 'bin'];
 	sImecMeta = DP_ReadMeta(fullpath(strPathEphys,strImecMeta));
 	sChanMap = DP_GetChanMap(sImecMeta);

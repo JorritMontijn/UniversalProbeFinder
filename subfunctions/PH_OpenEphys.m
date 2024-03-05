@@ -30,10 +30,10 @@ function sClusters = PH_OpenEphys(strPath)
 			for intFile=1:numel(indIsPresent)
 				indIsPresent(intFile) = ~isempty(cell2vec(regexp({sDir.name},cellReqFiles{intFile}, 'once')));
 			end
-			indCanLoadTypes(intType) = all(indIsPresent);
+			indCanLoadTypes(intType) = any(indIsPresent);
 		else
 			%can do in one go
-			indCanLoadTypes(intType) = all(any(cell2mat(cellfun(@(x) strcmpi(cellReqFiles,x),{sDir.name},'UniformOutput',false)'),1));
+			indCanLoadTypes(intType) = any(any(cell2mat(cellfun(@(x) strcmpi(cellReqFiles,x),{sDir.name},'UniformOutput',false)'),1));
 		end
 	end
 	

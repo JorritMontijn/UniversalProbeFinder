@@ -23,7 +23,7 @@ function sEphysParams = PF_getEphysIni()
 		%kilosort
 		sEphysParams(1).name = 'Kilosort';
 		sEphysParams(1).loader = 'EL_PrepEphys_KS';
-		sEphysParams(1).reqfiles = 'params.py,spike_times.npy,spike_templates.npy,spike_clusters.npy,amplitudes.npy,cluster_ContamPct.tsv,cluster_KSlabel.tsv';
+		sEphysParams(1).reqfiles = 'params.py,spike_times.npy,spike_templates.npy,spike_clusters.npy,amplitudes.npy';
 		sEphysParams(1).reqisregexp = 0;
 		%spikeglx
 		sEphysParams(2).name = 'SpikeGLX';
