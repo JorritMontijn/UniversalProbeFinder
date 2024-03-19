@@ -150,13 +150,13 @@ function ProbeFinder(sAtlas,sProbeCoords,sClusters)
 	
 	%% load ephys
 	%select file
-	if exist('strProbePath','var') && exist(strProbePath,'dir')
+	if exist('strProbePath','var') && ischar(strProbePath) && exist(strProbePath,'dir')
 		strOldPath = cd(strProbePath);
 		strNewPath = strProbePath;
-	elseif exist('sRP','var') && isfield(sRP,'strEphysPath') && exist(sRP.strEphysPath,'dir')
+	elseif exist('sRP','var') && isfield(sRP,'strEphysPath') && ischar(sRP.strEphysPath) && exist(sRP.strEphysPath,'dir')
 		strOldPath = cd(sRP.strEphysPath);
 		strNewPath = sRP.strEphysPath;
-	elseif exist('strPath','var') && exist(strPath,'dir')
+	elseif exist('strPath','var') && ischar(strPath) && exist(strPath,'dir')
 		strOldPath = cd(strPath);
 		strNewPath = strPath;
 	else
